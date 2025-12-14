@@ -1,0 +1,252 @@
+# ARQUIVO: ganache/api-spec.yaml
+openapi: 3.0.3
+info:
+  title: Ganache NAS API
+  description: API for Ganache Enterprise NAS (Proxmox-based).
+  version: 1.0.0
+servers:
+  - url: /api2/json
+    description: Production & Mock Server relative path
+
+paths:
+  # --- SMB Management ---
+  /ganache/smb/shares:
+    get:
+      summary: List all SMB shares
+      operationId: listSmbShares
+      tags: [SMB]
+      responses:
+        "200":
+          description: List of shares
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SmbShare"
+    post:
+      summary: Create a new SMB share
+      operationId: createSmbShare
+      tags: [SMB]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SmbShareConfig"
+      responses:
+        "200":
+          description: Share created successfully (Task ID returned)
+          content:
+            application/json:
+              schema:
+                type: string
+                description: "UPID (Proxmox Task ID)"
+
+  # --- ZFS Management ---
+  /ganache/storage/zfs:
+    get:
+      summary: List ZFS Pools
+      operationId: listZfsPools
+      tags: [ZFS]
+      responses:
+        "200":
+          description: Active ZFS pools
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ZfsPool"
+    post:
+      summary: Create a new ZFS Pool
+      operationId: createZfsPool
+      tags: [ZFS]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ZfsPoolConfig"
+      responses:
+        "200":
+          description: Pool created successfully
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /ganache/storage/zfs/datasets:
+    get:
+      summary: List ZFS Datasets
+      operationId: listZfsDatasets
+      tags: [ZFS]
+      parameters:
+        - name: pool
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of datasets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ZfsDataset"
+
+  # --- System Status ---
+  /nodes/localhost/status:
+    get:
+      summary: Get system status (CPU, RAM, Uptime) - PBS Compatible
+      operationId: getNodeStatus
+      tags: [System]
+      responses:
+        "200":
+          description: Node status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NodeStatus"
+
+components:
+  schemas:
+    SmbShare:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "financeiro"
+        path:
+          type: string
+          example: "/mnt/tank/financeiro"
+        guest_ok:
+          type: boolean
+          description: "Allow guest access"
+        read_only:
+          type: boolean
+          description: "Read-only share"
+        comment:
+          type: string
+          description: "Share description"
+
+    SmbShareConfig:
+      type: object
+      required: [name, path]
+      properties:
+        name:
+          type: string
+          pattern: "^[a-zA-Z0-9_-]+$"
+          description: "Share name (alphanumeric, underscore, hyphen only)"
+        path:
+          type: string
+          description: "ZFS dataset mountpoint"
+        guest_ok:
+          type: boolean
+          default: false
+          description: "Allow guest access"
+        timemachine:
+          type: boolean
+          default: false
+          description: "Enable Apple Time Machine support"
+
+    ZfsPool:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "tank"
+        health:
+          type: string
+          enum: [ONLINE, DEGRADED, FAULTED, OFFLINE, UNAVAIL]
+          example: "ONLINE"
+        size:
+          type: integer
+          description: "Pool size in bytes"
+          example: 1000000000000
+        free:
+          type: integer
+          description: "Free space in bytes"
+          example: 800000000000
+        allocated:
+          type: integer
+          description: "Allocated space in bytes"
+          example: 200000000000
+        fragmentation:
+          type: number
+          description: "Fragmentation percentage"
+          example: 15.5
+
+    ZfsPoolConfig:
+      type: object
+      required: [name, devices]
+      properties:
+        name:
+          type: string
+          pattern: "^[a-zA-Z0-9_-]+$"
+          description: "Pool name"
+        devices:
+          type: array
+          items:
+            type: string
+          description: "List of block devices"
+        raid_level:
+          type: string
+          enum: [mirror, raidz1, raidz2, raidz3]
+          description: "RAID level"
+
+    ZfsDataset:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "tank/financeiro"
+        pool:
+          type: string
+          example: "tank"
+        mountpoint:
+          type: string
+          example: "/mnt/tank/financeiro"
+        used:
+          type: integer
+          description: "Used space in bytes"
+        available:
+          type: integer
+          description: "Available space in bytes"
+        compression:
+          type: string
+          example: "lz4"
+        atime:
+          type: boolean
+          description: "Access time tracking"
+
+    NodeStatus:
+      type: object
+      properties:
+        uptime:
+          type: integer
+          description: "System uptime in seconds"
+        cpu:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: "CPU usage (0.0 to 1.0)"
+        memory:
+          type: object
+          properties:
+            total:
+              type: integer
+              description: "Total memory in bytes"
+            used:
+              type: integer
+              description: "Used memory in bytes"
+            available:
+              type: integer
+              description: "Available memory in bytes"
+        load_average:
+          type: array
+          items:
+            type: number
+          description: "Load average (1m, 5m, 15m)"

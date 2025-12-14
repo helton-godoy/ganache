@@ -1,0 +1,7 @@
+# kilo-bmad-core-workflows-party-mode.md
+
+description: 'Orchestrates group discussions between all installed BMAD agents, enabling natural multi-agent conversations'
+
+## Steps
+
+**IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL @.bmad/core/workflows/party-mode/workflow.md, READ its entire contents and follow its directions exactly!**

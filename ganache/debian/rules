@@ -1,0 +1,38 @@
+#!/usr/bin/make -f
+
+# See debhelper(7) (uncomment to enable)
+# output every command that modifies files on the build system.
+#export DH_VERBOSE = 1
+
+# see FEATURE AREAS in dpkg-buildflags(1) (but note that disables
+# hardening, and is less suitable for empirical testing).
+#export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+# see ENVIRONMENT in dpkg-buildflags(1)
+# for details and further possibilities.
+
+# Honour F80 (no RPATH for foo)
+#export DEB_LDFLAGS_MAINT_APPEND = -Wl,--no-as-needed
+
+%:
+	dh $@
+
+# dh_make generated override targets
+# This is example for Cmake (See https://bugs.debian.org/641051 )
+#override_dh_auto_configure:
+#	dh_auto_configure -- \
+#	-DCMAKE_LIBRARY_PATH=$(DEB_HOST_MULTIARCH)
+
+override_dh_auto_build:
+	# Build Rust backend
+	cd src && cargo build --release
+	# Build Frontend
+	cd ui && npm ci && npm run build
+
+override_dh_auto_install:
+	# Install backend
+	mkdir -p debian/ganache-server/usr/sbin
+	cp src/target/release/ganache-api debian/ganache-server/usr/sbin/
+	# Install frontend
+	mkdir -p debian/ganache-web/usr/share/ganache/www
+	cp -r ui/dist/* debian/ganache-web/usr/share/ganache/www/

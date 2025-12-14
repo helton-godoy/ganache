@@ -1,0 +1,12 @@
+installation:
+  version: 6.0.0-alpha.16
+  installDate: '2025-12-13T19:17:58.989Z'
+  lastUpdated: '2025-12-13T19:17:58.989Z'
+modules:
+  - core
+  - bmm
+customModules: []
+ides:
+  - antigravity
+  - windsurf
+  - kilo

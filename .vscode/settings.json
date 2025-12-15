@@ -1,3 +1,4 @@
 {
-    "gitcom.commitStyle": "semantic"
+    "gitcom.commitStyle": "semantic",
+    "gitcom.batchCommits": true
 }

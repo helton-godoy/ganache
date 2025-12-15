@@ -1,0 +1,16 @@
+#!/bin/bash
+# Hook: pre-push
+# Objetivo: Padronizar nomes de branches
+
+CURRENT_BRANCH=$(git symbolic-ref --short HEAD)
+
+# Padrões permitidos: main, develop, feature/..., bugfix/..., hotfix/..., release/...
+PATTERN="^(main|develop|master|feature\/[a-z0-9-]+|bugfix\/[a-z0-9-]+|hotfix\/[a-z0-9-]+|release\/[a-z0-9.-]+)$"
+
+if [[ ! "$CURRENT_BRANCH" =~ $PATTERN ]]; then
+	echo "❌ [ERRO] Nome da branch '$CURRENT_BRANCH' fora do padrão."
+	echo "Use: feature/nome-da-feature, bugfix/desc-erro, hotfix/..., main, develop"
+	exit 1
+fi
+
+exit 0

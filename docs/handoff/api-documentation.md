@@ -11,17 +11,19 @@
 ## OpenAPI Specification
 
 ### Base Information
+
 - **OpenAPI Version**: 3.0.3
 - **Title**: Ganache Enterprise NAS API
 - **Version**: 1.0.0
 - **Description**: Complete REST API for storage management
-- **Servers**: 
+- **Servers**:
   - Development: `http://localhost:8080`
   - Production: `https://ganache.company.com:8443`
 
 ### Authentication
 
 #### API Key Authentication
+
 ```http
 GET /api/system/health
 Authorization: Bearer your-api-key-here
@@ -29,6 +31,7 @@ Content-Type: application/json
 ```
 
 #### Token-based Authentication
+
 ```http
 POST /api/auth/login
 Content-Type: application/json
@@ -53,11 +56,13 @@ Response:
 ### Rate Limiting
 
 #### Limits
+
 - **Authenticated requests**: 1000 requests per hour
 - **Unauthenticated requests**: 100 requests per hour
 - **Volume operations**: 10 requests per minute
 
 #### Rate Limit Headers
+
 ```http
 HTTP/1.1 200 OK
 X-RateLimit-Limit: 1000
@@ -70,11 +75,13 @@ X-RateLimit-Reset: 1640995200
 ### Volume Management
 
 #### List Volumes
+
 ```http
 GET /api/volumes
 ```
 
 **Response:**
+
 ```json
 {
   "volumes": [
@@ -99,6 +106,7 @@ GET /api/volumes
 ```
 
 #### Create Volume
+
 ```http
 POST /api/volumes
 Content-Type: application/json
@@ -116,6 +124,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440001",
@@ -129,11 +138,13 @@ Content-Type: application/json
 ```
 
 #### Get Volume Details
+
 ```http
 GET /api/volumes/{volumeId}
 ```
 
 **Response:**
+
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
@@ -168,6 +179,7 @@ GET /api/volumes/{volumeId}
 ```
 
 #### Update Volume
+
 ```http
 PUT /api/volumes/{volumeId}
 Content-Type: application/json
@@ -179,11 +191,13 @@ Content-Type: application/json
 ```
 
 #### Delete Volume
+
 ```http
 DELETE /api/volumes/{volumeId}
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Volume deletion initiated",
@@ -195,6 +209,7 @@ DELETE /api/volumes/{volumeId}
 #### Volume Operations
 
 ##### Mount Volume
+
 ```http
 POST /api/volumes/{volumeId}/mount
 Content-Type: application/json
@@ -206,11 +221,13 @@ Content-Type: application/json
 ```
 
 ##### Unmount Volume
+
 ```http
 POST /api/volumes/{volumeId}/unmount
 ```
 
 ##### Create Snapshot
+
 ```http
 POST /api/volumes/{volumeId}/snapshots
 Content-Type: application/json
@@ -222,11 +239,13 @@ Content-Type: application/json
 ```
 
 ##### List Snapshots
+
 ```http
 GET /api/volumes/{volumeId}/snapshots
 ```
 
 ##### Restore Snapshot
+
 ```http
 POST /api/volumes/{volumeId}/snapshots/{snapshotId}/restore
 Content-Type: application/json
@@ -240,11 +259,13 @@ Content-Type: application/json
 ### System Information
 
 #### System Health
+
 ```http
 GET /api/system/health
 ```
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -270,11 +291,13 @@ GET /api/system/health
 ```
 
 #### System Information
+
 ```http
 GET /api/system/info
 ```
 
 **Response:**
+
 ```json
 {
   "hostname": "ganache-server-01",
@@ -322,11 +345,13 @@ GET /api/system/info
 ```
 
 #### System Metrics
+
 ```http
 GET /api/system/metrics
 ```
 
 **Response:**
+
 ```json
 {
   "timestamp": "2025-12-13T19:50:00Z",
@@ -366,6 +391,7 @@ GET /api/system/metrics
 ### Storage Operations
 
 #### Initiate Backup
+
 ```http
 POST /api/storage/{volumeId}/backup
 Content-Type: application/json
@@ -382,6 +408,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "job_id": "backup-job-uuid",
@@ -393,11 +420,13 @@ Content-Type: application/json
 ```
 
 #### Check Backup Status
+
 ```http
 GET /api/storage/backups/{jobId}
 ```
 
 **Response:**
+
 ```json
 {
   "job_id": "backup-job-uuid",
@@ -413,11 +442,13 @@ GET /api/storage/backups/{jobId}
 ```
 
 #### List Backup Jobs
+
 ```http
 GET /api/storage/backups
 ```
 
 #### Cancel Backup Job
+
 ```http
 DELETE /api/storage/backups/{jobId}
 ```
@@ -425,11 +456,13 @@ DELETE /api/storage/backups/{jobId}
 ### User Management
 
 #### List Users
+
 ```http
 GET /api/users
 ```
 
 **Response:**
+
 ```json
 {
   "users": [
@@ -448,6 +481,7 @@ GET /api/users
 ```
 
 #### Create User
+
 ```http
 POST /api/users
 Content-Type: application/json
@@ -461,6 +495,7 @@ Content-Type: application/json
 ```
 
 #### Update User
+
 ```http
 PUT /api/users/{userId}
 Content-Type: application/json
@@ -472,11 +507,13 @@ Content-Type: application/json
 ```
 
 #### Delete User
+
 ```http
 DELETE /api/users/{userId}
 ```
 
 #### User Profile
+
 ```http
 GET /api/users/profile
 Authorization: Bearer {token}
@@ -500,6 +537,7 @@ Response:
 ## Error Handling
 
 ### Error Response Format
+
 ```json
 {
   "error": {
@@ -517,6 +555,7 @@ Response:
 ### Error Codes
 
 #### 4xx Client Errors
+
 - `BAD_REQUEST` (400): Invalid request format
 - `UNAUTHORIZED` (401): Authentication required
 - `FORBIDDEN` (403): Insufficient permissions
@@ -526,6 +565,7 @@ Response:
 - `RATE_LIMITED` (429): Too many requests
 
 #### 5xx Server Errors
+
 - `INTERNAL_ERROR` (500): Internal server error
 - `SERVICE_UNAVAILABLE` (503): Service temporarily unavailable
 - `TIMEOUT` (504): Request timeout
@@ -533,6 +573,7 @@ Response:
 ### Validation Rules
 
 #### Volume Creation
+
 ```json
 {
   "name": {
@@ -558,6 +599,7 @@ Response:
 ### Webhook Events
 
 #### Volume Events
+
 ```json
 {
   "event": "volume.created",
@@ -573,6 +615,7 @@ Response:
 ```
 
 #### System Events
+
 ```json
 {
   "event": "system.health_changed",
@@ -587,6 +630,7 @@ Response:
 ```
 
 ### Webhook Registration
+
 ```http
 POST /api/webhooks
 Content-Type: application/json
@@ -601,6 +645,7 @@ Content-Type: application/json
 ## Client Examples
 
 ### JavaScript/TypeScript
+
 ```typescript
 import axios from 'axios';
 
@@ -678,6 +723,7 @@ const volumes = await client.listVolumes();
 ```
 
 ### Python
+
 ```python
 import requests
 import json
@@ -744,6 +790,7 @@ volumes = client.list_volumes()
 ### cURL Examples
 
 #### Authentication
+
 ```bash
 # Login
 curl -X POST https://ganache.company.com:8443/api/auth/login \
@@ -755,6 +802,7 @@ TOKEN="your-jwt-token"
 ```
 
 #### Volume Operations
+
 ```bash
 # List volumes
 curl -X GET https://ganache.company.com:8443/api/volumes \
@@ -780,6 +828,7 @@ curl -X DELETE https://ganache.company.com:8443/api/volumes/{volume-id} \
 ```
 
 #### System Operations
+
 ```bash
 # Check system health
 curl -X GET https://ganache.company.com:8443/api/system/health \
@@ -797,6 +846,7 @@ curl -X GET https://ganache.company.com:8443/api/system/metrics \
 ## Testing Endpoints
 
 ### Postman Collection
+
 ```json
 {
   "info": {
@@ -826,6 +876,7 @@ curl -X GET https://ganache.company.com:8443/api/system/metrics \
 ```
 
 ### Test Scripts
+
 ```javascript
 // Pre-request script for authentication
 if (!pm.environment.get('token')) {

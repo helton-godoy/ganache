@@ -1,3 +1,16 @@
+---
+title: "Project Overview"
+category: "overview"
+project_type: "web+backend"
+created: "2025-12-15"
+updated: "2025-12-15"
+author: "Antigravity"
+status: "approved"
+version: "1.0.0"
+tags: ["bmad", "documentation", "overview"]
+bmad_compliance: true
+---
+
 # Project Overview - Ganache
 
 **Projeto:** Ganache Enterprise NAS
@@ -24,10 +37,10 @@ O projeto adota uma arquitetura desacoplada onde um backend robusto em Rust gere
 
 ## 🔗 Navegação Rápida
 
-- **Arquitetura Técnica:** [Backend](./architecture-backend.md) | [Frontend](./architecture-frontend.md)
-- **Integração:** [Contrato de API e Fluxo de Dados](./integration-architecture.md)
-- **Desenvolvimento:** [Guia de Setup e Build](./development-guide.md)
-- **Operação:** [Guia de Deploy](./deployment-guide.md)
+- **Arquitetura Técnica:** [Backend](./architecture/architecture-backend.md) | [Frontend](./architecture/architecture-frontend.md)
+- **Integração:** [Contrato de API e Fluxo de Dados](./architecture/integration-architecture.md)
+- **Desenvolvimento:** [Guia de Setup e Build](./development/development-guide.md)
+- **Operação:** [Guia de Deploy](./handoff/deployment-guide.md)
 
 ## 📊 Stack Tecnológico
 

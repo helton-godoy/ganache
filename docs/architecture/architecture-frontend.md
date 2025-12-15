@@ -10,7 +10,7 @@ O frontend utiliza uma arquitetura **Component-Store**, separando a view da lóg
 
 ### Diagrama de Camadas
 
-```
+```diagram
 [View Layer (React Components)]
        ^       |
        | (Sub) | (Action)

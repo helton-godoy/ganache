@@ -13,6 +13,7 @@
 ### System Monitoring
 
 #### Web Interface Access
+
 - **URL**: `https://<server-ip>:8443`
 - **Default Admin**: `admin` / `<setup-password>`
 - **Dashboard Sections**:
@@ -24,6 +25,7 @@
   - User Management
 
 #### Health Check Endpoints
+
 ```bash
 # System health
 curl -k https://localhost:8443/api/system/health
@@ -36,6 +38,7 @@ curl -k https://localhost:8443/api/system/metrics
 ```
 
 #### Prometheus Metrics
+
 ```bash
 # Metrics endpoint (if enabled)
 curl http://localhost:9090/metrics
@@ -52,6 +55,7 @@ curl http://localhost:9090/metrics
 ### Log Analysis
 
 #### Application Logs
+
 ```bash
 # Real-time application logs
 sudo journalctl -u ganache-server -f
@@ -69,7 +73,8 @@ sudo journalctl -u ganache-server -p info
 ```
 
 #### Log Locations
-```
+
+```shell
 /var/log/ganache/
 ├── server.log          # Main application log
 ├── access.log          # HTTP access log
@@ -79,6 +84,7 @@ sudo journalctl -u ganache-server -p info
 ```
 
 #### Log Rotation Configuration
+
 ```bash
 # /etc/logrotate.d/ganache
 /var/log/ganache/*.log {
@@ -100,6 +106,7 @@ sudo journalctl -u ganache-server -p info
 ### System Updates
 
 #### OS Updates
+
 ```bash
 # Update system packages
 sudo apt-get update
@@ -116,6 +123,7 @@ sudo systemctl restart ganache-server
 ```
 
 #### Manual Updates
+
 ```bash
 # Download latest DEB package
 wget https://releases.ganache.example.com/ganache_1.0.1_amd64.deb
@@ -128,6 +136,7 @@ ganache-server --version
 ```
 
 #### Update Rollback
+
 ```bash
 # Rollback to previous version
 sudo apt-get install ganache=1.0.0
@@ -142,6 +151,7 @@ sudo systemctl restart ganache-server
 ### Configuration Updates
 
 #### Safe Configuration Changes
+
 ```bash
 # Backup current configuration
 sudo cp /etc/ganache/ganache.conf /etc/ganache/ganache.conf.backup.$(date +%Y%m%d)
@@ -160,6 +170,7 @@ sudo systemctl restart ganache-server
 ```
 
 #### Configuration Validation
+
 ```bash
 # Validate configuration syntax
 sudo ganache-server --validate-config /etc/ganache/ganache.conf
@@ -176,6 +187,7 @@ sudo ganache-server --check-ssl /etc/ganache/ganache.conf
 ### Horizontal Scaling
 
 #### Adding API Instances
+
 ```bash
 # On additional servers
 sudo apt-get install ganache
@@ -192,6 +204,7 @@ sudo systemctl start ganache-server
 ```
 
 #### Load Balancer Configuration (HAProxy)
+
 ```bash
 # Install HAProxy
 sudo apt-get install haproxy
@@ -216,6 +229,7 @@ sudo systemctl restart haproxy
 ### Vertical Scaling
 
 #### Memory Optimization
+
 ```bash
 # Increase service memory limit
 sudo systemctl edit ganache-server
@@ -229,6 +243,7 @@ sudo systemctl restart ganache-server
 ```
 
 #### CPU Optimization
+
 ```bash
 # Set CPU affinity
 sudo systemctl edit ganache-server
@@ -247,6 +262,7 @@ sudo systemctl restart ganache-server
 ### Common Issues and Solutions
 
 #### Service Not Starting
+
 ```bash
 # Check service status
 sudo systemctl status ganache-server
@@ -264,6 +280,7 @@ sudo chmod 755 /usr/local/bin/ganache-server
 ```
 
 #### Database Connection Issues
+
 ```bash
 # Test database connectivity
 sudo -u postgres psql -d ganache -c "SELECT 1;"
@@ -279,6 +296,7 @@ grep DATABASE_URL /etc/ganache/ganache.conf
 ```
 
 #### High CPU Usage
+
 ```bash
 # Check process CPU usage
 top -p $(pgrep ganache-server)
@@ -294,6 +312,7 @@ sudo systemctl restart ganache-server
 ```
 
 #### High Memory Usage
+
 ```bash
 # Check memory usage
 free -h
@@ -310,6 +329,7 @@ sudo systemctl restart ganache-server
 ### Runbooks
 
 #### Volume Creation Failure
+
 ```bash
 # 1. Check system resources
 df -h
@@ -332,6 +352,7 @@ sudo zpool events -v  # For ZFS
 ```
 
 #### Backup Failure
+
 ```bash
 # 1. Check backup service
 sudo systemctl status ganache-backup
@@ -353,6 +374,7 @@ sudo tail -f /var/log/ganache/backup.log
 ```
 
 #### Network Connectivity Issues
+
 ```bash
 # 1. Check network interfaces
 ip addr show
@@ -375,6 +397,7 @@ curl -k https://localhost:8443/api/system/health
 ### Escalation Procedures
 
 #### Level 1: Operator Actions (0-15 minutes)
+
 1. Check system health endpoints
 2. Review recent logs for errors
 3. Restart services if necessary
@@ -382,6 +405,7 @@ curl -k https://localhost:8443/api/system/health
 5. Check user-reported issues
 
 #### Level 2: System Administrator (15-60 minutes)
+
 1. Analyze system performance metrics
 2. Check storage backend health
 3. Review configuration changes
@@ -389,6 +413,7 @@ curl -k https://localhost:8443/api/system/health
 5. Coordinate with Level 3 if needed
 
 #### Level 3: Senior Administrator (1-4 hours)
+
 1. Deep dive into application logs
 2. Analyze performance bottlenecks
 3. Coordinate with development team
@@ -396,17 +421,19 @@ curl -k https://localhost:8443/api/system/health
 5. Document incident resolution
 
 #### Emergency Contacts
+
 - **Level 1**: On-call operator
 - **Level 2**: System administrator
 - **Level 3**: Senior administrator
-- **Development**: development-team@company.com
-- **Management**: manager@company.com
+- **Development**: <development-team@company.com>
+- **Management**: <manager@company.com>
 
 ## Backup & Restore
 
 ### Backup Procedures
 
 #### Automated Backups
+
 ```bash
 # Verify backup cron job
 sudo crontab -l | grep backup
@@ -419,6 +446,7 @@ ls -la /var/backups/ganache/
 ```
 
 #### Manual Backup
+
 ```bash
 # Create immediate backup
 sudo -u ganache /opt/ganache/scripts/backup.sh
@@ -431,6 +459,7 @@ rsync -avz /var/backups/ganache/ backup-server:/backups/ganache/
 ```
 
 #### Backup Verification
+
 ```bash
 # Test backup integrity
 sudo -u ganache /opt/ganache/scripts/verify-backup.sh /var/backups/ganache/ganache_backup_YYYYMMDD_HHMMSS.tar.gz
@@ -445,6 +474,7 @@ sudo chown -R ganache:ganache /tmp/test-restore
 ### Restore Procedures
 
 #### Database Restore
+
 ```bash
 # Stop service
 sudo systemctl stop ganache-server
@@ -468,6 +498,7 @@ curl -k https://localhost:8443/api/system/health
 ```
 
 #### Configuration Restore
+
 ```bash
 # Stop service
 sudo systemctl stop ganache-server
@@ -486,6 +517,7 @@ sudo systemctl start ganache-server
 ```
 
 #### Complete System Restore
+
 ```bash
 # 1. Stop all services
 sudo systemctl stop ganache-server
@@ -513,6 +545,7 @@ curl -k https://localhost:8443/api/system/health
 ## Security Updates
 
 ### Patch Management
+
 ```bash
 # Check for security updates
 sudo apt list --upgradable | grep -i security
@@ -529,6 +562,7 @@ sudo apt-get install ganache
 ```
 
 ### Security Audit
+
 ```bash
 # Check SSL certificate validity
 openssl x509 -in /etc/ssl/certs/ganache.crt -text -noout
@@ -546,6 +580,7 @@ sudo grep "authentication failure" /var/log/auth.log
 ```
 
 ### Vulnerability Scanning
+
 ```bash
 # Install security scanner
 sudo apt-get install lynis
@@ -565,6 +600,7 @@ sudo ufw status verbose
 ### Key Metrics
 
 #### System Metrics
+
 ```bash
 # CPU usage
 sar -u 1 5
@@ -582,6 +618,7 @@ ss -tuln
 ```
 
 #### Application Metrics
+
 ```bash
 # API response times
 curl -w "@curl-format.txt" -o /dev/null -s http://localhost:8080/api/system/health
@@ -594,6 +631,7 @@ ps aux | grep ganache-server
 ```
 
 #### Storage Metrics
+
 ```bash
 # ZFS statistics
 sudo zpool iostat tank 1 5
@@ -608,6 +646,7 @@ curl -k https://localhost:8443/api/system/metrics | jq '.volumes'
 ### Performance Tuning
 
 #### Database Optimization
+
 ```bash
 # Analyze database performance
 sudo -u postgres psql -d ganache -c "
@@ -625,6 +664,7 @@ sudo -u postgres psql -d ganache -c "VACUUM ANALYZE;"
 ```
 
 #### System Tuning
+
 ```bash
 # Optimize kernel parameters
 sudo tee -a /etc/sysctl.conf << EOF
@@ -644,6 +684,7 @@ sudo sysctl -p
 ## Capacity Planning
 
 ### Growth Monitoring
+
 ```bash
 # Monitor volume count growth
 curl -k https://localhost:8443/api/volumes | jq 'length'
@@ -661,6 +702,7 @@ ORDER BY month;
 ```
 
 ### Resource Forecasting
+
 ```bash
 # Calculate storage growth rate
 # Monitor /var/backups/ directory size growth over time
@@ -675,6 +717,7 @@ du -sh /var/log/ganache/
 ```
 
 ### Scaling Triggers
+
 - **CPU Usage**: >80% for 15+ minutes
 - **Memory Usage**: >85% for 10+ minutes
 - **Disk Usage**: >90% for system, >80% for data

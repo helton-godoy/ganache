@@ -8,7 +8,7 @@ author: "BMAD Generator"
 status: "approved"
 version: "1.0.0"
 tags: ["bmad", "documentation", "auto-generated"]
-related_docs: ["docs/index.md", "docs/project-overview.md"]
+related_docs: ["docs/index.md", "docs/project-overview-ganache.md"]
 bmad_compliance: true
 ---
 
@@ -305,8 +305,8 @@ sudo usermod -aG docker $USER
 
 ## Next Steps
 
-1. **Read Documentation:** Start with `docs/project-overview.md`
-2. **Understand Architecture:** Review `docs/architecture/architecture.md`
+1. **Read Documentation:** Start with `docs/project-overview-ganache.md`
+2. **Understand Architecture:** Review `docs/architecture/architecture-ganache.md`
 3. **Development Workflow:** Follow `docs/development/development-guide.md`
 4. **Run Validation:** Ensure BMAD compliance with `./scripts/bmad-validate.sh`
 

@@ -28,19 +28,17 @@ Baseado na análise dos padrões BMAD em `.bmad/bmm/workflows/document-project/`
 ```shell
 docs/
 ├── index.md                          # Master documentation index (BMAD)
-├── project-overview.md               # Overview do projeto (BMAD template)
-├── architecture/
-│   ├── architecture.md               # Arquitetura detalhada (BMAD)
-│   └── api-specification.md          # OpenAPI especificação
-├── development/
-│   ├── development-guide.md          # Guia de desenvolvimento (BMAD)
+├── project-overview-ganache.md       # Overview do projeto (BMAD template)
+│   ├── architecture-ganache.md       # Arquitetura detalhada (BMAD)
+│   ├── handoff-technical-specs.md    # Especificações técnicas
+│   ├── handoff-maintenance-manual.md # Manual de manutençãolvimento (BMAD)
 │   ├── setup-instructions.md         # Instruções de setup
 │   └── contribution-guide.md         # Guia de contribuição
 ├── validation/
 │   ├── validation-reports/           # Relatórios de validação
 │   │   ├── validation-*.md          # Relatórios específicos
 │   └── test-coverage.md              # Cobertura de testes
-├── handover/
+├── handoff/
 │   ├── technical-specs.md            # Especificações técnicas
 │   ├── deployment-guide.md           # Guia de deployment
 │   └── maintenance-manual.md         # Manual de manutenção
@@ -61,7 +59,7 @@ docs/
 - **`architecture-`** : Especificações arquiteturais
 - **`api-`** : Documentação de APIs
 - **`deployment-`** : Guias de deployment
-- **`handoff-`** : Documentos de transição/handover
+- **`handoff-`** : Documentos de transição/handoff
 
 #### **Exemplos Válidos**
 
@@ -142,7 +140,7 @@ related_docs: ["doc1.md", "doc2.md"]
 
 #### **Documentos Obrigatórios para Handoff**
 
-**A. Technical Specifications** (`handoff/technical-specs.md`):
+**A. Technical Specifications** (`handoff/handoff-technical-specs.md`):
 
 ```yaml
 required_sections:
@@ -170,7 +168,7 @@ required_sections:
   - troubleshooting: "Guia de troubleshooting"
 ```
 
-**C. Maintenance Manual** (`handoff/maintenance-manual.md`):
+**C. Maintenance Manual** (`handoff/handoff-maintenance-manual.md`):
 
 ```yaml
 required_sections:
@@ -220,8 +218,8 @@ touch docs/index.md
 
 ### **Fase 2: Aplicação de Templates BMAD**
 
-1. Gerar `docs/project-overview.md` usando template BMAD
-2. Criar `docs/architecture/architecture.md` usando template BMAD
+1. Gerar `docs/project-overview-ganache.md` usando template BMAD
+2. Criar `docs/architecture/architecture-ganache.md` usando template BMAD
 3. Implementar `docs/development/development-guide.md`
 4. Configurar `docs/validation/test-coverage.md`
 
@@ -294,6 +292,6 @@ touch docs/index.md
 ---
 
 *Metodologia desenvolvida conforme padrões BMAD*  
-*Data: 2025-12-13*  
+*Data: 2025-12-15*  
 *Projeto: Ganache Enterprise NAS*  
-*Status: Proposta para Aprovação*
+*Status: Aprovada e Implementada*

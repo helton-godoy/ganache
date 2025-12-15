@@ -12,6 +12,7 @@
 ### **Documentos com Meta-informações BMAD**
 
 #### ✅ **docs/project-overview.md**
+
 ```yaml
 ---
 title: "GANACHE - Project Overview"
@@ -29,6 +30,7 @@ bmad_compliance: true
 ```
 
 #### ✅ **docs/architecture/source-tree-analysis.md**
+
 ```yaml
 ---
 title: "GANACHE - Source Tree Analysis"
@@ -46,6 +48,7 @@ bmad_compliance: true
 ```
 
 #### ✅ **docs/bmad-requirements-mapping.md**
+
 ```yaml
 ---
 title: "BMAD Requirements Mapping - Projeto GANACHE"
@@ -63,6 +66,7 @@ bmad_compliance: true
 ```
 
 #### ✅ **docs/development/development-evaluation.md** (migrado)
+
 ```yaml
 ---
 title: "Avaliação da Metodologia de Documentação - Projeto Ganache"
@@ -81,6 +85,7 @@ migration_note: "Migrado da raiz conforme BMAD nomenclatura"
 ```
 
 #### ✅ **docs/development/implementation-status.md** (migrado)
+
 ```yaml
 ---
 title: "Status Implementação BMAD - Projeto GANACHE"
@@ -99,6 +104,7 @@ migration_note: "Migrado da raiz (STATUS-IMPLEMENTACAO-BMAD.md)"
 ```
 
 #### ✅ **docs/development/sync-report.md** (migrado)
+
 ```yaml
 ---
 title: "BMAD Sync Report - Projeto GANACHE"
@@ -117,6 +123,7 @@ migration_note: "Migrado da raiz (bmad-sync-report.md)"
 ```
 
 #### ✅ **docs/development/rust-analyzer-status.md** (migrado)
+
 ```yaml
 ---
 title: "Status Rust Analyzer - Projeto GANACHE"
@@ -139,6 +146,7 @@ migration_note: "Migrado da raiz (STATUS-RUST-ANALYZER.md)"
 ## 🔍 **COMPLIANCE COM REQUIREMENTS.CSV**
 
 ### **Web Requirements (Primary Type)**
+
 | Requirement | Status | Evidence | Priority |
 |-------------|--------|----------|----------|
 | **requires_api_scan** | ✅ Completo | `ganache/api-spec.yaml` analisado | Alta |
@@ -148,6 +156,7 @@ migration_note: "Migrado da raiz (STATUS-RUST-ANALYZER.md)"
 | **requires_deployment_config** | ✅ Completo | .deb packaging + systemd | Alta |
 
 ### **Backend Requirements (Secondary Type)**
+
 | Requirement | Status | Evidence | Priority |
 |-------------|--------|----------|----------|
 | **requires_api_scan** | ✅ Completo | Axum routes definidas | Alta |
@@ -155,6 +164,7 @@ migration_note: "Migrado da raiz (STATUS-RUST-ANALYZER.md)"
 | **requires_deployment_config** | ✅ Completo | Cargo.toml + systemd | Alta |
 
 ### **Key File Patterns Validados**
+
 | Pattern Category | Files Found | Status |
 |------------------|-------------|--------|
 | **Frontend** | package.json, tsconfig.json, vite.config.ts | ✅ Completo |
@@ -164,6 +174,7 @@ migration_note: "Migrado da raiz (STATUS-RUST-ANALYZER.md)"
 | **CI/CD** | .github/workflows/, Makefile | ✅ Completo |
 
 ### **Critical Directories Status**
+
 | Directory Pattern | Implementation | Status |
 |-------------------|----------------|--------|
 | **src/** (both) | `ganache/src/`, `ganache/ui/src/` | ✅ Implementado |
@@ -178,6 +189,7 @@ migration_note: "Migrado da raiz (STATUS-RUST-ANALYZER.md)"
 ### **Current Compliance: 85%**
 
 #### ✅ **Compliant Areas (85%)**
+
 - **Template Application**: project-overview + source-tree-analysis ✅
 - **File Structure**: BMAD-compliant directory structure ✅
 - **Nomenclatura**: BMAD naming conventions applied ✅
@@ -186,6 +198,7 @@ migration_note: "Migrado da raiz (STATUS-RUST-ANALYZER.md)"
 - **Migration**: Documents properly migrated from root ✅
 
 #### ⚠️ **Partial Compliance (15%)**
+
 - **Architecture Documents**: Existing docs need BMAD template application
 - **Handoff Documents**: 4/4 documents exist but need template compliance
 - **Index.md**: Needs BMAD template application
@@ -193,6 +206,7 @@ migration_note: "Migrado da raiz (STATUS-RUST-ANALYZER.md)"
 - **Automation**: Workflows not yet configured
 
 #### ❌ **Non-Compliant Areas (0%)**
+
 - **Validation Scripts**: BMAD validation automation not implemented
 - **CI/CD Integration**: GitHub Actions for BMAD validation pending
 - **Quality Metrics**: Automated BMAD compliance reporting missing
@@ -204,6 +218,7 @@ migration_note: "Migrado da raiz (STATUS-RUST-ANALYZER.md)"
 ### **Successfully Applied Templates**
 
 #### 1. **Project Overview Template**
+
 - **Source**: `.bmad/bmm/workflows/document-project/templates/project-overview-template.md`
 - **Applied to**: `docs/project-overview.md`
 - **Status**: ✅ **FULLY COMPLIANT**
@@ -219,6 +234,7 @@ migration_note: "Migrado da raiz (STATUS-RUST-ANALYZER.md)"
   - Documentation Map ✅
 
 #### 2. **Deep Dive Template**
+
 - **Source**: `.bmad/bmm/workflows/document-project/templates/deep-dive-template.md`
 - **Applied to**: `docs/architecture/source-tree-analysis.md`
 - **Status**: ✅ **FULLY COMPLIANT**
@@ -240,22 +256,26 @@ migration_note: "Migrado da raiz (STATUS-RUST-ANALYZER.md)"
 ## 📋 **PRÓXIMAS AÇÕES CRÍTICAS**
 
 ### **Phase 3 Continuation**
+
 - [ ] **3.3** Aplicar templates BMAD aos documentos de arquitetura existentes
 - [ ] **3.4** Validar compliance com requirements.csv
 
 ### **Phase 4 - Handoff Documents**
+
 - [ ] **4.1** Criar `technical-specs.md` (BMAD template)
 - [ ] **4.2** Criar `deployment-guide.md` (BMAD template)
 - [ ] **4.3** Criar `maintenance-manual.md` (BMAD template)
 - [ ] **4.4** Criar `api-documentation.md` (BMAD template)
 
 ### **Phase 5 - Automation**
+
 - [ ] **5.1** Executar checklist de validação BMAD
 - [ ] **5.2** Configurar workflows document-project BMAD
 - [ ] **5.3** Implementar validação automática de compliance
 - [ ] **5.4** Gerar métricas de qualidade BMAD
 
 ### **Phase 6 - Finalization**
+
 - [ ] **6.1** Atualizar index.md com estrutura BMAD
 - [ ] **6.2** Validar todos os links cruzados
 - [ ] **6.3** Confirmar 100% de compliance BMAD
@@ -266,6 +286,7 @@ migration_note: "Migrado da raiz (STATUS-RUST-ANALYZER.md)"
 ## 🏆 **CONQUISTAS ATUAIS**
 
 ### ✅ **Major Milestones Achieved**
+
 1. **Templates BMAD Oficiais Aplicados** - Primeiros documentos verdadeiramente BMAD-compliant
 2. **Estrutura Completa** - Directory structure BMAD-compliant implementada
 3. **Requirements Compliance** - 85% compliance com CSV requirements
@@ -273,6 +294,7 @@ migration_note: "Migrado da raiz (STATUS-RUST-ANALYZER.md)"
 5. **Meta-informações** - YAML frontmatter aplicado consistentemente
 
 ### ✅ **Quality Improvements**
+
 - **Document Quality**: Aumentou de "fachada" para BMAD real
 - **Template Consistency**: Padrões BMAD aplicados uniformemente
 - **Navigation**: Estrutura hierárquica clara e navegável

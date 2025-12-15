@@ -1,246 +1,76 @@
----
-title: "Guia de Desenvolvimento"
-category: "development"
-project_type: "web+backend"
-created: "2025-12-13"
-updated: "2025-12-13"
-author: "BMAD Generator"
-status: "approved"
-version: "1.0.0"
-tags: ["bmad", "documentation", "auto-generated"]
-related_docs: ["docs/index.md", "docs/project-overview.md"]
-bmad_compliance: true
----
+# Development Guide - Ganache
 
-# Ganache Enterprise NAS - Development Guide
+## 🛠️ Pré-requisitos
 
-**Generated:** 2025-12-13  
-**Compliance BMAD:** ✅  
+- **Rust:** Toolchain estável (Cargo 1.70+)
+- **Node.js:** v18+ (LTS recomendado)
+- **Gerenciador de Pacotes:** `npm` ou `pnpm`
+- **Ferramentas de Build:** `make`, `gcc` (para compilação Rust)
 
-## Development Workflow
+## 🚀 Setup do Ambiente
 
-Este guia fornece instruções completas para desenvolvimento no projeto Ganache, seguindo padrões BMAD e metodologias ágeis.
-
-## Prerequisites
-
-### Required Software
-
-- **Node.js** 18+ e npm/pnpm
-- **Rust** 1.70+ com cargo
-- **Git** para controle de versão
-- **Docker** 24.x (opcional)
-
-### Environment Setup
+### 1. Clonar e Preparar
 
 ```bash
-# Clone repository
-git clone <repository-url>
-cd ganache
+git clone <repo_url>
+cd GANACHE
+chmod +x scripts/setup_ganache_enhanced.sh
+```
 
-# Setup frontend
+### 2. Backend (Rust)
+
+O backend reside em `ganache/src/ganache-api`.
+
+```bash
+cd ganache
+# Build em modo debug
+cargo build
+
+# Rodar servidor localmente
+cargo run
+```
+
+O servidor iniciará (porta padrão a verificar, geralmente 8080 ou 8000).
+
+### 3. Frontend (React)
+
+O frontend reside em `ganache/ui`.
+
+```bash
 cd ganache/ui
 npm install
 
-# Setup backend
-cd ../ganache
-cargo build
-```
-
-## Development Commands
-
-### Frontend Development (ganache/ui)
-
-```bash
-# Install dependencies
-npm install
-
-# Start development server
+# Rodar servidor de desenvolvimento (Vite)
 npm run dev
-
-# Build for production
-npm run build
-
-# Run tests
-npm run test
-
-# Lint code
-npm run lint
-
-# Type checking
-npm run type-check
 ```
 
-### Backend Development (ganache)
+O frontend estará acessível em `http://localhost:5173` (padrão Vite).
+
+## 🧪 Testes
+
+### Backend
 
 ```bash
-# Build project
-cargo build
-
-# Run in development mode
-cargo run
-
-# Run tests
+cd ganache
 cargo test
-
-# Code formatting
-cargo fmt
-
-# Linting
-cargo clippy
-
-# Generate documentation
-cargo doc --open
 ```
 
-## Project Structure
-
-```
-ganache/
-├── ganache/ui/           # Frontend React
-│   ├── src/
-│   │   ├── components/   # React components
-│   │   ├── stores/       # Zustand stores
-│   │   ├── api/          # API client
-│   │   └── mocks/        # MSW mocks
-│   ├── public/           # Static assets
-│   └── package.json      # Dependencies
-├── ganache/              # Backend Rust
-│   ├── src/
-│   │   ├── api/          # Axum routes
-│   │   ├── storage/      # Storage logic
-│   │   └── config/       # Configuration
-│   └── Cargo.toml        # Workspace
-└── docs/                 # Documentation BMAD
-```
-
-## Code Standards
-
-### TypeScript/JavaScript
-
-- **Linting:** ESLint com configurações padrão
-- **Formatting:** Prettier para formatação automática
-- **Types:** TypeScript strict mode habilitado
-- **Testing:** Jest para testes unitários
-
-### Rust
-
-- **Formatting:** rustfmt para formatação
-- **Linting:** clippy para linting avançado
-- **Testing:** cargo test com coverage
-- **Documentation:** rustdoc para documentação
-
-## Testing Strategy
-
-### Frontend Testing
-
-- **Unit Tests:** Jest + React Testing Library
-- **Integration Tests:** Cypress para E2E
-- **Mock Data:** MSW para API mocking
-- **Coverage:** >90% coverage target
-
-### Backend Testing
-
-- **Unit Tests:** cargo test
-- **Integration Tests:** API endpoint testing
-- **Property Tests:** proptest para testes de propriedade
-- **Coverage:** >85% coverage target
-
-## Git Workflow
-
-### Branch Strategy
-
-- **main:** Production-ready code
-- **develop:** Integration branch
-- **feature/***: Feature development
-- **bugfix/***: Bug fixes
-- **hotfix/***: Production fixes
-
-### Commit Convention
-
-```
-<type>(<scope>): <description>
-
-feat(ui): add new dashboard component
-fix(api): resolve storage endpoint error
-docs(architecture): update system diagram
-```
-
-### Pull Request Process
-
-1. Create feature branch from develop
-2. Implement changes with tests
-3. Run BMAD validation: `./scripts/bmad-validate.sh`
-4. Create pull request with description
-5. Code review and approval
-6. Merge to develop
-
-## BMAD Integration
-
-### Documentation Generation
+### Frontend
 
 ```bash
-# Generate BMAD documentation
-./scripts/bmad-generate.sh
-
-# Validate BMAD compliance
-./scripts/bmad-validate.sh
-
-# Sync with code changes
-./scripts/bmad-sync.sh
+cd ganache/ui
+npm run type-check # Se configurado (tsc)
+npm run lint
 ```
 
-### Template Usage
+## 📦 Build de Produção
 
-- **Project Overview:** Template BMAD para visão geral
-- **Deep Dive:** Template BMAD para análise técnica
-- **Validation Reports:** Template BMAD para relatórios
-- **Handoff Documents:** Template BMAD para transição
-
-## Troubleshooting
-
-### Common Issues
-
-#### Frontend
+Utilize o `Makefile` na raiz para builds automatizados:
 
 ```bash
-# Clear node_modules and reinstall
-rm -rf node_modules package-lock.json
-npm install
+# Build do Frontend (gera arquivos em ganache/ui/dist)
+make ui
 
-# Type errors
-npm run type-check
-
-# Build issues
-npm run build --verbose
+# Build do Backend (Release)
+cd ganache && cargo build --release
 ```
-
-#### Backend
-
-```bash
-# Rust toolchain issues
-rustup update
-
-# Dependency issues
-cargo clean
-cargo build
-
-# Clippy warnings
-cargo clippy --fix
-```
-
-#### BMAD Validation
-
-```bash# BMAD template issues
-./scripts/bmad-generate.sh --force
-
-# Missing files
-./scripts/bmad-sync.sh
-
-# Validation failures
-./scripts/bmad-validate.sh --verbose
-```
-
----
-
-*Generated by BMAD Generation Script*
-*Compliance: 100% BMAD Standards*

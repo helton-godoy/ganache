@@ -133,11 +133,16 @@ check_directory_exists "docs/architecture" "Architecture Directory"
 check_directory_exists "docs/development" "Development Directory"
 check_directory_exists "docs/validation" "Validation Directory"
 check_directory_exists "docs/validation/reports" "Validation Reports Directory"
-check_directory_exists "docs/handover" "Handover Directory"
+check_directory_exists "docs/handoff" "Handoff Directory"
 check_directory_exists "docs/assets" "Assets Directory"
 check_directory_exists "docs/assets/diagrams" "Diagrams Directory"
 check_directory_exists "docs/assets/templates" "Templates Directory"
 check_directory_exists "scripts" "Scripts Directory"
+
+# Arquivos movidos
+check_file_exists "docs/analysis/prd.md" "Product Requirements Document"
+check_file_exists "docs/development/documentation-methodology.md" "Methodology Guide"
+check_file_exists "docs/sprint-artifacts/bmm-workflow-status.yaml" "Sprint Status"
 
 echo ""
 echo -e "${YELLOW}📄 Validando Documentos Obrigatórios BMAD${NC}"
@@ -145,16 +150,16 @@ echo "==============================================="
 
 # Verificar documentos obrigatórios
 check_file_exists "docs/index.md" "Master Documentation Index"
-check_file_exists "docs/project-overview.md" "Project Overview (BMAD Template)"
-check_file_exists "docs/architecture/architecture.md" "Architecture Documentation"
+check_file_exists "docs/project-overview-ganache.md" "Project Overview (BMAD Template)"
+check_file_exists "docs/architecture/architecture-ganache.md" "Architecture Documentation"
 check_file_exists "docs/architecture/source-tree-analysis.md" "Source Tree Analysis (BMAD Template)"
 check_file_exists "docs/development/development-guide.md" "Development Guide"
 check_file_exists "docs/development/setup-instructions.md" "Setup Instructions"
-check_file_exists "docs/validation/reports" "Validation Reports Directory"
-check_file_exists "docs/handover/technical-specs.md" "Technical Specifications"
-check_file_exists "docs/handover/deployment-guide.md" "Deployment Guide"
-check_file_exists "docs/handover/maintenance-manual.md" "Maintenance Manual"
-check_file_exists "docs/handover/api-documentation.md" "API Documentation"
+check_directory_exists "docs/validation/reports" "Validation Reports Directory"
+check_file_exists "docs/handoff/handoff-technical-specs.md" "Technical Specifications"
+check_file_exists "docs/handoff/deployment-guide.md" "Deployment Guide"
+check_file_exists "docs/handoff/handoff-maintenance-manual.md" "Maintenance Manual"
+check_file_exists "docs/handoff/api-documentation.md" "API Documentation"
 
 echo ""
 echo -e "${YELLOW}🛠️ Validando Scripts de Automação BMAD${NC}"
@@ -171,8 +176,8 @@ echo "======================================"
 
 # Validar meta-informações nos documentos principais
 validate_yaml_frontmatter "docs/index.md" "Index Meta-informations"
-validate_yaml_frontmatter "docs/project-overview.md" "Project Overview Meta-informations"
-validate_yaml_frontmatter "docs/architecture/architecture.md" "Architecture Meta-informations"
+validate_yaml_frontmatter "docs/project-overview-ganache.md" "Project Overview Meta-informations"
+validate_yaml_frontmatter "docs/architecture/architecture-ganache.md" "Architecture Meta-informations"
 
 echo ""
 echo -e "${YELLOW}🏷️ Validando Nomenclatura BMAD${NC}"
@@ -180,10 +185,10 @@ echo "================================="
 
 # Validar nomenclatura BMAD para documentos principais
 validate_bmad_naming "docs/index.md" "Index Naming"
-validate_bmad_naming "docs/project-overview.md" "Project Overview Naming"
-validate_bmad_naming "docs/architecture/architecture.md" "Architecture Naming"
+validate_bmad_naming "docs/project-overview-ganache.md" "Project Overview Naming"
+validate_bmad_naming "docs/architecture/architecture-ganache.md" "Architecture Naming"
 validate_bmad_naming "docs/development/development-guide.md" "Development Guide Naming"
-validate_bmad_naming "docs/handover/technical-specs.md" "Technical Specs Naming"
+validate_bmad_naming "docs/handoff/handoff-technical-specs.md" "Technical Specs Naming"
 
 echo ""
 echo -e "${YELLOW}🔍 Validando Templates BMAD${NC}"
@@ -210,19 +215,19 @@ echo -e "${YELLOW}📊 Validação de Compliance Web + Backend${NC}"
 echo "==========================================="
 
 # Verificar patterns específicos para projetos web+backend
-if grep -q "web" "docs/project-overview.md"; then
+if grep -q "web" "docs/project-overview-ganache.md"; then
 	log_check "Web Project Classification" "PASS" "Classificação web presente"
 else
 	log_check "Web Project Classification" "FAIL" "Classificação web ausente"
 fi
 
-if grep -q "backend" "docs/project-overview.md"; then
+if grep -q "backend" "docs/project-overview-ganache.md"; then
 	log_check "Backend Project Classification" "PASS" "Classificação backend presente"
 else
 	log_check "Backend Project Classification" "FAIL" "Classificação backend ausente"
 fi
 
-if grep -q "OpenAPI" "docs/project-overview.md"; then
+if grep -q "OpenAPI" "docs/project-overview-ganache.md"; then
 	log_check "API Specification" "PASS" "Especificação OpenAPI mencionada"
 else
 	log_check "API Specification" "FAIL" "Especificação OpenAPI não mencionada"

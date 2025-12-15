@@ -3,6 +3,7 @@
 ## ⚡ Solução Rápida em 3 Passos
 
 ### **PASSO 1: Diagnóstico Rápido**
+
 ```bash
 # Execute no terminal integrado do VS Code (Ctrl+`)
 pwd && ls -la .git && git status
@@ -10,7 +11,8 @@ pwd && ls -la .git && git status
 
 ### **PASSO 2: Ação Corretiva (escolha uma)**
 
-#### Se o diretório `.git` NÃO existe:
+#### Se o diretório `.git` NÃO existe
+
 ```bash
 git init
 git add .
@@ -20,7 +22,8 @@ git remote add origin https://github.com/USUARIO/REPOSITORIO.git
 git push -u origin main
 ```
 
-#### Se o `.git` existe mas `git status` falha:
+#### Se o `.git` existe mas `git status` falha
+
 ```bash
 # Verificar permissões
 sudo chown -R $USER:$USER .git
@@ -30,7 +33,8 @@ chmod -R 755 .git
 git fsck --full
 ```
 
-#### Se o repositório funciona, mas plugin falha:
+#### Se o repositório funciona, mas plugin falha
+
 ```bash
 # Recarregar VS Code
 # Ctrl+Shift+P → "Developer: Reload Window"
@@ -41,6 +45,7 @@ git config --global user.email "seu@email.com"
 ```
 
 ### **PASSO 3: Teste Final**
+
 ```bash
 git status
 git add .
@@ -71,6 +76,7 @@ git config --list | grep user
 ## 🚨 Soluções para Casos Específicos
 
 ### **Caso A: "Nenhum repositório Git encontrado"**
+
 ```bash
 # Navegar para o diretório correto
 cd /caminho/para/seu/projeto
@@ -78,6 +84,7 @@ git init
 ```
 
 ### **Caso B: "Permission denied"**
+
 ```bash
 # Corrigir permissões
 sudo chown -R $(whoami) .
@@ -85,11 +92,13 @@ chmod -R 755 .git
 ```
 
 ### **Caso C: "Plugin VS Code não funciona"**
+
 1. **Recarregar VS Code:** `Ctrl+Shift+P` → "Reload Window"
 2. **Verificar configurações:** `Ctrl+,` → Extensions → GitCOM
 3. **Reinstalar plugin:** Extensions → GitCOM → Uninstall → Install
 
 ### **Caso D: "Remote não configurado"**
+
 ```bash
 git remote add origin https://github.com/USUARIO/REPO.git
 git push -u origin main
@@ -121,6 +130,7 @@ code .
 ## 💡 Dica Final
 
 Se nada funcionar, execute este comando para verificar logs:
+
 ```bash
 # No terminal externo (não integrado do VS Code)
 cd /caminho/para/seu/projeto

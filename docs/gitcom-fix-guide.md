@@ -29,6 +29,7 @@ O arquivo `.vscode/settings.json` foi configurado com:
 ### **2. Script de Correção Automática**
 
 Execute o script `scripts/fix-gitcom.sh` que:
+
 - ✅ Verifica se o repositório Git existe
 - ✅ Corrige permissões do diretório `.git`
 - ✅ Configura user.name e user.email
@@ -38,13 +39,16 @@ Execute o script `scripts/fix-gitcom.sh` que:
 ## 🔄 Passos para Resolver no VS Code
 
 ### **PASSO 1: Recarregar VS Code**
+
 ```bash
 # No VS Code:
 Ctrl+Shift+P → "Developer: Reload Window"
 ```
+
 **OU** feche completamente o VS Code e reabra.
 
 ### **PASSO 2: Verificar Plugin GitCOM**
+
 1. Abra Extensions: `Ctrl+Shift+X`
 2. Procure por "GitCOM"
 3. Verifique se está:
@@ -53,14 +57,17 @@ Ctrl+Shift+P → "Developer: Reload Window"
    - ✅ Sem conflitos com outros plugins Git
 
 ### **PASSO 3: Commitar Mudanças Pendentes**
+
 ```bash
 git add .
 git commit -m "Correção de configurações GitCOM"
 ```
 
 ### **PASSO 4: Testar Push**
+
 1. Tente fazer push pelo plugin GitCOM novamente
 2. Se falhar, use o terminal:
+
    ```bash
    git push origin main
    ```
@@ -68,27 +75,32 @@ git commit -m "Correção de configurações GitCOM"
 ## 🚨 Soluções Avançadas se Ainda Falhar
 
 ### **Solução A: Reinicializar Extension Host**
+
 ```bash
 # No VS Code:
 Ctrl+Shift+P → "Developer: Restart Extension Host"
 ```
 
 ### **Solução B: Limpar Cache do VS Code**
+
 1. Feche o VS Code
 2. Delete a pasta: `~/.vscode/extensions-cache/`
 3. Reabra o VS Code
 
 ### **Solução C: Reinstalar Plugin GitCOM**
+
 1. `Ctrl+Shift+X` → Encontre GitCOM
 2. Clique em "Uninstall"
 3. Reinicie VS Code
 4. Instale GitCOM novamente
 
 ### **Solução D: Verificar Logs de Erro**
+
 ```bash
 # No VS Code:
 Ctrl+Shift+P → "Developer: Toggle Developer Tools"
 ```
+
 - Vá para a aba "Console"
 - Procure por erros relacionados ao Git ou GitCOM
 - Copie os erros para diagnóstico
@@ -96,6 +108,7 @@ Ctrl+Shift+P → "Developer: Toggle Developer Tools"
 ## 🔍 Diagnóstico Detalhado
 
 ### **Executar Diagnóstico Completo**
+
 ```bash
 ./scripts/git-diagnosis.sh
 ./scripts/test-gitcom.sh
@@ -103,6 +116,7 @@ Ctrl+Shift+P → "Developer: Toggle Developer Tools"
 ```
 
 ### **Verificar Status Atual**
+
 ```bash
 # Verificar se Git funciona
 git status
@@ -133,6 +147,7 @@ cat .vscode/settings.json
 ## 🎯 Próximos Passos Recomendados
 
 1. **Commitar mudanças pendentes:**
+
    ```bash
    git add .
    git commit -m "Atualização de documentação Git"
@@ -141,6 +156,7 @@ cat .vscode/settings.json
 2. **Recarregar VS Code** e testar push
 
 3. **Se ainda falhar:** Verificar credenciais Git:
+
    ```bash
    git config --global credential.helper
    # Se vazio, configure:
@@ -148,6 +164,7 @@ cat .vscode/settings.json
    ```
 
 4. **Teste final:**
+
    ```bash
    git push origin main
    ```

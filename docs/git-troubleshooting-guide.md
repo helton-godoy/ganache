@@ -7,20 +7,24 @@ O erro **"Failed to push commits: fatal: not a git repository"** indica que o Gi
 ## 🚨 Principais Causas do Erro
 
 ### 1. **Diretório não inicializado como repositório Git**
-   - O diretório nunca foi inicializado com `git init`
-   - O diretório `.git` foi corrompido ou removido
+
+- O diretório nunca foi inicializado com `git init`
+- O diretório `.git` foi corrompido ou removido
 
 ### 2. **Problemas de configuração do workspace no VS Code**
-   - VS Code pode estar operando em um diretório diferente do esperado
-   - Plugin GitCOM pode estar configurado incorretamente
+
+- VS Code pode estar operando em um diretório diferente do esperado
+- Plugin GitCOM pode estar configurado incorretamente
 
 ### 3. **Conflitos de caminhos**
-   - Working directory incorreto no terminal integrado
-   - Múltiplas instâncias do VS Code com workspaces diferentes
+
+- Working directory incorreto no terminal integrado
+- Múltiplas instâncias do VS Code com workspaces diferentes
 
 ### 4. **Problemas de permissões**
-   - Diretório `.git` com permissões incorretas
-   - Usuário sem acesso ao repositório
+
+- Diretório `.git` com permissões incorretas
+- Usuário sem acesso ao repositório
 
 ## 🔧 Verificações e Soluções
 
@@ -136,6 +140,7 @@ git diff --stat
    - Verificar configurações de autenticação
 
 2. **Configurações do Git global:**
+
    ```bash
    git config --global user.name "Seu Nome"
    git config --global user.email "seu.email@exemplo.com"
@@ -143,6 +148,7 @@ git diff --stat
    ```
 
 3. **Configurações de autenticação:**
+
    ```bash
    # Para HTTPS
    git config --global credential.helper store
@@ -154,32 +160,40 @@ git diff --stat
 ## 🚨 Armadilhas Comuns
 
 ### **1. Diretório errado no VS Code**
+
 - **Problema:** VS Code aberto em diretório pai ou子公司
 - **Solução:** Verificar workspace atual e abrir projeto correto
 
 ### **2. Arquivo .gitignore incorreto**
+
 - **Problema:** Diretório `.git` sendo ignorado
 - **Solução:** Verificar se `.git` não está no `.gitignore`
 
 ### **3. Permissões de arquivo**
+
 - **Problema:** Usuário sem acesso ao diretório `.git`
-- **Solução:** 
+- **Solução:**
+
   ```bash
   sudo chown -R $USER:$USER .git
   chmod -R 755 .git
   ```
 
 ### **4. Submódulos problemáticos**
+
 - **Problema:** Submódulos com problemas
-- **Solução:** 
+- **Solução:**
+
   ```bash
   git submodule status
   git submodule update --init --recursive
   ```
 
 ### **5. Proxy/firewall bloqueando**
+
 - **Problema:** Configurações de rede impedindo push
 - **Solução:** Verificar configurações de proxy Git
+
   ```bash
   git config --global http.proxy http://proxy:porta
   git config --global https.proxy https://proxy:porta
@@ -213,6 +227,7 @@ Se o problema persistir após todas estas verificações:
    - Verificar Console para erros
 
 4. **Testar com Git externo:**
+
    ```bash
    # Testar comandos Git diretamente no terminal
    git push -v origin main

@@ -1,15 +1,13 @@
 #!/bin/bash
-# setup-hooks.sh
-# Instala os hooks de governança do projeto
+# Configura o Git para ler os hooks DIRETAMENTE da pasta versionada
+# Vantagem: Qualquer alteração no hook é aplicada imediatamente para todos
 
-echo "🏗️  Instalando Git Hooks de Governança..."
+echo "🏗️  Configurando Git Hooks Dinâmicos..."
 
-# Copia os scripts da pasta 'hooks' do projeto para a pasta oculta .git/hooks
-cp .githooks/* .git/hooks/
+# Define o caminho de hooks para a pasta local .githooks
+git config core.hooksPath .githooks
 
-# Dá permissão de execução
-chmod +x .git/hooks/commit-msg
-chmod +x .git/hooks/pre-commit
-chmod +x .git/hooks/pre-push
+# Torna os scripts executáveis (caso tenham perdido a permissão no git)
+chmod +x .githooks/*
 
-echo "✅ Hooks instalados com sucesso!"
+echo "✅ Git agora obedece aos scripts em .githooks/ automaticamente."

@@ -1,4 +1,13 @@
 {
+    "git.path": "/usr/bin/git",
+    "git.enabled": true,
+    "git.autofetch": true,
+    "git.confirmSync": false,
+    "git.enableSmartCommit": true,
+    "git.enableCommitSigning": false,
     "gitcom.commitStyle": "semantic",
-    "gitcom.batchCommits": true
+    "gitcom.batchCommits": true,
+    "terminal.integrated.cwd": "${workspaceFolder}",
+    "git.defaultCloneDirectory": "${workspaceFolder}",
+    "git.useEditorAsCommitInput": false
 }

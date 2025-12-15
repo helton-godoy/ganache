@@ -9,9 +9,8 @@
     "gitcom.batchCommits": true,
     "terminal.integrated.cwd": "${workspaceFolder}",
     "git.defaultCloneDirectory": "${workspaceFolder}",
-    "git.useEditorAsCommitInput": false
+    "git.useEditorAsCommitInput": false,
     "git.showInlineOpenFile": false,
-    "git.supportsAutoRebase": true,
-    "git.pullOnMerge": false,
-    "git.useEditorAsCommitInput": false
+    "git.rebaseWhenSync": true,
+    "git.pullOnMerge": false
 }

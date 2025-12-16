@@ -9,5 +9,8 @@
     "gitcom.batchCommits": true,
     "terminal.integrated.cwd": "${workspaceFolder}",
     "git.defaultCloneDirectory": "${workspaceFolder}",
-    "git.useEditorAsCommitInput": false
+    "git.useEditorAsCommitInput": false,
+    "projectManager.git.baseFolders": [
+        "/root/GANACHE/"
+    ]
 }

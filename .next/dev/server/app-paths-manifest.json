@@ -1,0 +1,6 @@
+{
+  "/api/trpc/[trpc]/route": "app/api/trpc/[trpc]/route.js",
+  "/page": "app/page.js",
+  "/recovery/page": "app/recovery/page.js",
+  "/setup/page": "app/setup/page.js"
+}

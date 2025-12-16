@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ganache Design Directions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#172033',
+                            900: '#0f172a',
+                            950: '#020617',
+                        },
+                        emerald: {
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .transition-all-300 { transition: all 0.3s ease-in-out; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen text-slate-900 transition-all-300" id="mainBody">
+
+    <!-- Theme Switcher -->
+    <div class="fixed top-4 right-4 z-50 bg-white p-2 rounded-lg shadow-lg flex gap-2 border border-gray-200" id="themeSwitcher">
+        <button onclick="setTheme('default')" class="px-3 py-1 rounded bg-slate-900 text-white text-xs font-bold hover:bg-slate-800">SAFE (Default)</button>
+        <button onclick="setTheme('dark')" class="px-3 py-1 rounded bg-black text-green-400 text-xs font-bold border border-gray-700 hover:bg-gray-900">DARK OPS</button>
+        <button onclick="setTheme('light')" class="px-3 py-1 rounded bg-white text-blue-600 text-xs font-bold border border-gray-200 hover:bg-gray-50">LIGHT</button>
+    </div>
+
+    <div class="container mx-auto p-8">
+        <header class="mb-12 text-center">
+            <h1 class="text-3xl font-black mb-2 tracking-tight" id="mainTitle">Create Trust Cluster</h1>
+            <p class="text-gray-500" id="subTitle">Drag matching disks to initialize your High Availability pool.</p>
+        </header>
+
+        <!-- Twin View Topology -->
+        <div class="max-w-6xl mx-auto grid grid-cols-12 gap-8 items-center">
+            
+            <!-- NODE A -->
+            <div class="col-span-4 p-6 rounded-xl border-2 shadow-sm relative group bg-white border-gray-200" id="nodeA">
+                <div class="absolute -top-3 left-4 px-2 bg-white text-xs font-bold tracking-wider text-gray-500 uppercase" id="labelA">Node A</div>
+                <div class="flex items-center justify-between mb-6">
+                    <div class="font-bold text-lg flex items-center gap-2">
+                        <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+                        ganache-01
+                    </div>
+                    <span class="mono text-xs text-gray-400">192.168.10.11</span>
+                </div>
+                <!-- Disk Slot -->
+                <div class="space-y-3">
+                    <div class="p-3 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between cursor-move hover:border-blue-400 hover:shadow-md transition-all-300" id="diskA1">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded bg-slate-200 flex items-center justify-center text-slate-500">HDD</div>
+                            <div>
+                                <div class="text-xs font-bold">/dev/sda</div>
+                                <div class="text-[10px] text-gray-500">4.0 TB WD Red</div>
+                            </div>
+                        </div>
+                        <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                    </div>
+                    <!-- More disks... -->
+                    <div class="p-3 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between opacity-50">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded bg-slate-200 flex items-center justify-center text-slate-500">NVMe</div>
+                            <div>
+                                <div class="text-xs font-bold">/dev/nvme0</div>
+                                <div class="text-[10px] text-gray-500">512 GB Cache</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONNECTION ZONE -->
+            <div class="col-span-4 flex flex-col items-center justify-center text-center space-y-6">
+                <!-- Sync Rings -->
+                <div class="relative w-48 h-48 flex items-center justify-center">
+                    <!-- Outer Ring (Static) -->
+                    <div class="absolute w-full h-full rounded-full border-4 border-slate-100" id="ringBg"></div>
+                    <!-- Spinner/Progress -->
+                    <div class="absolute w-full h-full rounded-full border-4 border-indigo-500 border-t-transparent animate-spin" id="ringProgress"></div>
+                    
+                    <!-- Center Status -->
+                    <div class="relative z-10 bg-white p-4 rounded-full shadow-lg border border-slate-100" id="centerStatus">
+                        <div class="text-3xl font-black text-slate-800 text-center" id="syncPercent">SYNC</div>
+                    </div>
+                </div>
+                
+                <div class="bg-indigo-50 text-indigo-700 px-4 py-2 rounded-full text-xs font-medium border border-indigo-100 flex items-center gap-2" id="statusBadge">
+                    <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                    Waiting for Pair Selection...
+                </div>
+            </div>
+
+            <!-- NODE B -->
+            <div class="col-span-4 p-6 rounded-xl border-2 shadow-sm relative group bg-white border-gray-200" id="nodeB">
+                <div class="absolute -top-3 right-4 px-2 bg-white text-xs font-bold tracking-wider text-gray-500 uppercase" id="labelB">Node B</div>
+                <div class="flex items-center justify-between mb-6">
+                    <div class="font-bold text-lg flex items-center gap-2">
+                        <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+                        ganache-02
+                    </div>
+                    <span class="mono text-xs text-gray-400">192.168.10.12</span>
+                </div>
+                <!-- Disk Slot -->
+                <div class="space-y-3">
+                    <div class="p-3 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between cursor-move hover:border-blue-400 hover:shadow-md transition-all-300" id="diskB1">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded bg-slate-200 flex items-center justify-center text-slate-500">HDD</div>
+                            <div>
+                                <div class="text-xs font-bold">/dev/sda</div>
+                                <div class="text-[10px] text-gray-500">4.0 TB WD Red</div>
+                            </div>
+                        </div>
+                        <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function setTheme(theme) {
+            const body = document.getElementById('mainBody');
+            const nodeA = document.getElementById('nodeA');
+            const nodeB = document.getElementById('nodeB');
+            const ringBg = document.getElementById('ringBg');
+            const ringProgress = document.getElementById('ringProgress');
+            const centerStatus = document.getElementById('centerStatus');
+            const syncPercent = document.getElementById('syncPercent');
+            const themeSwitcher = document.getElementById('themeSwitcher');
+            const labelA = document.getElementById('labelA');
+            const labelB = document.getElementById('labelB');
+            const mainTitle = document.getElementById('mainTitle');
+            const subTitle = document.getElementById('subTitle');
+            const statusBadge = document.getElementById('statusBadge');
+
+            // Reset classes
+            body.className = "min-h-screen transition-all-300";
+            
+            if (theme === 'default') {
+                // Ganache SAFE
+                body.classList.add('bg-slate-50', 'text-slate-900');
+                
+                [nodeA, nodeB].forEach(n => {
+                    n.className = "col-span-4 p-6 rounded-xl border-2 shadow-sm relative group bg-white border-slate-200";
+                });
+                
+                themeSwitcher.className = "fixed top-4 right-4 z-50 bg-white p-2 rounded-lg shadow-lg flex gap-2 border border-slate-200";
+                
+                // Labels
+                labelA.className = "absolute -top-3 left-4 px-2 bg-white text-xs font-bold tracking-wider text-slate-500 uppercase";
+                labelB.className = "absolute -top-3 right-4 px-2 bg-white text-xs font-bold tracking-wider text-slate-500 uppercase";
+
+                ringProgress.className = "absolute w-full h-full rounded-full border-4 border-indigo-500 border-t-transparent animate-spin";
+                centerStatus.className = "relative z-10 bg-white p-4 rounded-full shadow-lg border border-slate-100";
+                
+                mainTitle.className = "text-3xl font-black mb-2 tracking-tight text-slate-900";
+                subTitle.className = "text-gray-500";
+
+            } else if (theme === 'dark') {
+                // Ganache DARK OPS
+                body.classList.add('bg-slate-950', 'text-slate-200');
+                
+                [nodeA, nodeB].forEach(n => {
+                    n.className = "col-span-4 p-6 rounded-xl border-2 border-slate-800 shadow-none relative group bg-slate-900";
+                });
+                
+                themeSwitcher.className = "fixed top-4 right-4 z-50 bg-slate-900 p-2 rounded-lg shadow-lg flex gap-2 border border-slate-800";
+                
+                // Labels
+                labelA.className = "absolute -top-3 left-4 px-2 bg-slate-900 text-xs font-bold tracking-wider text-slate-400 uppercase";
+                labelB.className = "absolute -top-3 right-4 px-2 bg-slate-900 text-xs font-bold tracking-wider text-slate-400 uppercase";
+                
+                centerStatus.className = "relative z-10 p-4 rounded-full shadow-lg bg-slate-900 border border-slate-800";
+                
+                ringBg.className = "absolute w-full h-full rounded-full border-4 border-slate-800";
+                ringProgress.className = "absolute w-full h-full rounded-full border-4 border-emerald-500 border-t-transparent animate-spin";
+
+                mainTitle.className = "text-3xl font-black mb-2 tracking-tight text-white shadow-indigo-500/50";
+                subTitle.className = "text-slate-400";
+                
+                syncPercent.className = "text-3xl font-black text-center text-white";
+                statusBadge.className = "bg-slate-800 text-emerald-400 px-4 py-2 rounded-full text-xs font-medium border border-slate-700 flex items-center gap-2";
+
+            } else if (theme === 'light') {
+                // Ganache LIGHT
+                 body.classList.add('bg-white', 'text-gray-900');
+                 // Simplistic, high contrast
+                 [nodeA, nodeB].forEach(n => {
+                    n.className = "col-span-4 p-6 rounded-lg border border-gray-300 shadow-none relative group bg-gray-50";
+                 });
+                 
+                 themeSwitcher.className = "fixed top-4 right-4 z-50 bg-gray-50 p-2 rounded-lg shadow border border-gray-300";
+                 
+                 ringProgress.className = "absolute w-full h-full rounded-full border-4 border-blue-600 border-t-transparent animate-spin";
+                 statusBadge.className = "bg-blue-50 text-blue-800 px-4 py-2 rounded-full text-xs font-medium border border-blue-200 flex items-center gap-2";
+            }
+        }
+    </script>
+</body>
+</html>

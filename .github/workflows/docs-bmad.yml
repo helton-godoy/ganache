@@ -2,78 +2,78 @@ name: BMAD Documentation Validation
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
     paths:
-      - 'docs/**'
-      - 'scripts/**'
-      - '.github/workflows/**'
+      - "docs/**"
+      - "scripts/**"
+      - ".github/workflows/**"
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
     paths:
-      - 'docs/**'
-      - 'scripts/**'
+      - "docs/**"
+      - "scripts/**"
   schedule:
     # Run validation daily at 02:00 UTC
-    - cron: '0 2 * * *'
+    - cron: "0 2 * * *"
   workflow_dispatch:
     inputs:
       force_validation:
-        description: 'Force full validation'
+        description: "Force full validation"
         required: false
         type: choice
         options:
-          - 'true'
-          - 'false'
+          - "true"
+          - "false"
 
 jobs:
   bmad-validation:
     name: BMAD Documentation Compliance
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history for better analysis
-          
+          fetch-depth: 0 # Full history for better analysis
+
       - name: Setup environment
         run: |
           sudo apt-get update
           sudo apt-get install -y jq curl
-          
+
       - name: Install BMAD validation dependencies
         run: |
           # Make scripts executable
           chmod +x scripts/*.sh
-          
+
       - name: Run BMAD Validation
         id: validation
         run: |
           echo "Running BMAD validation..."
           ./scripts/bmad-validate.sh
           VALIDATION_EXIT_CODE=$?
-          
+
           echo "Validation exit code: $VALIDATION_EXIT_CODE"
-          
+
           # Save validation results
           echo "validation_status=$([ $VALIDATION_EXIT_CODE -eq 0 ] && echo 'PASS' || echo 'FAIL')" >> $GITHUB_OUTPUT
           echo "validation_exit_code=$VALIDATION_EXIT_CODE" >> $GITHUB_OUTPUT
-          
+
           if [ $VALIDATION_EXIT_CODE -ne 0 ]; then
             echo "BMAD validation failed with exit code: $VALIDATION_EXIT_CODE"
             exit 1
           fi
-          
+
       - name: Generate BMAD Documentation
         if: github.event.inputs.force_validation == 'true' || github.event_name == 'schedule'
         run: |
           echo "Generating BMAD documentation..."
           ./scripts/bmad-generate.sh
-          
+
       - name: Check documentation structure
         run: |
           echo "Checking documentation structure..."
-          
+
           # Check required directories exist
           required_dirs=(
             "docs"
@@ -84,7 +84,7 @@ jobs:
             "docs/assets"
             "scripts"
           )
-          
+
           for dir in "${required_dirs[@]}"; do
             if [ ! -d "$dir" ]; then
               echo "❌ Missing required directory: $dir"
@@ -93,11 +93,11 @@ jobs:
               echo "✅ Directory exists: $dir"
             fi
           done
-          
+
       - name: Validate markdown files
         run: |
           echo "Validating markdown files..."
-          
+
           # Check for required frontmatter in main documents
           required_frontmatter_files=(
             "docs/index.md"
@@ -106,7 +106,7 @@ jobs:
             "docs/handoff/technical-specs.md"
             "docs/handoff/deployment-guide.md"
           )
-          
+
           for file in "${required_frontmatter_files[@]}"; do
             if [ ! -f "$file" ]; then
               echo "❌ Missing required file: $file"
@@ -120,11 +120,11 @@ jobs:
               exit 1
             fi
           done
-          
+
       - name: Validate BMAD naming conventions
         run: |
           echo "Validating BMAD naming conventions..."
-          
+
           # Check for BMAD-compliant naming
           bmad_patterns=(
             "project-overview"
@@ -133,7 +133,7 @@ jobs:
             "handoff"
             "validation"
           )
-          
+
           for pattern in "${bmad_patterns[@]}"; do
             if find docs -name "*${pattern}*" -type f | grep -q .; then
               echo "✅ BMAD pattern found: $pattern"
@@ -141,12 +141,12 @@ jobs:
               echo "❌ No BMAD pattern found: $pattern"
             fi
           done
-          
+
       - name: Test API endpoints (if available)
         continue-on-error: true
         run: |
           echo "Testing API endpoints..."
-          
+
           # Test local API if running
           if curl -f -s http://localhost:8080/health > /dev/null; then
             echo "✅ API health check passed"
@@ -167,45 +167,45 @@ jobs:
           else
             echo "ℹ️ API not running, skipping endpoint tests"
           fi
-          
+
       - name: Generate validation report
         run: |
           echo "Generating validation report..."
-          
+
           # Create validation report
           cat > validation-report.md << EOF
           # BMAD Validation Report
-          
+
           ## Summary
           - **Date:** $(date)
           - **Branch:** ${{ github.ref_name }}
           - **Commit:** ${{ github.sha }}
           - **Status:** ${{ steps.validation.outputs.validation_status }}
-          
+
           ## File Structure Analysis
           \`\`\`bash
           $(find docs -type f -name "*.md" | sort)
           \`\`\`
-          
+
           ## Directory Structure
           \`\`\`bash
           $(find docs -type d | sort)
           \`\`\`
-          
+
           ## Script Validation
           \`\`\`bash
           $(ls -la scripts/)
           \`\`\`
-          
+
           ## Recommendations
           - Ensure all documents have proper frontmatter
           - Validate BMAD compliance regularly
           - Keep documentation synchronized with code changes
           EOF
-          
+
           # Upload report as artifact
           echo "Validation report generated"
-          
+
       - name: Upload validation artifacts
         uses: actions/upload-artifact@v3
         if: always()
@@ -216,7 +216,7 @@ jobs:
             *.log
             /tmp/*.json
           retention-days: 30
-          
+
       - name: Comment PR with validation results
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v6
@@ -233,7 +233,7 @@ jobs:
               repo: context.repo.repo,
               body: comment
             });
-            
+
       - name: Notify on failure
         if: failure()
         run: |
@@ -245,7 +245,7 @@ jobs:
           echo "- Missing required directories or files"
           echo "- Scripts not executable"
           exit 1
-          
+
       - name: Success notification
         if: success()
         run: |
@@ -258,50 +258,50 @@ jobs:
     runs-on: ubuntu-latest
     needs: bmad-validation
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Sync documentation
         run: |
           echo "Syncing BMAD documentation..."
-          
+
           # Update timestamp in index
           sed -i "s/\*\*Data:\*\* [0-9-]\+/\*\*Data:\*\* $(date +%Y-%m-%d)/" docs/index.md
-          
+
           # Update version in all documents
           find docs -name "*.md" -exec sed -i "s/\*\*Versão:\*\* [0-9.]+/\*\*Versão:\*\* 1.0.0/" {} \;
-          
+
       - name: Commit changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "BMAD Sync Action"
-          
+
           git add docs/
           git diff --staged --quiet || git commit -m "docs: sync BMAD documentation timestamp [skip ci]"
-          
+
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.ref }}
-          
+
   security-scan:
     name: Documentation Security Scan
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule' || github.event.inputs.force_validation == 'true'
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Run security scan
         run: |
           echo "Running security scan on documentation..."
-          
+
           # Check for sensitive information
           sensitive_patterns=(
             "password"
@@ -310,13 +310,13 @@ jobs:
             "token"
             "api_key"
           )
-          
+
           for pattern in "${sensitive_patterns[@]}"; do
             if grep -r -i "$pattern" docs/ --exclude-dir=.git 2>/dev/null; then
               echo "⚠️ Potential sensitive information found: $pattern"
             fi
           done
-          
+
           # Check for broken links (basic check)
           find docs -name "*.md" -exec grep -H "\[.*\](" {} \; | while read -r line; do
             link=$(echo "$line" | sed 's/.*\[.*\](\([^)]*\)).*/\1/')
@@ -329,25 +329,25 @@ jobs:
     name: Documentation Performance Check
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule'
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Check documentation size
         run: |
           echo "Checking documentation performance..."
-          
+
           # Calculate documentation statistics
           total_files=$(find docs -name "*.md" | wc -l)
           total_lines=$(find docs -name "*.md" -exec wc -l {} + | tail -1 | awk '{print $1}')
           total_size=$(find docs -name "*.md" -exec wc -c {} + | tail -1 | awk '{print $1}')
-          
+
           echo "Documentation Statistics:"
           echo "- Total files: $total_files"
           echo "- Total lines: $total_lines"
           echo "- Total size: $total_size bytes"
-          
+
           # Check for oversized files
           find docs -name "*.md" -exec wc -l {} \; | while read -r line; do
             lines=$(echo "$line" | awk '{print $1}')
@@ -356,11 +356,11 @@ jobs:
               echo "⚠️ Large file: $file ($lines lines)"
             fi
           done
-          
+
       - name: Check for duplicate content
         run: |
           echo "Checking for duplicate content..."
-          
+
           # Basic duplicate detection
           find docs -name "*.md" -exec basename {} \; | sort | uniq -d | while read -r duplicate; do
             echo "⚠️ Duplicate filename found: $duplicate"

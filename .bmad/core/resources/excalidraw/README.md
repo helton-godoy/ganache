@@ -1,74 +1,74 @@
-# Core Excalidraw Resources
+# Recursos Core do Excalidraw
 
-Universal knowledge for creating Excalidraw diagrams. All agents that create Excalidraw files should reference these resources.
+Conhecimento universal para criação de diagramas Excalidraw. Todos os agentes que criam arquivos Excalidraw devem referenciar estes recursos.
 
-## Purpose
+## Propósito
 
-Provides the **HOW** (universal knowledge) while agents provide the **WHAT** (domain-specific application).
+Fornece o **COMO** (conhecimento universal) enquanto os agentes fornecem o **O QUE** (aplicação específica do domínio).
 
-**Core = "How to create Excalidraw elements"**
+**Core = "Como criar elementos Excalidraw"**
 
-- How to group shapes with text labels
-- How to calculate text width
-- How to create arrows with proper bindings
-- How to validate JSON syntax
-- Base structure and primitives
+- Como agrupar formas com etiquetas de texto
+- Como calcular a largura do texto
+- Como criar setas com ligações adequadas
+- Como validar sintaxe JSON
+- Estrutura base e primitivas
 
-**Agents = "What diagrams to create"**
+**Agentes = "Quais diagramas criar"**
 
-- Frame Expert (BMM): Technical flowcharts, architecture diagrams, wireframes
-- Presentation Master (CIS): Pitch decks, creative visuals, Rube Goldberg machines
-- Tech Writer (BMM): Documentation diagrams, concept explanations
+- Frame Expert (BMM): Fluxogramas técnicos, diagramas de arquitetura, wireframes
+- Presentation Master (CIS): Apresentações, visuais criativos, máquinas Rube Goldberg
+- Tech Writer (BMM): Diagramas de documentação, explicações conceituais
 
-## Files in This Directory
+## Arquivos neste Diretório
 
 ### excalidraw-helpers.md
 
-**Universal element creation patterns**
+**Padrões universais de criação de elementos**
 
-- Text width calculation
-- Element grouping rules (shapes + labels)
-- Grid alignment
-- Arrow creation (straight, elbow)
-- Theme application
-- Validation checklist
-- Optimization rules
+- Cálculo de largura de texto
+- Regras de agrupamento de elementos (formas + etiquetas)
+- Alinhamento de grade
+- Criação de setas (reta, cotovelo)
+- Aplicação de tema
+- Lista de verificação de validação
+- Regras de otimização
 
-**Agents reference this to:**
+**Agentes referenciam isto para:**
 
-- Create properly grouped shapes
-- Calculate text dimensions
-- Connect elements with arrows
-- Ensure valid structure
+- Criar formas agrupadas adequadamente
+- Calcular dimensões de texto
+- Conectar elementos com setas
+- Garantir estrutura válida
 
 ### validate-json-instructions.md
 
-**Universal JSON validation process**
+**Processo universal de validação JSON**
 
-- How to validate Excalidraw JSON
-- Common errors and fixes
-- Workflow integration
-- Error recovery
+- Como validar JSON do Excalidraw
+- Erros comuns e correções
+- Integração de fluxo de trabalho
+- Recuperação de erros
 
-**Agents reference this to:**
+**Agentes referenciam isto para:**
 
-- Validate files after creation
-- Fix syntax errors
-- Ensure files can be opened in Excalidraw
+- Validar arquivos após criação
+- Corrigir erros de sintaxe
+- Garantir que arquivos possam ser abertos no Excalidraw
 
-### library-loader.md (Future)
+### library-loader.md (Futuro)
 
-**How to load external .excalidrawlib files**
+**Como carregar arquivos .excalidrawlib externos**
 
-- Programmatic library loading
-- Community library integration
-- Custom library management
+- Carregamento programático de biblioteca
+- Integração de biblioteca da comunidade
+- Gerenciamento de biblioteca personalizada
 
-**Status:** To be developed when implementing external library support.
+**Status:** A ser desenvolvido quando implementar suporte a biblioteca externa.
 
-## How Agents Use These Resources
+## Como os Agentes Usam Estes Recursos
 
-### Example: Frame Expert (Technical Diagrams)
+### Exemplo: Frame Expert (Diagramas Técnicos)
 
 ```yaml
 # workflows/diagrams/create-flowchart/workflow.yaml
@@ -76,7 +76,7 @@ helpers: '{project-root}/.bmad/core/resources/excalidraw/excalidraw-helpers.md'
 json_validation: '{project-root}/.bmad/core/resources/excalidraw/validate-json-instructions.md'
 ```
 
-**Domain-specific additions:**
+**Adições específicas do domínio:**
 
 ```yaml
 # workflows/diagrams/_shared/flowchart-templates.yaml
@@ -95,7 +95,7 @@ flowchart:
     height: 100
 ```
 
-### Example: Presentation Master (Creative Visuals)
+### Exemplo: Presentation Master (Visuais Criativos)
 
 ```yaml
 # workflows/create-visual-metaphor/workflow.yaml
@@ -103,7 +103,7 @@ helpers: '{project-root}/.bmad/core/resources/excalidraw/excalidraw-helpers.md'
 json_validation: '{project-root}/.bmad/core/resources/excalidraw/validate-json-instructions.md'
 ```
 
-**Domain-specific additions:**
+**Adições específicas do domínio:**
 
 ```yaml
 # workflows/_shared/creative-templates.yaml
@@ -117,44 +117,44 @@ rube_goldberg:
     roundness: 12
 ```
 
-## What Doesn't Belong in Core
+## O Que Não Pertence ao Core
 
-**Domain-Specific Elements:**
+**Elementos Específicos do Domínio:**
 
-- Flowchart-specific templates (belongs in Frame Expert)
-- Pitch deck layouts (belongs in Presentation Master)
-- Documentation-specific styles (belongs in Tech Writer)
+- Templates específicos de fluxograma (pertence ao Frame Expert)
+- Layouts de apresentação (pertence ao Presentation Master)
+- Estilos específicos de documentação (pertence ao Tech Writer)
 
-**Agent Workflows:**
+**Fluxos de Trabalho dos Agentes:**
 
-- How to create a flowchart (Frame Expert workflow)
-- How to create a pitch deck (Presentation Master workflow)
-- Step-by-step diagram creation (agent-specific)
+- Como criar um fluxograma (fluxo de trabalho do Frame Expert)
+- Como criar uma apresentação (fluxo de trabalho do Presentation Master)
+- Criação de diagrama passo a passo (específico do agente)
 
-**Theming:**
+**Temas:**
 
-- Currently in agent workflows
-- **Future:** Will be refactored to core as user-configurable themes
+- Atualmente nos fluxos de trabalho dos agentes
+- **Futuro:** Será refatorado para core como temas configuráveis pelo usuário
 
-## Architecture Principle
+## Princípio de Arquitetura
 
-**Single Source of Truth:**
+**Única Fonte da Verdade:**
 
-- Core holds universal knowledge
-- Agents reference core, don't duplicate
-- Updates to core benefit all agents
-- Agents specialize with domain knowledge
+- Core mantém conhecimento universal
+- Agentes referenciam core, não duplicam
+- Atualizações no core beneficiam todos os agentes
+- Agentes especializam-se com conhecimento do domínio
 
 **DRY (Don't Repeat Yourself):**
 
-- Element creation logic: ONCE in core
-- Text width calculation: ONCE in core
-- Validation process: ONCE in core
-- Arrow binding patterns: ONCE in core
+- Lógica de criação de elementos: UMA VEZ no core
+- Cálculo de largura de texto: UMA VEZ no core
+- Processo de validação: UMA VEZ no core
+- Padrões de ligação de setas: UMA VEZ no core
 
-## Future Enhancements
+## Melhorias Futuras
 
-1. **External Library Loader** - Load .excalidrawlib files from libraries.excalidraw.com
-2. **Theme Management** - User-configurable color themes saved in core
-3. **Component Library** - Shared reusable components across agents
-4. **Layout Algorithms** - Auto-layout helpers for positioning elements
+1. **Carregador de Biblioteca Externa** - Carregar arquivos .excalidrawlib de libraries.excalidraw.com
+2. **Gerenciamento de Temas** - Temas de cores configuráveis pelo usuário salvos no core
+3. **Biblioteca de Componentes** - Componentes reutilizáveis compartilhados entre agentes
+4. **Algoritmos de Layout** - Auxiliares de layout automático para posicionamento de elementos

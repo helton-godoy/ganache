@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Ganache Wireframes Hub</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                darkMode: 'class',
+                theme: {
+                    extend: {
+                        colors: {
+                            brand: {
+                                900: '#0f172a', // Slate 900
+                                800: '#1e293b', // Slate 800
+                                500: '#3b82f6', // Blue 500
+                            }
+                        }
+                    }
+                }
+            }
+        </script>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+            body {
+                font-family: 'Inter', sans-serif;
+            }
+        </style>
+    </head>
+
+    <body class="bg-slate-50 min-h-screen text-slate-900">
+        <div class="max-w-4xl mx-auto py-12 px-4">
+            <header class="text-center mb-16">
+                <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 mb-4">Ganache UX Wireframes</h1>
+                <p class="text-xl text-slate-500">Interactive High-Fidelity Prototypes</p>
+            </header>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- SETUP FLOW -->
+                <a href="01-setup-flow.html"
+                    class="group block p-8 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-blue-400 transition-all duration-300">
+                    <div
+                        class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 mb-6 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold mb-2">Setup Journey</h2>
+                    <p class="text-slate-500 text-sm mb-4">The "Twin-View" Cluster Initialization Flow.</p>
+                    <div
+                        class="text-blue-600 font-medium text-sm flex items-center gap-1 group-hover:gap-2 transition-all">
+                        Launch Prototype <span>&rarr;</span>
+                    </div>
+                </a>
+
+                <!-- DASHBOARD -->
+                <a href="02-dashboard-monitoring.html"
+                    class="group block p-8 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-emerald-400 transition-all duration-300">
+                    <div
+                        class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600 mb-6 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold mb-2">Monitoring</h2>
+                    <p class="text-slate-500 text-sm mb-4">Day 1 Operations: Overview, Zpool Topology, and Health Rings.
+                    </p>
+                    <div
+                        class="text-emerald-600 font-medium text-sm flex items-center gap-1 group-hover:gap-2 transition-all">
+                        Launch Prototype <span>&rarr;</span>
+                    </div>
+                </a>
+
+                <!-- MOBILE RESTORE -->
+                <a href="03-mobile-recovery.html"
+                    class="group block p-8 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-rose-400 transition-all duration-300">
+                    <div
+                        class="w-12 h-12 bg-rose-100 rounded-lg flex items-center justify-center text-rose-600 mb-6 group-hover:bg-rose-600 group-hover:text-white transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold mb-2">Recovery</h2>
+                    <p class="text-slate-500 text-sm mb-4">Mobile-first "Panic Mode" for emergency failover.</p>
+                    <div
+                        class="text-rose-600 font-medium text-sm flex items-center gap-1 group-hover:gap-2 transition-all">
+                        Launch Prototype <span>&rarr;</span>
+                    </div>
+                </a>
+            </div>
+
+            <footer class="mt-24 text-center text-slate-400 text-sm border-t border-slate-200 pt-8">
+                <p>Generated by Ganache AI • <a href="../ux-design-specification.md"
+                        class="underline hover:text-slate-600">View Specification</a></p>
+            </footer>
+        </div>
+    </body>
+
+</html>

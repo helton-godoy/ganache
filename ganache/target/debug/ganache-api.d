@@ -1,1 +1,0 @@
-/root/GANACHE/ganache/target/debug/ganache-api: /root/GANACHE/ganache/src/ganache-api/src/handlers.rs /root/GANACHE/ganache/src/ganache-api/src/main.rs /root/GANACHE/ganache/src/ganache-api/src/routes.rs

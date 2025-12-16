@@ -1,0 +1,38 @@
+"use client";
+
+import { StatusDashboard } from '@/components/features/dashboard/status-dashboard';
+import { Button } from '@/components/ui/button';
+import { AlertTriangle, Settings } from 'lucide-react';
+import Link from 'next/link';
+
+export default function Home() {
+  return (
+    <div className="min-h-screen bg-slate-50 p-8 font-sans">
+      <div className="max-w-5xl mx-auto space-y-8">
+
+        <header className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Ganache Dashboard</h1>
+            <p className="text-slate-500">System Monitoring & Control</p>
+          </div>
+          <div className="flex gap-3">
+            <Link href="/setup">
+              <Button className="gap-2">
+                <Settings className="w-4 h-4" /> Setup Journey
+              </Button>
+            </Link>
+            <Link href="/recovery">
+              <Button variant="destructive" className="gap-2">
+                <AlertTriangle className="w-4 h-4" /> Simulate Panic
+              </Button>
+            </Link>
+          </div>
+        </header>
+
+        {/* Real-time Status Dashboard */}
+        <StatusDashboard />
+
+      </div>
+    </div>
+  )
+}

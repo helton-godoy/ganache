@@ -8,3 +8,17 @@ pub struct HardwareInfo {
     /// Name of the detected controller, if any
     pub controller_name: Option<String>,
 }
+
+#[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]
+pub struct ClusterConfig {
+    pub mode: String, // "compatibility" | "standard"
+    pub node_id: i32,
+    pub peer_ip: String,
+}
+
+#[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]
+pub struct ClusterStatus {
+    pub state: String, // "configuring" | "syncing" | "ready" | "error"
+    pub progress: f32, // 0.0 to 1.0
+    pub message: String,
+}

@@ -49,6 +49,24 @@ impl HardwareService {
     }
 }
 
+
+pub struct ClusterService;
+
+impl ClusterService {
+    /// Mock configuration of a twin-node cluster
+    pub async fn configure_node(_config: ganache_api::ClusterConfig) -> Result<ganache_api::ClusterStatus> {
+        // In real life, this would trigger Ansible/Script
+        // Mock delay to simulate work
+        tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+        
+        Ok(ganache_api::ClusterStatus {
+            state: "syncing".to_string(),
+            progress: 0.1,
+            message: "Initializing blocking replication...".to_string(),
+        })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -65,6 +83,22 @@ mod tests {
         assert!(info.has_raid);
         assert_eq!(info.controller_name, Some("MOCK RAID CONTROLLER".to_string()));
         
+        
         unsafe { std::env::remove_var("GANACHE_MOCK_RAID"); }
+    }
+
+    #[tokio::test]
+    async fn test_configure_node_returns_syncing_state() {
+        let config = ganache_api::ClusterConfig {
+            mode: "compatibility".to_string(),
+            node_id: 1,
+            peer_ip: "10.0.0.2".to_string(),
+        };
+
+        let result = ClusterService::configure_node(config).await;
+        assert!(result.is_ok());
+        let status = result.unwrap();
+        assert_eq!(status.state, "syncing");
+        assert!(status.progress > 0.0);
     }
 }

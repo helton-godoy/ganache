@@ -81,7 +81,7 @@ docs/
 Baseado no `documentation-requirements.csv`, o Ganache se qualifica como:
 
 - ✅ **Projeto Web**: Frontend React + Vite
-- ✅ **Projeto Backend**: API Rust + Database
+- ✅ **Projeto Backend**: Monólito Next.js (Server Actions/tRPC)
 - ✅ **Deployment Required**: Empacotamento .deb + ISO
 
 ### **Estrutura BMAD-Compliant**

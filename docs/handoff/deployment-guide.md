@@ -14,7 +14,7 @@ bmad_compliance: true
 
 # 🚀 Guia de Implantação: Ganache Enterprise NAS
 
-Este guia descreve os procedimentos para instalação e configuração inicial do Ganache, cobrindo tanto a instalação "Bare Metal" quanto a instalação sobre um sistema Debian 13 "Bookworm" existente.
+Este guia descreve os procedimentos para instalação e configuração inicial do Ganache, cobrindo tanto a instalação "Bare Metal" quanto a instalação sobre um sistema Debian 13 "Trixie" existente.
 
 ## 1. Pré-requisitos de Sistema
 
@@ -45,14 +45,14 @@ Este guia descreve os procedimentos para instalação e configuração inicial d
 3. O instalador particionará o disco de boot (ext4/xfs) e instalará o sistema base.
 4. Após o reboot, o `ganache-wizard` estará disponível na porta 8006 (HTTPS).
 
-### Cenário B: Instalação sobre Debian 13 (Bookworm)
+### Cenário B: Instalação sobre Debian 13 (Trixie)
 
 Se você já possui um servidor Debian instalado:
 
 1. **Adicionar Repositório Ganache:**
 
     ```bash
-    echo "deb https://apt.ganache.nas/bookworm main" > /etc/apt/sources.list.d/ganache.list
+    echo "deb https://apt.ganache.nas/trixie main" > /etc/apt/sources.list.d/ganache.list
     wget -qO - https://apt.ganache.nas/key.asc | apt-key add -
     ```
 

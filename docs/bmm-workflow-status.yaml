@@ -1,0 +1,49 @@
+
+# Workflow Status Tracking
+# This file tracks the execution status of BMM workflows for the project.
+
+workflows:
+  document-project:
+    status: completed
+    output_file: /root/GANACHE/docs/analysis/project-context-GANACHE-2025-12-14.md
+    last_run: 2025-12-14T18:00:00-04:00
+  product-brief:
+    status: completed
+    output_file: /root/GANACHE/docs/analysis/product-brief-GANACHE-2025-12-14.md
+    last_run: 2025-12-15T07:45:00-04:00
+  prd:
+    status: completed
+    output_file: /root/GANACHE/docs/analysis/prd.md
+    last_run: 2025-12-15T07:45:00-04:00
+  brainstorm-project:
+    status: completed
+    output_file: /root/GANACHE/docs/analysis/brainstorming-session-2025-12-14.md
+    last_run: 2025-12-14T18:30:00-04:00
+  create-ux-design:
+    status: completed
+    output_file: /root/GANACHE/docs/ux-design-specification.md
+    last_run: 2025-12-15T12:00:00-04:00
+  create-architecture:
+    status: completed
+    output_file: /root/GANACHE/docs/architecture.md
+    last_run: 2025-12-15T14:00:00-04:00
+  create-epics-and-stories:
+    status: completed
+    output_file: docs/epics.md
+    last_run: 2025-12-16
+  sprint-planning:
+    status: completed
+    output_file: docs/sprint-artifacts/sprint-status.yaml
+    last_run: 2025-12-16
+  create-story:
+    status: completed
+    output_file: docs/sprint-artifacts/1-1-detect-raid-hardware-recommend-mode.md
+  dev-story-1-1:
+    status: completed
+    output_file: docs/sprint-artifacts/1-1-detect-raid-hardware-recommend-mode.md
+    last_run: 2025-12-16
+
+# Next Recommended Workflows
+next_steps:
+  - workflow: code-review
+    reason: "Story 1.1 implementation is complete and ready for adversarial review."

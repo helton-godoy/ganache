@@ -1,76 +1,49 @@
 # Development Guide - Ganache
 
-## 🛠️ Pré-requisitos
+## 🛠️ Prerequisites
 
-- **Rust:** Toolchain estável (Cargo 1.70+)
-- **Node.js:** v18+ (LTS recomendado)
-- **Gerenciador de Pacotes:** `npm` ou `pnpm`
-- **Ferramentas de Build:** `make`, `gcc` (para compilação Rust)
+- **Node.js:** v20+ (LTS)
+- **Package Manager:** `pnpm` (Preferred) or `npm`
+- **System:** Linux (Debian 13 recommended for full feature parity) or macOS (Limited functionality)
 
-## 🚀 Setup do Ambiente
+## 🚀 Setup Environment
 
-### 1. Clonar e Preparar
+### 1. Clone and Install
 
 ```bash
 git clone <repo_url>
 cd GANACHE
-chmod +x scripts/setup_ganache_enhanced.sh
+pnpm install
 ```
 
-### 2. Backend (Rust)
+### 2. Run Development Server
 
-O backend reside em `ganache/src/ganache-api`.
+The application is a monolithic Next.js app.
 
 ```bash
-cd ganache
-# Build em modo debug
-cargo build
-
-# Rodar servidor localmente
-cargo run
+pnpm dev
+# Server will start on http://localhost:3000
 ```
 
-O servidor iniciará (porta padrão a verificar, geralmente 8080 ou 8000).
+> **Note:** Some features (ZFS, DRBD) require root access and specific kernel modules. In development mode on non-Linux systems, these calls will either fail or return mock data (if implemented).
 
-### 3. Frontend (React)
+## 🧪 Testing
 
-O frontend reside em `ganache/ui`.
+### Run All Tests
 
 ```bash
-cd ganache/ui
-npm install
-
-# Rodar servidor de desenvolvimento (Vite)
-npm run dev
+pnpm test
 ```
 
-O frontend estará acessível em `http://localhost:5173` (padrão Vite).
-
-## 🧪 Testes
-
-### Backend
+### E2E Testing (Playwright)
 
 ```bash
-cd ganache
-cargo test
+npx playwright test
 ```
 
-### Frontend
+## 📦 Production Build
 
 ```bash
-cd ganache/ui
-npm run type-check # Se configurado (tsc)
-npm run lint
-```
-
-## 📦 Build de Produção
-
-Utilize o `Makefile` na raiz para builds automatizados:
-
-```bash
-# Build do Frontend (gera arquivos em ganache/ui/dist)
-make ui
-
-# Build do Backend (Release)
-cd ganache && cargo build --release
+pnpm build
+pnpm start
 ```

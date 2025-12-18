@@ -42,7 +42,7 @@ Small to medium enterprises and IT administrators face a critical gap in storage
 
 ### Proposed Solution
 
-**GANACHE NAS** provides a "Guided Open Experience". It combines a rigorous backend (Rust) that enforces architectural safety with a transparent frontend (React) that educates the user.
+**GANACHE NAS** provides a "Guided Open Experience". It combines a rigorous backend (Type-Safe System Integration) that enforces architectural safety with a transparent frontend (React) that educates the user.
 
 - **Dual Mode Strategy:** Automatically supports Legacy Hardware (Hardware RAID + DRBD) and Modern Hardware (HBA + Native ZFS).
 - **Smart Wizard:** Proactively scans hardware and recommends the safest configuration, abstracting the complexity of HA setup.

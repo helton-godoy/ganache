@@ -34,9 +34,9 @@ date: '2025-12-14'
 
 **Ganache NAS** is a specialized High-Availability Storage Appliance built to solve a critical infrastructure paradox: running modern ZFS-based workloads on legacy enterprise hardware (e.g., Dell PowerEdge 2950 with PERC 6/i) that lacks HBA/Passthrough modules.
 
-Born from the need to utilize existing hardware inventory for robust storage, Ganache implements a **"Pragmatic Architecture"**: it layers ZFS over DRBD (Distributed Replicated Block Device) on top of Hardware RAID volumes. This architecture recovers the data safety lost by the lack of ZFS Self-Heal through synchronous block-level replication (DRBD) and external backup integration (Proxmox Backup Server), governed by a Rust-based middleware that porting the battle-tested logic of TrueNAS Scale to the Proxmox ecosystem.
+Born from the need to utilize existing hardware inventory for robust storage, Ganache implements a **"Pragmatic Architecture"**: it layers ZFS over DRBD (Distributed Replicated Block Device) on top of Hardware RAID volumes. This architecture recovers the data safety lost by the lack of ZFS Self-Heal through synchronous block-level replication (DRBD) and external backup integration (Proxmox Backup Server), governed by a Type-Safe middleware that porting the battle-tested logic of TrueNAS Scale to the Proxmox ecosystem.
 
-* **API Pattern:** Dedicated Rust-based **REST API** (Actix-web) to serve the React Frontend, ensuring separation from upstream PBS updates.
+* **API Pattern:** Dedicated Type-Safe **tRPC API** (Next.js) to serve the React Frontend, ensuring separation from upstream PBS updates.
 
 ## Project Scoping & Phased Development
 
@@ -77,7 +77,7 @@ Born from the need to utilize existing hardware inventory for robust storage, Ga
 
 ### Risk Mitigation Strategy
 
-* **Technical Risk (Git Config):** Use a robust Rust git library (git2/libgit2) to ensure transactional integrity of config writes.
+* **Technical Risk (Git Config):** Use a robust git library (simple-git) to ensure transactional integrity of config writes.
 * **Market Risk (Hardware Aging):** Validate performance on standard 10GbE to prove "Life Extension" value concretely.
 * **Resource Risk:** Lean on existing Proxmox code (Reuse `proxmox-backup-client`) to reduce dev scope.
 
@@ -144,12 +144,12 @@ Born from the need to utilize existing hardware inventory for robust storage, Ga
 ### What Makes This Special
 
 1. **The "Pragmatic Architecture" (ZFS over DRBD):** Enables ZFS features (Compression, Snapshots, SMB Shadow Copy) on Hardware RAID controllers by offloading redundancy to the network layer (DRBD/Pacemaker), enabling HA on "deprecated" hardware.
-2. **TrueNAS Logic / Proxmox Core:** Re-implements critical TrueNAS middleware logic (SMB/NFSv4 ACLs, Active Directory joins) in **Rust**, running on a pristine Debian/Proxmox Backup Server base.
+2. **TrueNAS Logic / Proxmox Core:** Re-implements critical TrueNAS middleware logic (SMB/NFSv4 ACLs, Active Directory joins) in **TypeScript**, running on a pristine Debian/Proxmox Backup Server base.
 3. **"Backup-First" Design:** Acts as a specialized PBS Client, treating its own storage pool as a backup source that streams incrementally to an external PBS target, compensating for legacy hardware risks.
 
 ## Project Classification
 
-**Technical Type:** Infrastructure Appliance (Rust Backend + React UI)
+**Technical Type:** Infrastructure Appliance (Next.js Full Stack)
 **Domain:** Enterprise Storage / High Availability
 **Complexity:** **High** (Kernel-level interactions, Cluster State Machine, Filesystem Engineering)
 **Project Context:** Brownfield (Extending Proxmox Backup Server ecosystem)
@@ -182,7 +182,7 @@ Born from the need to utilize existing hardware inventory for robust storage, Ga
 
 ### MVP - Minimum Viable Product (The "Ganache Appliance")
 
-* **Core:** Hybrid Architecture (Rust Middleware + React UI) on Proxmox 8 base.
+* **Core:** Modern Monolith (Next.js App Router) on Proxmox 8 base.
 * **Storage:** ZFS over DRBD 9 (2-Node HA) for PERC 6/i hardware.
 * **Access:** SMB Shares with Active Directory Integration (winbind).
 * **Safety:** Smart Wizard with "Safe Config" rails and Educational Explanations.

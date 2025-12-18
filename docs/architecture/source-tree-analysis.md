@@ -6,41 +6,37 @@
 
 ```shell
 GANACHE/
-├── Makefile                 # Automação de tarefas (Build, Install, Clean)
-├── scripts/                 # Scripts auxiliares de setup
-│   └── setup_ganache_enhanced.sh # Script de configuração do ambiente
-├── docs/                    # Documentação do projeto (BMAD)
-└── ganache/                 # Código Fonte Principal (Monorepo-style)
-    ├── Cargo.toml           # Manifesto Workspace Rust
-    ├── api-spec.yaml        # Especificação OpenAPI (Backend <-> Frontend Contract)
-    │
-    ├── src/                 # Backend Rust Source
-    │   └── ganache-api/     # API Service
-    │       ├── src/
-    │       │   ├── main.rs      # Entry Point da Aplicação
-    │       │   ├── routes.rs    # Definição de Rotas (SMB, ZFS, System)
-    │       │   └── handlers.rs  # Lógica dos Endpoints
-    │
-    └── ui/                  # Frontend React Source
-        ├── package.json     # Manifesto Node.js
-        ├── vite.config.ts   # Configuração de Build
-        ├── index.html       # Entry Point HTML
-        └── src/
-            ├── main.tsx     # Application Entry Point (React DOM)
-            ├── App.tsx      # Root Component
-            ├── api/         # Camada de Cliente API (Generated)
-            ├── components/  # Componentes de UI (Dashboard, Managers)
-            ├── stores/      # Gerenciamento de Estado (Zustand)
-            └── theme.ts     # Configuração Material UI (inferred)
+├── Makefile                 # Automação de tarefas
+├── scripts/                 # Scripts auxiliares
+├── docs/                    # Documentação do projeto
+├── src/                     # Source Code Principal (Next.js)
+│   ├── app/                 # App Router (Pages & API)
+│   │   ├── api/             # tRPC Handler endpoint
+│   │   ├── layout.tsx       # Root Layout
+│   │   └── page.tsx         # Dashboard Principal
+│   ├── server/              # Backend Logic
+│   │   └── api/             # tRPC Routers
+│   │       ├── root.ts      # App Router Definition
+│   │       └── routers/     # Domain Routers (zfs, system)
+│   ├── lib/                 # Core Utilities
+│   │   ├── sudo.ts          # Privilege Wrapper
+│   │   └── zfs.ts           # ZFS Command Wrapper
+│   └── components/          # UI Components
+│       ├── ui/              # Shadcn UI (Presentation)
+│       └── features/        # Business Logic Components
+├── public/                  # Static Assets
+├── next.config.mjs          # Next.js Config
+├── package.json             # Dependencies
+└── tsconfig.json            # TypeScript Config
 ```
 
 ## 📍 Pontos Críticos
 
-### Backend (`ganache/src/ganache-api`)
+### Full Stack (`src/app` + `src/server`)
 
-- **Core Logic:** O serviço principal roda em Rust usando Actix-Web.
-- **Entry Point:** `main.rs` inicializa o servidor HTTP e configura rotas.
-- **API Contract:** O arquivo `api-spec.yaml` na raiz de `ganache/` define o contrato que o backend implementa e o frontend consome.
+- **Core Logic:** A aplicação é um monólito Next.js.
+- **API Entry Point:** `src/app/api/trpc/[trpc]/route.ts` expõe o servidor tRPC.
+- **System Integration:** `src/lib/` contém os wrappers seguros para execução de comandos.ganache/` define o contrato que o backend implementa e o frontend consome.
 
 ### Frontend (`ganache/ui`)
 

@@ -100,7 +100,7 @@ Focaremos em como transformar a detecção técnica de hardware e as restriçõe
 
 **Prioritization Results:**
 
-- **Top Priority (Must Have):** Implementação dos Safety Gates no Backend (Rust) e Wizard Step 1 com Recomendação Automática.
+- **Top Priority (Must Have):** Implementação dos Safety Gates no Backend (System Integration) e Wizard Step 1 com Recomendaçõ Automática.
 - **Quick Win:** Refatoração dos textos do Wizard usando o tom "Admin Júnior friendly".
 - **Strategic (Should Have):** Lógica de Cluster Setup com discovery explícito após seleção de Role.
 
@@ -116,6 +116,7 @@ Focaremos em como transformar a detecção técnica de hardware e as restriçõe
 ## Session Summary and Insights
 
 **Key Achievements:**
+
 - Transformamos um problema técnico complexo (Dual Mode) em uma jornada de usuário guiada.
 - Definimos barreiras de segurança claras para evitar erro humano.
 - Criamos um tom de voz que educa e tranquiliza o usuário.

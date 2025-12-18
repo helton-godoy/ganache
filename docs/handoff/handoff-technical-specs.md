@@ -7,28 +7,31 @@ updated: "2025-12-14"
 author: "BMAD Analyst Agent"
 status: "draft"
 version: "0.1.0"
-tags: ["ganache", "specs", "rust", "storage-trait", "zfs", "drbd"]
+tags: ["ganache", "specs", "storage-trait", "zfs", "drbd"]
 related_docs: ["docs/architecture/architecture-backend.md", "docs/api-contracts-backend.md"]
 bmad_compliance: true
 ---
 
 # 🛠️ Especificação Técnica: Ganache Storage Architecture
 
+* **Core:** Modern Monolith (Next.js App Router) on Proxmox 8 base.
 Este documento detalha as especificações técnicas para a implementação da camada de armazenamento do Ganache, focando no padrão "Dual Mode Strategy" para suporte a hardware legado e moderno.
 
 ## 1. StorageTrait & Strategy Pattern
 
 A abstração central do sistema é a `StorageTrait`, que define o contrato unificado para operações de armazenamento, independentemente do backend físico subjacente.
 
-### 1.1. Definição da Trait (Rust)
+### 1.1. Definição da Interface (API)
 
-```rust
+A camada de abstração de hardware deve expor as seguintes capacidades:
 /// Define o comportamento abstrato para backends de armazenamento.
 ///
 /// Implementações:
 /// - `LegacyStorage`: ZFS sobre DRBD sobre LVM sobre Hardware RAID.
 /// - `NativeStorage`: ZFS Nativo (RaidZ/Mirror) sobre HBA/JBOD.
-#[async_trait]
+
+# [async_trait]
+
 pub trait StorageTrait: Send + Sync {
     /// Inicializa o subsistema de armazenamento.
     /// Retorna erro se o hardware detectado for incompatível com a implementação.
@@ -48,6 +51,7 @@ pub trait StorageTrait: Send + Sync {
     /// Verifica se o nó atual possui o Quorum/Lock para montar o pool.
     async fn has_quorum(&self) -> bool;
 }
+
 ```
 
 ### 1.2. Implementações
@@ -106,20 +110,19 @@ O Frontend (React Wizard) depende dessa especificação para guiar o usuário.
 
 ### 3.1. Struct `HardwareCapabilities`
 
-```rust
-#[derive(Serialize, Deserialize, Debug)]
-pub struct HardwareCapabilities {
-    /// Verdadeiro se detectarmos controladoras RAID de hardware conhecidas (PERC, MegaRAID).
-    pub has_hardware_raid: bool,
+```typescript
+interface HardwareCapabilities {
+    // Verdadeiro se detectarmos controladoras RAID de hardware conhecidas (PERC, MegaRAID).
+    hasHardwareRaid: boolean;
     
-    /// Lista de discos "limpos" visíveis para ZFS Nativo.
-    pub zfs_compatible_disks: Vec<DiskInfo>,
+    // Lista de discos "limpos" visíveis para ZFS Nativo.
+    zfsCompatibleDisks: DiskInfo[];
     
-    /// Verdadeiro se o DRBD estiver instalado e configurado no kernel.
-    pub drbd_available: bool,
+    // Verdadeiro se o DRBD estiver instalado e configurado no kernel.
+    drbdAvailable: boolean;
     
-    /// Modo recomendado baseado na varredura.
-    pub recommended_mode: StorageMode, // Legacy | Native
+    // Modo recomendado baseado na varredura.
+    recommendedMode: StorageMode; // 'Legacy' | 'Native'
 }
 ```
 

@@ -1,4 +1,4 @@
-import { ClusterStatus } from "@/hooks/use-cluster-configuration";
+import type { ClusterStatus } from "@/api/generated/model";
 import { CheckCircle, Loader2, Server } from "lucide-react";
 
 interface ClusterConnectionVisualizerProps {
@@ -7,6 +7,12 @@ interface ClusterConnectionVisualizerProps {
 
 export function ClusterConnectionVisualizer({ status }: ClusterConnectionVisualizerProps) {
     if (!status) return null;
+
+    // The ClusterStatus type from OpenAPI model already defines the 'state' property
+    // with the appropriate enum values (e.g., "configuring", "syncing", "ready", "error").
+    // No explicit casting is needed here if 'status' is already of type ClusterStatus.
+    // If 'status' was coming from an 'any' type or a less specific type,
+    // a cast like `status as ClusterStatus` might be used, but it's not necessary here.
 
     const isSyncing = status.state === "syncing" || status.state === "configuring";
     const isReady = status.state === "ready";
@@ -35,7 +41,7 @@ export function ClusterConnectionVisualizer({ status }: ClusterConnectionVisuali
 
                 {/* Node B */}
                 <div className="flex flex-col items-center gap-2">
-                    <Server className={`w-12 h-12 ${isReady ? 'text-emerald-500' : 'text-slate-500'}`} />
+                    <Server className={`w - 12 h - 12 ${isReady ? 'text-emerald-500' : 'text-slate-500'} `} />
                     <span className="text-sm font-mono">Node B</span>
                 </div>
             </div>
@@ -47,7 +53,7 @@ export function ClusterConnectionVisualizer({ status }: ClusterConnectionVisuali
                 <div className="w-64 h-2 bg-slate-800 rounded-full mt-2">
                     <div
                         className="h-full bg-blue-500 rounded-full transition-all duration-500"
-                        style={{ width: `${status.progress * 100}%` }}
+                        style={{ width: `${status.progress * 100}% ` }}
                     />
                 </div>
             </div>

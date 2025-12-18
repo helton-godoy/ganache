@@ -1,8 +1,9 @@
 "use client";
 
+import { useListDisks } from "@/api/generated/default/default";
+import type { DiskInfo } from "@/api/generated/model";
 import { DiskCard, type DiskType } from "@/components/features/storage/disk";
 import { Button } from "@/components/ui/button";
-import { api } from "@/trpc/react";
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { ArrowLeft, ArrowRight, Check, RotateCcw, Server } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -16,7 +17,8 @@ type WizardStep = "welcome" | "config" | "review" | "compatibility";
 
 export function SetupWizard() {
     const router = useRouter();
-    const { data: serverDisks, isLoading } = api.disk.list.useQuery();
+    const { data: axiosDisks, isLoading } = useListDisks();
+    const serverDisks = axiosDisks?.data;
 
     const [currentStep, setCurrentStep] = useState<WizardStep>("welcome");
 
@@ -33,8 +35,13 @@ export function SetupWizard() {
     // Initialize local state
     useEffect(() => {
         if (serverDisks && nodeAAvailable.length === 0 && nodeAAssigned.length === 0 && nodeBAvailable.length === 0 && nodeBAssigned.length === 0) {
-            setNodeAAvailable(serverDisks.filter((d) => d.nodeId === "node-a") as DiskType[]);
-            setNodeBAvailable(serverDisks.filter((d) => d.nodeId === "node-b") as DiskType[]);
+            const mappedDisks = serverDisks.map((d: DiskInfo) => ({
+                ...d,
+                nodeId: d.node_id as "node-a" | "node-b"
+            })) as DiskType[];
+
+            setNodeAAvailable(mappedDisks.filter((d) => d.nodeId === "node-a"));
+            setNodeBAvailable(mappedDisks.filter((d) => d.nodeId === "node-b"));
         }
     }, [serverDisks]);
 

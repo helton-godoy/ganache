@@ -1,24 +1,9 @@
-import { fetchJson } from "@/lib/api-client";
-import { useMutation } from "@tanstack/react-query";
+import { useConfigureCluster } from "@/api/generated/default/default";
+import type { ClusterStatus } from "@/api/generated/model";
 
-export interface ClusterStatus {
-    state: "configuring" | "syncing" | "ready" | "error";
-    progress: number;
-    message: string;
-}
-
-export interface ClusterConfig {
-    mode: "compatibility" | "standard";
-    node_id: number;
-    peer_ip: string;
-}
+export type { ClusterStatus };
 
 export function useClusterConfiguration() {
-    return useMutation<ClusterStatus, Error, ClusterConfig>({
-        mutationFn: (config) => fetchJson<ClusterStatus>("/cluster/configure", {
-            method: "POST",
-            body: JSON.stringify(config),
-            headers: { "Content-Type": "application/json" }
-        }),
-    });
+    const mutation = useConfigureCluster();
+    return mutation;
 }

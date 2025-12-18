@@ -29,7 +29,7 @@ export function WizardWelcomeStep({ onNext }: WizardWelcomeStepProps) {
 
     // Automatically recommend compatibility mode if RAID is detected
     useEffect(() => {
-        if (hardwareInfo?.has_raid) {
+        if (hardwareInfo?.data?.has_raid) {
             setSelectedMode("compatibility");
         }
     }, [hardwareInfo]);
@@ -41,7 +41,7 @@ export function WizardWelcomeStep({ onNext }: WizardWelcomeStepProps) {
     };
 
     const handleStandardClick = () => {
-        if (hardwareInfo?.has_raid) {
+        if (hardwareInfo?.data?.has_raid) {
             setShowWarning(true);
         } else {
             setSelectedMode("standard");
@@ -100,7 +100,7 @@ export function WizardWelcomeStep({ onNext }: WizardWelcomeStepProps) {
                     className={`relative cursor-pointer transition-all border-2 hover:border-primary/50 ${selectedMode === "compatibility" ? "border-primary shadow-lg scale-[1.02]" : "border-border"}`}
                     onClick={() => setSelectedMode("compatibility")}
                 >
-                    {hardwareInfo?.has_raid && (
+                    {hardwareInfo?.data?.has_raid && (
                         <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm z-10 animate-in fade-in zoom-in duration-300">
                             Recommended
                         </div>
@@ -122,11 +122,11 @@ export function WizardWelcomeStep({ onNext }: WizardWelcomeStepProps) {
                         </div>
 
                         {/* Educator Tooltip / Info Box */}
-                        {hardwareInfo?.has_raid && (
+                        {hardwareInfo?.data?.has_raid && (
                             <div className="bg-blue-50 text-blue-700 text-xs p-3 rounded-md border border-blue-100 mt-4 animate-in slide-in-from-top-2 duration-500">
                                 <div className="flex items-center gap-2 font-bold mb-1">
                                     <Cpu className="w-4 h-4" />
-                                    Hardware Detected: {hardwareInfo.controller_name || "RAID Controller"}
+                                    Hardware Detected: {hardwareInfo.data.controller_name || "RAID Controller"}
                                 </div>
                                 <p>
                                     Compatibility mode ensures ZFS runs safely on top of your existing virtual drives without data corruption risks.
@@ -165,7 +165,7 @@ export function WizardWelcomeStep({ onNext }: WizardWelcomeStepProps) {
                             Hardware RAID Detected
                         </AlertDialogTitle>
                         <AlertDialogDescription>
-                            We detected a <strong>{hardwareInfo?.controller_name || "RAID Controller"}</strong> in your system.
+                            We detected a <strong>{hardwareInfo?.data?.controller_name || "RAID Controller"}</strong> in your system.
                             <br /><br />
                             Using <strong>Standard Mode</strong> (ZFS) on top of hardware RAID can lead to reliability issues and is <strong>not recommended</strong> unless you have flashed your controller to IT Mode.
                             <br /><br />

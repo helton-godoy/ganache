@@ -1,8 +1,9 @@
 "use client";
 
+import { getGetSystemLogsQueryKey, useGetSystemLogs, usePromoteNode } from "@/api/generated/default/default";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { api } from "@/trpc/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, Power, RefreshCw, ServerCrash, ShieldAlert } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -10,25 +11,34 @@ import { toast } from "sonner";
 export function RecoveryConsole() {
     const [selectedNode, setSelectedNode] = useState<string | null>(null);
 
-    const utils = api.useUtils();
-    const { data: logs } = api.system.getSystemLogs.useQuery();
+    const queryClient = useQueryClient();
+    const { data: axiosLogs } = useGetSystemLogs();
+    const logs = axiosLogs?.data;
 
-    const promoteMutation = api.system.promoteNode.useMutation({
-        onSuccess: (data) => {
-            toast.success(data.message);
-            void utils.system.getSystemLogs.invalidate();
-        },
-        onError: (error) => {
-            toast.error(error.message);
-        },
+    const promoteMutation = usePromoteNode({
+        mutation: {
+            onSuccess: (axiosRes) => {
+                toast.success(axiosRes.data);
+                void queryClient.invalidateQueries({ queryKey: getGetSystemLogsQueryKey() });
+            },
+            onError: (err: any) => {
+                toast.error("Promotion Failed", {
+                    description: err.response?.data?.message || err.message,
+                });
+            }
+        }
     });
 
     const handlePromote = (nodeId: string) => {
-        toast.promise(promoteMutation.mutateAsync({ nodeId, force: true }), {
+        toast.promise(promoteMutation.mutateAsync(), {
             loading: 'Promoting node...',
             success: 'Node promoted successfully',
             error: 'Failed to promote node',
         });
+    };
+
+    const handleRefresh = () => {
+        void queryClient.invalidateQueries({ queryKey: getGetSystemLogsQueryKey() });
     };
 
     return (
@@ -107,7 +117,7 @@ export function RecoveryConsole() {
                     <h3 className="font-semibold flex items-center gap-2">
                         <ActivityLogIcon /> Live Event Log
                     </h3>
-                    <Button size="sm" variant="ghost" onClick={() => utils.system.getSystemLogs.invalidate()}>
+                    <Button size="sm" variant="ghost" onClick={handleRefresh}>
                         <RefreshCw className={cn("w-4 h-4", logs ? "" : "animate-spin")} />
                     </Button>
                 </div>

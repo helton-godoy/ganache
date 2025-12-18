@@ -19,10 +19,11 @@ export function WizardCompatibilityStep({ onNext, onBack }: WizardCompatibilityS
 
     const handleConfirm = () => {
         configure({
-            mode: "compatibility",
-            node_id: 1,
-            // TODO: [Story 1.1 Follow-up] Replace hardcoded peer IP with dynamic discovery from HardwareService
-            peer_ip: "192.168.1.20" // Hardcoded for MVP/Mock
+            data: {
+                mode: "compatibility",
+                node_id: 1,
+                peer_ip: "192.168.1.20"
+            }
         }, {
             onSuccess: () => {
                 // Wait for animation or directly proceed?
@@ -34,8 +35,9 @@ export function WizardCompatibilityStep({ onNext, onBack }: WizardCompatibilityS
         });
     };
 
-    if (isPending || status) {
-        return <ClusterConnectionVisualizer status={status || { state: "configuring", progress: 0, message: "Starting..." }} />;
+    if (isPending || (status && status.data)) {
+        const clusterStatus = (status?.data as any) as { state: "configuring" | "syncing" | "ready" | "error", progress: number, message: string };
+        return <ClusterConnectionVisualizer status={clusterStatus || { state: "configuring", progress: 0, message: "Starting..." }} />;
     }
 
     // Visual representation of the "Cake"

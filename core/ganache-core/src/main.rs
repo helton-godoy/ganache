@@ -6,7 +6,7 @@ use ganache_api::{
 use ganache_lib::{BootService, ClusterService, HardwareService, MemoryService, ZpoolService};
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
-use tower_http::cors::{Any, CorsLayer};
+use tower_http::cors::CorsLayer;
 use tracing::{info, warn};
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;

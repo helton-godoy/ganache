@@ -1,6 +1,5 @@
 use anyhow::{Ok, Result};
 use ganache_api::BootEnvironment;
-use std::process::Command;
 
 pub struct BootService;
 
@@ -10,7 +9,7 @@ impl BootService {
     /// Here we return a mock list.
     pub fn list_boot_environments() -> Result<Vec<BootEnvironment>> {
         // Mock data
-        let mut bes = vec![
+        let bes = vec![
             BootEnvironment {
                 name: "default".to_string(),
                 active: "NR".to_string(), // Active Now & Reboot

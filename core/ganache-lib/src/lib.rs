@@ -1,6 +1,6 @@
 use std::process::Command;
 pub mod system;
-use anyhow::{Context, Result};
+use anyhow::Result;
 use ganache_api::HardwareInfo;
 pub use system::boot::BootService;
 pub use system::cluster::ClusterService;

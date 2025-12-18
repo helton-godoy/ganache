@@ -7,6 +7,17 @@
 # Helps Agents and Developers maintain Atomic Commits.
 # ==============================================================================
 
+AUTO_FIX=false
+
+for arg in "$@"; do
+    case $arg in
+        --fix)
+            AUTO_FIX=true
+            shift
+            ;;
+    esac
+done
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -49,14 +60,17 @@ while IFS= read -r line; do
     FILE="${FILE#\"}"
 
     # Check if file is ignored by git (but tracked)
-    # git check-ignore returns 0 if ignored, 1 if not
     if git check-ignore -q "$FILE"; then
         BUILD_ARTIFACTS+=("$FILE")
         continue
     fi
     
-    # Special handling for explicitly known artifacts/logs that might not be in .gitignore yet or are confusing
+    # Special handling for explicitly known artifacts/logs
     if [[ "$FILE" == *".next/"* ]] || [[ "$FILE" == *"test-output"* ]] || [[ "$FILE" == *".log" ]]; then
+        # If explicitly known artifact but NOT ignored by git check-ignore yet, 
+        # it might be Untracked.
+        # If it is Untracked (??), checking ignore returned false (1).
+        # We classify it as BUILD_ARTIFACTS anyway to suggest ignoring.
         BUILD_ARTIFACTS+=("$FILE")
         continue
     fi
@@ -121,8 +135,28 @@ function print_group() {
         fi
         
         if [ "$label" == "BUILD ARTIFACTS / IGNORED" ]; then
-             echo -e "${MAGENTA}Suggestion:${NC} git rm --cached ${files[*]:0:10} ... (or add to .gitignore)"
-             echo -e "${MAGENTA}Auto-Fix:${NC} git rm --cached -r .next/ test-output* 2>/dev/null"
+             echo -e "${MAGENTA}Suggestion:${NC} git rm --cached <files> (or add to .gitignore)"
+             
+             if [ "$AUTO_FIX" = true ]; then
+                 echo -e "${MAGENTA}Auto-Fixing...${NC}"
+                 # Strategy:
+                 # 1. Try rm --cached (works for Tracked files)
+                 # 2. If Untracked, we can't rm --cached. We should Suggest adding to .gitignore.
+                 # For simplicity in this v1: we try rm --cached silently.
+                 
+                 # Collapse array into arguments
+                 git rm --cached -r "${files[@]}" 2>/dev/null
+                 
+                 # Check specific folders known to cause issues if not ignored
+                 for fx in "${files[@]}"; do
+                    if [[ "$fx" == *"test-output"* ]] && ! git check-ignore -q "$fx"; then
+                         echo "Warning: $fx is UNTRACKED and NOT IGNORED. Adding to .gitignore..."
+                         echo "$fx" >> .gitignore
+                    fi
+                 done
+             else
+                 echo -e "${MAGENTA}Run with --fix to apply auto-remediation${NC}"
+             fi
         else
              echo -e "${CYAN}Suggestion:${NC} git add <files> && git commit -m \"${type}: description...\""
         fi
@@ -138,5 +172,9 @@ print_group "CHORE" "$RED" "chore" CHORE_FILES[@]
 print_group "BUILD ARTIFACTS / IGNORED" "$MAGENTA" "cleanup" BUILD_ARTIFACTS[@]
 print_group "UNKNOWN" "$RED" "revert" UNKNOWN_FILES[@]
 
-echo -e "--------------------------------------------------------"
-echo -e "${YELLOW}Tip:${NC} Use 'git commit -m \"type(scope): message\"' for best practices."
+if [ "$AUTO_FIX" = true ]; then
+    echo -e "${GREEN}✓ Auto-fix complete.${NC}"
+else
+    echo -e "--------------------------------------------------------"
+    echo -e "${YELLOW}Tip:${NC} Use 'git commit -m \"type(scope): message\"' for best practices."
+fi

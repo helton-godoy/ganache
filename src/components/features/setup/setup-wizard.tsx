@@ -9,14 +9,16 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ServerBlade } from "./server-blade";
+import { WizardCompatibilityStep } from "./WizardCompatibilityStep";
+import { WizardWelcomeStep } from "./WizardWelcomeStep";
 
-type WizardStep = "config" | "review";
+type WizardStep = "welcome" | "config" | "review" | "compatibility";
 
 export function SetupWizard() {
     const router = useRouter();
     const { data: serverDisks, isLoading } = api.disk.list.useQuery();
 
-    const [currentStep, setCurrentStep] = useState<WizardStep>("config");
+    const [currentStep, setCurrentStep] = useState<WizardStep>("welcome");
 
     // Node A State
     const [nodeAAvailable, setNodeAAvailable] = useState<DiskType[]>([]);
@@ -208,7 +210,34 @@ export function SetupWizard() {
 
     return (
         <div className="space-y-8">
-            {currentStep === "config" ? (
+            {currentStep === "welcome" && (
+                <WizardWelcomeStep onNext={(mode) => {
+                    if (mode === "compatibility") {
+                        setCurrentStep("compatibility");
+                    } else {
+                        setCurrentStep("config");
+                    }
+                }} />
+            )}
+
+            {currentStep === "compatibility" && (
+                <WizardCompatibilityStep
+                    onNext={() => {
+                        // Compatibility mode bypasses config/review for now as it's automated
+                        // or moves to a specific review if needed. For now, it handles its own confirmation.
+                        // Ideally, it transitions to "done" or redirects.
+                        // The component handles the API call and visualizer.
+                        // We can just stay here or have a callback to redirect?
+                        // The component calls configure(). On success it calls onNext.
+                        // We can redirect to dashboard.
+                        toast.success("Compatibility Mode Configured!");
+                        setTimeout(() => router.push("/"), 2000);
+                    }}
+                    onBack={() => setCurrentStep("welcome")}
+                />
+            )}
+
+            {currentStep === "config" && (
                 // --- CONFIG STEP (DnD) ---
                 <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 pb-24 max-w-7xl mx-auto">
@@ -227,53 +256,56 @@ export function SetupWizard() {
                         {activeDisk ? <DiskCard disk={activeDisk} isOverlay /> : null}
                     </DragOverlay>
                 </DndContext>
-            ) : (
+            )}
+            {currentStep === "review" && (
                 // --- REVIEW STEP ---
                 <div className="p-6 pb-24">
                     <ReviewView />
                 </div>
             )}
 
-            {/* Footer */}
-            <div className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-md border-t p-4 z-50">
-                <div className="max-w-6xl mx-auto flex items-center justify-between">
-                    {/* Footer Left Info */}
-                    <div className="flex flex-col md:flex-row gap-4 text-sm text-muted-foreground">
-                        {currentStep === "config" && (
-                            <>
-                                <span>Node A Pool: <strong className="text-foreground">{nodeAAssigned.length}</strong></span>
-                                <span>Node B Pool: <strong className="text-foreground">{nodeBAssigned.length}</strong></span>
-                            </>
-                        )}
-                        {currentStep === "review" && (
-                            <span className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Ready to apply</span>
-                        )}
-                    </div>
+            {/* Footer - Hide on Welcome Step */}
+            {currentStep !== "welcome" && (
+                <div className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-md border-t p-4 z-50">
+                    <div className="max-w-6xl mx-auto flex items-center justify-between">
+                        {/* Footer Left Info */}
+                        <div className="flex flex-col md:flex-row gap-4 text-sm text-muted-foreground">
+                            {currentStep === "config" && (
+                                <>
+                                    <span>Node A Pool: <strong className="text-foreground">{nodeAAssigned.length}</strong></span>
+                                    <span>Node B Pool: <strong className="text-foreground">{nodeBAssigned.length}</strong></span>
+                                </>
+                            )}
+                            {currentStep === "review" && (
+                                <span className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Ready to apply</span>
+                            )}
+                        </div>
 
-                    {/* Footer Actions */}
-                    <div className="flex gap-4">
-                        {currentStep === "config" ? (
-                            <>
-                                <Button variant="outline" size="lg" onClick={handleGlobalReset} className="gap-2">
-                                    <RotateCcw className="w-4 h-4" /> Reset All
-                                </Button>
-                                <Button size="lg" onClick={handleNext} className="gap-2" disabled={!canProcced}>
-                                    Next: Review <ArrowRight className="w-4 h-4" />
-                                </Button>
-                            </>
-                        ) : (
-                            <>
-                                <Button variant="ghost" size="lg" onClick={handleBack} className="gap-2">
-                                    <ArrowLeft className="w-4 h-4" /> Back to Config
-                                </Button>
-                                <Button size="lg" onClick={handleConfirm} className="gap-2 bg-green-600 hover:bg-green-700">
-                                    Confirm & Apply <Check className="w-4 h-4" />
-                                </Button>
-                            </>
-                        )}
+                        {/* Footer Actions */}
+                        <div className="flex gap-4">
+                            {currentStep === "config" ? (
+                                <>
+                                    <Button variant="outline" size="lg" onClick={handleGlobalReset} className="gap-2">
+                                        <RotateCcw className="w-4 h-4" /> Reset All
+                                    </Button>
+                                    <Button size="lg" onClick={handleNext} className="gap-2" disabled={!canProcced}>
+                                        Next: Review <ArrowRight className="w-4 h-4" />
+                                    </Button>
+                                </>
+                            ) : (
+                                <>
+                                    <Button variant="ghost" size="lg" onClick={handleBack} className="gap-2">
+                                        <ArrowLeft className="w-4 h-4" /> Back to Config
+                                    </Button>
+                                    <Button size="lg" onClick={handleConfirm} className="gap-2 bg-green-600 hover:bg-green-700">
+                                        Confirm & Apply <Check className="w-4 h-4" />
+                                    </Button>
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 }

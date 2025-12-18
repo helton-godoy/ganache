@@ -1,8 +1,9 @@
 "use client";
 
+import { BootEnvironmentBadge } from '@/components/features/BootEnvironmentBadge';
 import { StatusDashboard } from '@/components/features/dashboard/status-dashboard';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, Settings } from 'lucide-react';
+import { AlertTriangle, Server, Settings } from "lucide-react";
 import Link from 'next/link';
 
 export default function Home() {
@@ -15,10 +16,18 @@ export default function Home() {
             <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Ganache Dashboard</h1>
             <p className="text-slate-500">System Monitoring & Control</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-3 items-center">
+            <BootEnvironmentBadge />
+            <div className="w-px h-8 bg-slate-200 mx-1" /> {/* Separator */}
             <Link href="/setup">
               <Button className="gap-2">
                 <Settings className="w-4 h-4" /> Setup Journey
+              </Button>
+            </Link>
+            <Link href="/cluster">
+              <Button size="lg" variant="secondary" className="bg-slate-800 hover:bg-slate-700 text-white">
+                <Server className="w-5 h-5 mr-2" />
+                Cluster Management
               </Button>
             </Link>
             <Link href="/recovery">

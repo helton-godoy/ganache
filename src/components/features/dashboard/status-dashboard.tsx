@@ -5,9 +5,16 @@ import {
   useGetSystemResources,
 } from "@/api/generated/default/default";
 import type { PoolInfo } from "@/api/generated/model";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-import { Activity, AlertCircle, AlertTriangle, CheckCircle, Database, Info, Layers, Loader2, Play, Plus, Server, ShieldCheck, Trash2 } from "lucide-react";
+import { Activity, AlertTriangle, CheckCircle, Database, Server, ShieldCheck } from "lucide-react";
+import { DatasetManager } from "../storage/DatasetManager";
 
 export function StatusDashboard() {
   // Poll system resources every 2 seconds via OpenAPI Client
@@ -218,6 +225,17 @@ export function StatusDashboard() {
                   </span>
                   <span>Ponto de Montagem: {pool.mountpoint}</span>
                 </div>
+
+                <Accordion type="single" collapsible className="mt-4 border-t pt-2">
+                  <AccordionItem value="datasets" className="border-b-0">
+                    <AccordionTrigger className="py-2 text-sm text-slate-600 hover:text-slate-900">
+                      Manage Datasets & Shares
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <DatasetManager poolName={pool.name} />
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               </div>
             );
           })}

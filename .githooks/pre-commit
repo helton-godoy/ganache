@@ -31,15 +31,20 @@ if echo "$STAGED_FILES" | grep -q "\.rs$"; then
     echo "🦀 [3/4] Verificando Backend (Rust)..."
     
     # Verifica formatação sem alterar arquivos
-    if ! cargo fmt --all -- --check; then
-        echo "❌ [RUST] Código mal formatado. Execute 'cargo fmt'."
-        exit 1
+    if [ -d "core" ]; then
+        cd core && cargo fmt --all -- --check
+        FMT_EXIT=$?
+        cd ..
+        if [ $FMT_EXIT -ne 0 ]; then
+            echo "❌ [RUST] Código mal formatado. Execute 'cargo fmt'."
+            exit 1
+        fi
     fi
     
     # Verifica erros de compilação rápidos (cargo check é mais rápido que build)
     # Entra na pasta do backend se necessário
-    if [ -d "ganache" ]; then
-        cd ganache && cargo check --quiet
+    if [ -d "core" ]; then
+        cd core && cargo check --quiet
         CHECK_EXIT=$?
         cd ..
         if [ $CHECK_EXIT -ne 0 ]; then
@@ -54,14 +59,10 @@ fi
 if echo "$STAGED_FILES" | grep -qE "\.(ts|tsx|js|jsx)$"; then
     echo "⚛️  [4/4] Verificando Frontend (React)..."
     
-    if [ -d "ganache/ui" ]; then
-        cd ganache/ui
-        # Executa Type Check (rápido)
-        if ! npm run type-check 2>/dev/null; then
-            echo "❌ [REACT] Erros de tipagem TypeScript detectados."
-            exit 1
-        fi
-        cd ../..
+    # Executa Type Check (rápido)
+    if ! npm run type-check 2>/dev/null; then
+        echo "❌ [REACT] Erros de tipagem TypeScript detectados."
+        exit 1
     fi
 fi
 

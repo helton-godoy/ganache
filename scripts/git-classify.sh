@@ -31,6 +31,8 @@ NC='\033[0m' # No Color
 declare -a FEAT_FILES
 declare -a FIX_FILES
 declare -a TEST_FILES
+declare -a CI_FILES
+declare -a GOV_FILES
 declare -a DOCS_FILES
 declare -a STYLE_FILES
 declare -a CHORE_FILES
@@ -75,9 +77,15 @@ while IFS= read -r line; do
         continue
     fi
 
-    # CRITICAL GOVERNANCE DOCS
-    if [[ "$FILE" == "project-context.md" ]] || [[ "$FILE" == *".agent/"* ]] || [[ "$FILE" == "AGENTS.md" ]] || [[ "$FILE" == "CONTRIBUTING.md" ]] || [[ "$FILE" == *"docs/governance"* ]] || [[ "$FILE" == *"sprint-artifacts"* ]]; then
-        DOCS_FILES+=("$FILE")
+    # CI / PIPELINE
+    if [[ "$FILE" == *".github/workflows"* ]] || [[ "$FILE" == *".circleci"* ]] || [[ "$FILE" == *".gitlab-ci"* ]]; then
+        CI_FILES+=("$FILE")
+        continue
+    fi
+
+    # GOVERNANCE / AGENTS
+    if [[ "$FILE" == *".bmad/"* ]] || [[ "$FILE" == *".agent/"* ]] || [[ "$FILE" == "AGENTS.md" ]] || [[ "$FILE" == "CONTRIBUTING.md" ]] || [[ "$FILE" == *"docs/governance"* ]] || [[ "$FILE" == *"sprint-artifacts"* ]]; then
+        GOV_FILES+=("$FILE")
         continue
     fi
 
@@ -166,6 +174,8 @@ function print_group() {
 
 print_group "FEAT/FIX" "$GREEN" "feat" FEAT_FILES[@]
 print_group "TEST" "$YELLOW" "test" TEST_FILES[@]
+print_group "CI" "$MAGENTA" "ci" CI_FILES[@]
+print_group "GOVERNANCE" "$MAGENTA" "chore(governance)" GOV_FILES[@]
 print_group "DOCS" "$BLUE" "docs" DOCS_FILES[@]
 print_group "STYLE" "$CYAN" "style" STYLE_FILES[@]
 print_group "CHORE" "$RED" "chore" CHORE_FILES[@]

@@ -7,11 +7,13 @@ on:
       - "docs/**"
       - "scripts/**"
       - ".github/workflows/**"
+      - "project-context.md"
   pull_request:
     branches: [main, develop]
     paths:
       - "docs/**"
       - "scripts/**"
+      - "project-context.md"
   schedule:
     # Run validation daily at 02:00 UTC
     - cron: "0 2 * * *"

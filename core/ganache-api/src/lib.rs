@@ -22,3 +22,11 @@ pub struct ClusterStatus {
     pub progress: f32, // 0.0 to 1.0
     pub message: String,
 }
+
+#[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]
+pub struct SystemResources {
+    pub total_memory_bytes: u64,
+    pub used_memory_bytes: u64,
+    pub arc_target_bytes: u64,
+    pub status: String,
+}

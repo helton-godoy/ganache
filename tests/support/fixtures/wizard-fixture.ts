@@ -24,12 +24,36 @@ export class WizardFixture {
         });
     }
 
-    async goto() {
+    async mockHardwareDetection(hardwareInfo: { has_raid: boolean, controller_name: string | null } = { has_raid: false, controller_name: null }) {
+        await this.page.route('**/api/v1/system/hardware', async (route) => {
+            await route.fulfill({
+                json: hardwareInfo,
+                status: 200
+            });
+        });
+    }
+
+    async goto({ skipWelcome = true }: { skipWelcome?: boolean } = {}) {
         await this.page.goto('/setup');
-        await expect(this.page.getByText('Twin-View Cluster Setup')).toBeVisible();
-        // Wait for data to load to prevent race condition on Auto-Fill
-        // Wait for data to load
-        await expect(this.page.getByRole('button', { name: /Auto-Fill/i }).first()).toBeVisible();
+
+        if (skipWelcome) {
+            const welcomeVisible = await this.page.getByText('Welcome to Ganache').isVisible();
+            if (welcomeVisible) {
+                // Select Compatibility Mode as a safe default if visible, or Standard if preferred for tests.
+                // Let's click Standard to ensure we can proceed for general tests.
+                const standardCard = this.page.getByTestId('card-standard');
+                if (await standardCard.isVisible()) {
+                    await standardCard.click();
+                }
+                await this.page.getByRole('button', { name: /Continue Setup/i }).click();
+            }
+
+            await expect(this.page.getByText('Twin-View Cluster Setup')).toBeVisible();
+            // Wait for data to load to prevent race condition on Auto-Fill
+            await expect(this.page.getByRole('button', { name: /Auto-Fill/i }).first()).toBeVisible();
+        } else {
+            await expect(this.page.getByText('Welcome to Ganache')).toBeVisible();
+        }
     }
 
     async autoAssign() {

@@ -3,9 +3,9 @@
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useClusterConfiguration } from "@/hooks/use-cluster-configuration";
 import { ArrowRight, Database, HardDrive, Layers, ShieldCheck } from "lucide-react";
 import { useState } from "react";
-import { useClusterConfiguration } from "@/hooks/use-cluster-configuration";
 import { ClusterConnectionVisualizer } from "./ClusterConnectionVisualizer";
 
 interface WizardCompatibilityStepProps {
@@ -21,6 +21,7 @@ export function WizardCompatibilityStep({ onNext, onBack }: WizardCompatibilityS
         configure({
             mode: "compatibility",
             node_id: 1,
+            // TODO: [Story 1.1 Follow-up] Replace hardcoded peer IP with dynamic discovery from HardwareService
             peer_ip: "192.168.1.20" // Hardcoded for MVP/Mock
         }, {
             onSuccess: () => {

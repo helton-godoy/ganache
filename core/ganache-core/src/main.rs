@@ -78,7 +78,7 @@ async fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() > 1 && args[1] == "--export-openapi" {
         let json = ApiDoc::openapi().to_pretty_json().unwrap();
-        let path = "../../docs/openapi.json";
+        let path = "../docs/openapi.json";
         fs::write(path, json).expect("Unable to write openapi.json");
         println!("OpenAPI spec exported to {}", path);
         return;

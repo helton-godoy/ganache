@@ -36,221 +36,148 @@ _This document builds collaboratively through step-by-step discovery. Sections a
 
 * Primary domain: Systems Management / Web Appliance
 * Complexity level: High (Hardware/Kernel interaction)
-* Estimated architectural components: 3 (Frontend, API Agent, System Layer)
+* Architectural Pattern: Full-Stack Monolothic Appliance (Next.js)
 
 ### Technical Constraints & Dependencies
 
-* **Technology Stack:** Next.js (React) Frontend. Backend TBD (likely Python/Go agent).
-* **OS:** Linux (Debian/Ubuntu) with ZFS on Linux and DRBD 9.
-* **Network:** Nodes communicating via dedicated 10GbE link (assumed).
+* **Technology Stack:** Rust (Backend Daemon - `ganache-core`), React + Next.js (SPA Frontend), OpenAPI (Contract).
+* **Technology Stack:** Rust (Backend Daemon - `ganache-core`), React + Next.js (SPA Frontend), OpenAPI (Contract).
+* **Language:** TypeScript (Strict).
+* **OS:** Linux (Debian 13 / Trixie) with ZFS on Linux and DRBD 9.
+* **Privilege Separation:** UI is unprivileged. All privileged ops handled by Rust Daemon (`ganache-core`).
 
 ### Cross-Cutting Concerns Identified
 
-* **State Synchronization:** Keeping the UI state (`useDiskStore`) in sync with the actual hardware state (lsblk/zpool status).
-* **Privilege Management:** The Web API needs root privileges to execute ZFS/DRBD commands, requiring a secure sudo/capability strategy.
-* **Error Handling:** Distinguishing between transient network errors and permanent hardware failures.
+*1. **Separated Core:**
+    * **Decision:** Build `ganache-core` in Rust to handle all system interactions (ZFS, DRBD, Samba).
+    ***Rationale:** Matches PBS architecture, ensures memory safety, and eliminates "shell script glue".
+    * **Interface:** Daemon exposes a REST/OpenAPI socket.
+2. **Decoupled UI:**
+    ***Decision:** Frontend is a pure consumer of the Rust API.
+    * **Rationale:** Allows the UI to theoretically run anywhere (remote management) and isolates complex state logic.
 
-## Starter Template Evaluation
+* **State Synchronization:** strict adherence to "Server State is Truth". The UI mirrors the output of system commands.
+* **Error Handling:** Graceful degradation if system commands fail or timeout.
+* **Security:** Input validation at the tRPC boundary to prevent command injection.
 
-### Primary Technology Domain
+## System Components
 
-**System Appliance / Web Dashboard** (Hybrid of simple Next.js UI with complex System interactions).
+### 1. Presentation Layer (Next.js Client)
 
-### Selected Approach: Custom "T3-Lite" Scaffold
+* **Framework**: Next.js 14 (App Router)
 
-**Rationale for Selection:**
-No specific "ZFS/DRBD Appliance" starter exists. Generic Admin Dashboards introduce unnecessary complexity (auth layers, e-commerce layouts) that clash with our "Single-Tenant Appliance" model. We will scaffold a clean, type-safe foundation using the T3 methodology.
+* **Styling**: Tailwind CSS + Shadcn UI
+* **State Management**:
+  * **URL State**: `nuqs` for shareable, bookmarkable UI state (filters, wizard steps).
+  * **Server State**: `useQuery` (tRPC) for system data.
+  * **Client State**: `Zustand` for complex interactive sessions (e.g., multi-step wizards) only when necessary.
 
-**Key Technology Decisions:**
+### 2. Strategic Migration Approach
 
-* **Framework:** Next.js 14 (App Router) - For Optimistic UI updates.
-* **Styling:** Tailwind CSS + Shadcn UI - For rapid, accessible UI building.
-* **Interactivity:** `dnd-kit` - Chosen over `react-dnd` for better modern React/Next.js compatibility.
-* **Data Layer:** tRPC - To strongly type the interface between the Next.js UI and the ZFS interaction layer.
+* **Logic Source A: Proxmox (PBS/PVE)**
+  * **Strategy:** Direct Code Reuse.
+  * **Implementation:** Import official crates (`proxmox-sys`, `proxmox-api`) directly into `ganache-core`.
+  * **Goal:** Native compatibility with Debian/ZFS/Proxmox ecosystem without reimplementation.
+* **Logic Source B: TrueNAS Scale (Middleware)**
+  * **Strategy:** Logic Porting (Python -> Rust).
+  * **Implementation:** Read TrueNAS `middlewared` Python source for business logic (ACLs, SMB generation), then reimplement "The Rust Way" using Tokio/Axum.
+  * **Goal:** Achieves TrueNAS-level SMB/AD integration with Rust safety/performance.
 
-**Initialization Command:**
+### 3. Core Rust Stack (Ganache Daemon)
 
-```bash
-npm create t3-app@latest
-# Select: Next.js, Tailwind, tRPC
-# Deselect: Auth, Prisma (ZFS is our Database)
-```
+* **Web Framework:** `Axum` (0.8+) - Modern, ergonomic, efficient.
+* **Runtime:** `Tokio` (1.48+) - 100% compatible with Proxmox crates.
+* **API Spec:** `Utoipa` (5.4+) - Auto-generated OpenAPI v3 contracts.
+* **Error Handling:** `thiserror` (Libraries) + `anyhow` (App).
 
-**Architectural Decisions Provided by Starter:**
+### 4. API / Application Layer (React UI)
 
-**Language & Runtime:**
+* **Role**: Validates user intent, enforces business logic, and orchestrates system operations.
 
-* **TypeScript:** Strict mode enabled by default.
+* ❌ **No tRPC**: Use OpenAPI clients generated from Rust specs.
+* ❌ **No Direct Shell Calls in Node**: Node.js process has NO sudo access.
+* ❌ **No `useEffect` for Data Fetching**: Use React Query (TanStack Query) against OpenAPI hooks.
 
-**Styling Solution:**
+### 3. System Integration Layer (Server-Side Logic)
 
-* **Tailwind CSS:** Configured with PostCSS.
-* **Shadcn UI:** Will be manually initialized on top of Tailwind.
+* **Location**: `src/lib/*` and `src/server/api/routers/*`.
 
-**Code Organization:**
+* **Sudo Wrapper**: `src/lib/sudo.ts` acts as the security gateway. It wraps `exec` calls and ensures only whitelisted commands with validated arguments are executed as root.
+* **ZFS / Hardware Modules**: Typed wrappers around CLI tools (`zpool`, `drbdadm`, `lspci`).
 
-* **tRPC Pattern:** `src/server/api/routers` for backend logic (ZFS wrappers).
-* **tRPC Client:** `src/input` for type-safe calls from Client Components.
+### 4. Data Layer (OS & Filesystem)
 
-**Development Experience:**
+* **Persistence**: Git-backed configuration `etc` for rollback capabilities (Future feature).
 
-* **Type-Safety:** Full end-to-end type safety from Backend (ZFS Output) to Frontend (React Component).
+## 5. Implementation Patterns
 
-## Core Architectural Decisions
+### 5.1 Rust Workspace Structure (Backend)
 
-### 1. API Strategy: tRPC + React Query
+* **`ganache-core` (Binary):** The main daemon. Initializes the Tokio Runtime, loads config, and starts the Axum Web Server.
+* **`ganache-api` (Library):** Contains Type Definitions (Structs/Enums) and OpenAPI Specs. Shared between Core and Clients.
+* **`ganache-lib` (Library):** Pure logic. Contains the "Business Rules" (e.g., ZFS wrapper, DRBD logic). Independent of HTTP.
 
-* **Decision:** We will use tRPC (with React Query) for the API layer between the Next.js frontend and the backend logic.
-* **Rationale:** Provides end-to-end type safety, robust client-side state management (caching, invalidation), and superior developer experience. This fits the "T3-Lite" approach.
-* **Implications:**
-  * Backend logic will be exposed as tRPC routers.
-  * Frontend will use `trpc.useQuery` and `trpc.useMutation`.
+### 5.2 Error Handling Standard
 
-### 2. Security Model: Sudo Allow-List
+* **Rust (Backend):**
+  * **Result Type:** All API handlers return `Result<Json<ResponseEnvelope<T>>, ApiError>`.
+  * **ApiError Enum:** Maps internal errors (e.g., `ZfsError`) to HTTP Status Codes (404, 500, 403).
+  * **No Panics:** Production code must NEVER panic. Use `anyhow::Context` to add context to errors before logging.
 
-* **Decision:** The web application will run as an unprivileged user and use `sudo` to execute specific system commands.
-* **Rationale:** Standard, well-understood mechanism on Linux. Easier to audit and maintain than custom Polkit rules for a headless web agent.
-* **Implications:**
-  * `/etc/sudoers.d/ganache` will be created.
-  * Specific commands (e.g., `/sbin/zpool`, `/sbin/drbdadm`) will be allow-listed with `NOPASSWD`.
-  * The API layer must strictly validate inputs before passing them to shell commands to prevent injection.
+### 5.3 API Response Strategy
 
-### 3. Real-time State Mechanism: Short Polling
+* **Envelope Pattern:** All JSON responses follow a strict schema to prevent parsing ambiguity on the Frontend.
 
-* **Decision:** The dashboard will poll the API for state updates (e.g., every 2-5 seconds).
-* **Rationale:** Simple, stateless, and robust against network interruptions. WebSockets add unnecessary complexity for the required update frequency.
-* **Implications:**
-  * React Query's `refetchInterval` will be used.
-  * API endpoints must be lightweight to handle frequent polling.
+    ```json
+    {
+      "data": { ... },     // The payload (if success)
+      "error": null,       // Error details (if failure)
+      "meta": { "timestamp": 123456789 }
+    }
+    ```
 
-## Implementation Patterns & Consistency Rules
+### 5.4 React/Frontend Patterns
 
-### 1. Naming Conventions
+* **Generated Client:** The Frontend DOES NOT write manual `fetch` calls. It uses a client generated from the Rust OpenAPI spec (via `orval` or similar).
+* **Hooks Strategy:**
+  * `useQuery` (React Query) for all GET requests (reading system state).
+  * `useMutation` (React Query) for all POST/PUT/DELETE requests (changing system state).
 
-* **Files:** `kebab-case` (e.g., `disk-manager.tsx`, `use-zpool.ts`) - Standardizes Next.js App Router style.
-* **Components:** `PascalCase` (e.g., `DiskManager`).
-* **tRPC Procedures:** `camelCase` & `verbSubject` (e.g., `disk.list`, `pool.create`, `zfs.getSnapshot`).
-* **DB Columns:** `snake_case` (if introduced).
+## 6. Project Structure
 
-### 2. Project Structure
-
-* **Components:**
-  * `src/components/ui`: Shadcn primitives (do not modify typically).
-  * `src/components/features/[feature]`: Domain-specific logic (e.g., `components/features/storage`).
-* **Tests:**
-  * Unit: Co-located `*.test.ts` files.
-  * E2E: `e2e/` directory.
-* **State Management:**
-  * **Server State:** `trpc.useQuery` ONLY.
-  * **Client State:** `nuqs` (URL-state) as first preference, `Zustand` for complex interaction state (drag-and-drop).
-
-### 3. Process & Formatting
-
-* **Error Handling:**
-  * API: Throw `TRPCError` with standard codes.
-  * UI: Use `sonner` for transient errors, Error Boundaries for crashes.
-* **Loading States:**
-  * Use `React.Suspense` where possible.
-  * Skeleton loaders for dashboards.
-
-## Project Structure & Boundaries
-
-### Complete Project Directory Structure
+We follow a **Monorepo Appliance** layout to physically separate the unprivileged UI from the privileged Core.
 
 ```text
-GANACHE/
-├── src/
-│   ├── app/                    # Next.js App Router
-│   │   ├── api/trpc/[trpc]/    # tRPC API Endpoint
-│   │   ├── setup/              # Setup Flow Page
-│   │   ├── dashboard/          # Main Status Dashboard
-│   │   └── page.tsx            # Landing / Redirect
-│   ├── components/
-│   │   ├── ui/                 # Shadcn Primitives (Button, Card)
-│   │   ├── features/           # Domain Components
-│   │       ├── storage/        # Disk, ZPool, VDev visualizations
-│   │       ├── setup/          # Wizard steps, Draggable Blade
-│   │       └── layout/         # Shell, Navigation
-│   ├── server/
-│   │   ├── api/
-│   │       ├── routers/        # tRPC Routers
-│   │       │   ├── zfs.ts      # ZFS Command wrappers
-│   │       │   ├── system.ts   # System stats/reboot
-│   │       │   └── disk.ts     # Physical disk info
-│   │       └── root.ts         # Root router
-│   └── lib/
-│       ├── zfs/                # Low-level ZFS parsing logic
-│       └── sudo.ts             # Sudo command executor wrapper
-├── tests/
-│   ├── e2e/                    # Playwright E2E tests
-│   └── unit/                   # Vitest unit tests (or co-located)
-├── scripts/                    # Maintenance scripts
-└── public/                     # Static assets
+/root/GANACHE/
+├── docs/                   # Documentation Source of Truth
+├── ui/                     # [Frontend] Next.js + React Application
+│   ├── src/                # Components using strictly defined patterns
+│   └── package.json        # Dependencies: React, TanStack Query, Nuqs
+├── core/                   # [Backend] Rust Workspace
+│   ├── Cargo.toml          # Workspace Definition
+│   ├── ganache-core/       # Daemon Binary (Axum + Tokio)
+│   ├── ganache-api/        # Shared Types & OpenAPI Specs
+│   └── ganache-lib/        # Pure Logic (ZFS, DRBD, Samba wrappers)
+└── .bmad/                  # AI Agent Configuration
 ```
 
-### Architectural Boundaries
+## Data Flow
 
-* **API Boundary:** `src/app/api/trpc` is the **single entry point** for all frontend-backend communication. No direct Server Actions for data fetching to maintain tRPC type safety.
-* **System Boundary:** `src/lib/zfs` and `src/lib/sudo.ts` are the **only modules authorized** to execute shell commands. All other code must use these abstractions.
-* **Component Boundary:**
-  * `ui/`: "Dumb" presentation components (Stateless, strictly typed).
-  * `features/`: "Smart" domain components (Connected to tRPC, contain business logic).
+1. **User Action**: User clicks "Create Pool" in UI.
+2. **Client Request**: `ApiClient.zfs.createPool({ name: 'tank', devices: [...] })` is called.
+3. **Transport**: JSON Payload sent to `POST /api/v1/pools`.
+4. **Daemon Core**:
+    * Axum Router receives request.
+    * `ganache-api` validates schema (Serde).
+    * `ganache-core` calls `ZfsService::create_pool(...)`.
+    * Rust Code executes `Command::new("zpool")...`.
+5. **Response**: JSON Envelope `{ data: { ... }, error: null }` returned.
+6. **Update**: React Query invalidates `poolKeys.list`, triggering a UI refresh.
 
-### Integration Points
+## Security Model
 
-* **Internal:** Frontend uses `trpc-client` hooks (`useQuery`, `useMutation`) to talk to `server/api/routers`.
-* **System:** Backend routers import `lib/zfs` to execute commands via `sudo`.
-* **Data Flow:**
-    1. Frontend Component polls `useQuery(zfs.getStatus)`.
-    2. tRPC Router calls `zfs.getPoolStatus()`.
-    3. Library executes `sudo zpool status -jp`.
-    4. Parser converts JSON/Stdout to TypeScript Object.
-    5. Data returns to Frontend.
+* **Principle**: The UI is **Untrusted**. The Rust Daemon is the **Trusted Gatekeeper**.
+* **Escalation**: The Rust Daemon runs as root (system service). The UI has NO system access.
+* **Validation**: All input is strongly typed and sanitized by Serde/Rust Logic before ever touching a shell command.
 
-## Architecture Validation Results
-
-### Coherence Validation ✅
-
-* **Decision Compatibility:** The "T3-Lite" stack (Next.js + tRPC) is fully compatible with the chosen State Strategy (Polling). Polling avoids the complexity of WebSockets while leveraging the strengths of React Query's cache.
-* **Pattern Consistency:** Naming conventions (kebab-case files, PascalCase components) align with Next.js App Router best practices.
-
-### Requirements Coverage Validation ✅
-
-* **Epic/Feature Coverage:**
-  * **Twin-View Setup:** Covered by `src/app/setup` and `src/components/features/setup`.
-  * **Dashboard:** Covered by `src/app/dashboard` and `src/components/features/storage`.
-  * **Panic Mode:** **GAP IDENTIFIED & RESOLVED**. `src/app/recovery` was missing from the initial structure but has been explicitly added to the architecture to support User Journey #2.
-
-### Implementation Readiness Validation ✅
-
-* **Decision Completeness:** Core decisions (API, Security, State) are documented.
-* **Structure Completeness:** Directory tree is specific, not generic. Integration points (ZFS lib, Sudo wrapper) are defined.
-
-### Architecture Readiness Assessment
-
-**Overall Status:** READY FOR IMPLEMENTATION
-**Confidence Level:** HIGH
-
-### Implementation Handoff
-
-**First Implementation Priority:**
-Initialize the Next.js project with the defined structure and install `dnd-kit` and `trpc` dependencies.
-
-## Architecture Completion Summary
-
-### Workflow Completion
-
-* **Architecture Decision Workflow:** COMPLETED ✅
-* **Date Completed:** 2025-12-16
-* **Document Location:** docs/architecture.md
-
-### Final Architecture Deliverables
-
-* **Decisions:** 3 Core Decisions (API, Security, State).
-* **Patterns:** Verified naming & structure patterns for AI consistency.
-* **Structure:** Complete Next.js + tRPC + Shadcn directory tree.
-* **Validation:** All requirements (including Panic Mode) covered.
-
-### Implementation Handoff
-
-**Next Step:** Initialize project using the "T3-Lite" stack structure.
+```

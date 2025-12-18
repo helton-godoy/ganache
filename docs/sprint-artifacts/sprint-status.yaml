@@ -43,7 +43,7 @@ story_location: docs/sprint-artifacts
 development_status:
   # Epic 1: The Trustable Appliance Core
   epic-1: in-progress
-  1-1-detect-raid-hardware-recommend-mode: review
+  1-1-detect-raid-hardware-recommend-mode: done
   1-2-compatibility-mode-setup-wizard: backlog
   1-3-system-resource-auto-tuning: backlog
   1-4-boot-environment-rollback: backlog

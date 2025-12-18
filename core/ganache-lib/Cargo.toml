@@ -7,4 +7,6 @@ edition = "2021"
 ganache-api = { path = "../ganache-api" }
 anyhow = "1.0"
 thiserror = "2.0"
-# In real prod we would add proxmox-sys here later
+tokio = { version = "1.43", features = ["macros", "rt"] }
+
+[dev-dependencies]

@@ -42,19 +42,26 @@ story_location: docs/sprint-artifacts
 
 development_status:
   # Epic 1: The Trustable Appliance Core
-  epic-1: in-progress
+  epic-1: done
   1-1-detect-raid-hardware-recommend-mode: done
   1-2-compatibility-mode-setup-wizard: done
   1-3-system-resource-auto-tuning: done
-  1-4-boot-environment-rollback: backlog
-  epic-1-retrospective: optional
+  1-4-boot-environment-rollback: done
+  epic-1-retrospective: completed
 
   # Epic 2: Resilient HA Storage
-  epic-2: backlog
-  2-1-twin-node-cluster-initialization: backlog
-  2-2-zfs-pool-creation-on-drbd: backlog
-  2-3-90-hard-quota-enforcement: backlog
-  2-4-dataset-management: backlog
+  epic-2: in-progress
+  stories:
+    - id: "2-1-twin-node-cluster-initialization"
+      status: "done"
+    - id: "2-2-zfs-pool-creation-on-drbd"
+      status: "done"
+    - id: "2.3"
+      name: "90% Hard Quota Enforcement"
+      status: "done"
+    - id: "2.4"
+      name: "Dataset Management"
+      status: "review"
   2-5-automated-failover-panic-logic: backlog
   epic-2-retrospective: optional
 

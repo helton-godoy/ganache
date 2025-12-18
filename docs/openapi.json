@@ -1,0 +1,679 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ganache-core",
+    "description": "",
+    "license": {
+      "name": ""
+    },
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v1/cluster/configure": {
+      "post": {
+        "tags": [],
+        "operationId": "configure_cluster",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClusterConfig"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Cluster Configuration Started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClusterStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cluster/status": {
+      "get": {
+        "tags": [],
+        "operationId": "get_cluster_status",
+        "responses": {
+          "200": {
+            "description": "Cluster Status successfully retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClusterStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/storage/create-pool": {
+      "post": {
+        "tags": [],
+        "operationId": "create_pool",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PoolConfig"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Pool Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PoolInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/storage/datasets": {
+      "get": {
+        "tags": [],
+        "operationId": "list_datasets",
+        "parameters": [
+          {
+            "name": "pool",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List datasets for a pool",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DatasetInfo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [],
+        "operationId": "create_dataset",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatasetConfig"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Dataset created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/storage/datasets/delete": {
+      "post": {
+        "tags": [],
+        "operationId": "destroy_dataset",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteDatasetPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Dataset destroyed",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/storage/disks": {
+      "get": {
+        "tags": [],
+        "operationId": "list_disks",
+        "responses": {
+          "200": {
+            "description": "List of all disks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DiskInfo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/storage/drbd-devices": {
+      "get": {
+        "tags": [],
+        "operationId": "get_drbd_devices",
+        "responses": {
+          "200": {
+            "description": "List of available DRBD devices",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StorageDevice"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/storage/pools": {
+      "get": {
+        "tags": [],
+        "operationId": "get_pools",
+        "responses": {
+          "200": {
+            "description": "List of all storage pools",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PoolInfo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system/boot-environments": {
+      "get": {
+        "tags": [],
+        "operationId": "get_boot_environments",
+        "responses": {
+          "200": {
+            "description": "List of Boot Environments",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BootEnvironment"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system/boot-environments/activate": {
+      "post": {
+        "tags": [],
+        "operationId": "activate_boot_environment",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BootEnvironmentActivation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Boot Environment Activated",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system/hardware": {
+      "get": {
+        "tags": [],
+        "operationId": "get_hardware_info",
+        "responses": {
+          "200": {
+            "description": "Hardware Detection Results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HardwareInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system/logs": {
+      "get": {
+        "tags": [],
+        "operationId": "get_system_logs",
+        "responses": {
+          "200": {
+            "description": "System Event Logs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SystemLog"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system/promote": {
+      "post": {
+        "tags": [],
+        "operationId": "promote_node",
+        "responses": {
+          "200": {
+            "description": "Node Promoted Sucessfully",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system/resources": {
+      "get": {
+        "tags": [],
+        "operationId": "get_system_resources",
+        "responses": {
+          "200": {
+            "description": "Current System Resources and ARC Target",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemResources"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BootEnvironment": {
+        "type": "object",
+        "required": [
+          "name",
+          "active",
+          "created",
+          "space",
+          "keep"
+        ],
+        "properties": {
+          "active": {
+            "type": "string"
+          },
+          "created": {
+            "type": "string"
+          },
+          "keep": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "space": {
+            "type": "string"
+          }
+        }
+      },
+      "BootEnvironmentActivation": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "ClusterConfig": {
+        "type": "object",
+        "required": [
+          "mode",
+          "node_id",
+          "peer_ip"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string"
+          },
+          "node_id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "peer_ip": {
+            "type": "string"
+          }
+        }
+      },
+      "ClusterStatus": {
+        "type": "object",
+        "required": [
+          "state",
+          "progress",
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "progress": {
+            "type": "number",
+            "format": "float"
+          },
+          "state": {
+            "type": "string"
+          }
+        }
+      },
+      "DatasetConfig": {
+        "type": "object",
+        "required": [
+          "pool_name",
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "pool_name": {
+            "type": "string"
+          }
+        }
+      },
+      "DatasetInfo": {
+        "type": "object",
+        "required": [
+          "pool",
+          "name",
+          "mountpoint",
+          "used",
+          "available",
+          "compression"
+        ],
+        "properties": {
+          "available": {
+            "type": "string"
+          },
+          "compression": {
+            "type": "string"
+          },
+          "mountpoint": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "pool": {
+            "type": "string"
+          },
+          "used": {
+            "type": "string"
+          }
+        }
+      },
+      "DeleteDatasetPayload": {
+        "type": "object",
+        "required": [
+          "pool",
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "pool": {
+            "type": "string"
+          }
+        }
+      },
+      "DiskInfo": {
+        "type": "object",
+        "required": [
+          "id",
+          "serial",
+          "size",
+          "status",
+          "node_id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "node_id": {
+            "type": "string"
+          },
+          "serial": {
+            "type": "string"
+          },
+          "size": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "HardwareInfo": {
+        "type": "object",
+        "required": [
+          "has_raid"
+        ],
+        "properties": {
+          "controller_name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Name of the detected controller, if any"
+          },
+          "has_raid": {
+            "type": "boolean",
+            "description": "True if a supported RAID controller is detected (e.g., PERC 6/i)"
+          }
+        }
+      },
+      "PoolConfig": {
+        "type": "object",
+        "required": [
+          "name",
+          "device",
+          "compression"
+        ],
+        "properties": {
+          "compression": {
+            "type": "boolean"
+          },
+          "device": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "PoolInfo": {
+        "type": "object",
+        "required": [
+          "name",
+          "size",
+          "alloc",
+          "free",
+          "health",
+          "mountpoint"
+        ],
+        "properties": {
+          "alloc": {
+            "type": "string"
+          },
+          "free": {
+            "type": "string"
+          },
+          "health": {
+            "type": "string"
+          },
+          "mountpoint": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "quota": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "size": {
+            "type": "string"
+          }
+        }
+      },
+      "StorageDevice": {
+        "type": "object",
+        "required": [
+          "path",
+          "name",
+          "size",
+          "device_type"
+        ],
+        "properties": {
+          "device_type": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "size": {
+            "type": "string"
+          }
+        }
+      },
+      "SystemLog": {
+        "type": "object",
+        "required": [
+          "id",
+          "timestamp",
+          "level",
+          "message"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          }
+        }
+      },
+      "SystemResources": {
+        "type": "object",
+        "required": [
+          "total_memory_bytes",
+          "used_memory_bytes",
+          "arc_target_bytes",
+          "status"
+        ],
+        "properties": {
+          "arc_target_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "status": {
+            "type": "string"
+          },
+          "total_memory_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "used_memory_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        }
+      }
+    }
+  }
+}

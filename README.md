@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ganache Enterprise NAS
 
-## Getting Started
+O **Ganache** é uma solução moderna de gerenciamento de sistemas (NAS - Network Attached Storage) focada em simplicidade, segurança e alta disponibilidade, construída sobre o ecossistema Debian e ZFS.
 
-First, run the development server:
+## 🚀 Propósito
+
+Prover uma interface web intuitiva e poderosa para administração de appliances de storage, eliminando a complexidade da linha de comando e garantindo resiliência de dados através da arquitetura ZFS over DRBD.
+
+## 🛠️ Stack Tecnológico
+
+![Tech Stack](https://skillicons.dev/icons?i=nextjs,ts,react,tailwind,rust,linux&perline=6)
+
+- **Frontend:** Next.js 16 (React 19, Shadcn UI, Tailwind CSS)
+- **Backend:** Rust (Axum, Tokio, ZFS/DRBD Wrappers)
+- **API:** OpenAPI / REST (Migrando de tRPC legacy)
+- **Sistema Alvo:** Debian 13 (Trixie)
+
+## 📁 Estrutura do Projeto
+
+O projeto utiliza um layout de **Monorepo Appliance**:
+
+- `/src`: Frontend Next.js e lógica de API Client.
+- `/core`: Backend Rust (Workspace com `ganache-core`, `ganache-api`, `ganache-lib`).
+- `/docs`: Documentação Centralizada (SSoT conforme BMAD 6).
+
+## 🧑‍💻 Guia de Desenvolvimento
+
+### Requisitos
+
+- Node.js 20+
+- Rust (Cargo)
+- ZFS & DRBD instalados (para execução real)
+
+### Rodando o Ambiente
+
+1. **Frontend:**
+
+   ```bash
+   npm install
+   npm run dev
+   ```
+
+2. **Backend:**
+
+   ```bash
+   cd core/ganache-core
+   cargo run
+   ```
+
+### 🔐 Autenticação Git
+
+Para contribuir, configure seu token de acesso:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git config --global credential.helper store
+# Ao realizar o primeiro push, use seu Username e o Token como senha.
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📖 Documentação & Governança
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Este projeto segue rigorosamente o princípio **Single Source of Truth (SSoT)** através do fluxo **BMAD 6**.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 🛠️ Automação (BMAD Scripts)
 
-## Learn More
+As ferramentas abaixo garantem que a documentação e o código estejam sempre sincronizados:
 
-To learn more about Next.js, take a look at the following resources:
+- `./scripts/bmad-validate.sh`: Auditoria completa de conformidade e status (MANDATÓRIO antes de entregas).
+- `./scripts/bmad-sync.sh`: Verifica drift entre código Rust/API e a arquitetura documentada.
+- `./scripts/bmad-generate.sh`: Inicializa ou regenera os eixos centrais de documentação.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 📚 Eixos Centrais
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Visão:** [PRD (Requirements)](./docs/analysis/prd.md)
+- **Arquitetura:** [Architecture SSoT](./docs/architecture.md)
+- **Backlog:** [Epics & Stories](./docs/epics.md)
+- **Status da Sprint:** [Sprint Status](./docs/sprint-artifacts/sprint-status.yaml)
+- **Orquestração:** [Workflow Status](./docs/sprint-artifacts/bmm-workflow-status.yaml)
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+*Maintained by the Ganache Team*

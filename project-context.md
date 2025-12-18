@@ -4,8 +4,8 @@
 
 ## 1. Technology Stack & Versions
 
-* **Core/Backend:** Rust (Daemon based on `proxmox-backup` logic)
-* **Frontend:** React + TypeScript (Next.js as SPA)
+* **Core/Backend:** Rust (Axum, ZFS Wrappers). Siga os padrões de `ganache-lib` (Puro) vs `ganache-core` (Orquestração).
+* **Frontend:** React + TypeScript (Next.js 16 App Router). Use hooks gerados via OpenAPI/Orval.
 * **API Protocol:** OpenAPI / REST (Core -> UI)
 * **Styling:** Tailwind CSS + Shadcn UI
 * **System:** Debian 13 (Trixie) + ZFS 2.1+ + DRBD 9
@@ -77,6 +77,15 @@ O ecossistema Ganache utiliza ferramentas de automação para garantir a integri
 > [!IMPORTANT]
 > **Continuous Governance:** O GitHub Actions executa `./scripts/bmad-validate.sh` em todo PR. O merge só é permitido com o job em estado "Verde".
 
+### 7.1 Development Commands (Cheat Sheet)
+
+| Comando | Contexto | Propósito |
+| :--- | :--- | :--- |
+| `npm run dev` | **Frontend** | Inicia o servidor Next.js em modo desenvolvimento (watch). |
+| `cargo test` | **Backend** | Executa a suíte de testes Rust no diretório `core/`. |
+| `cargo run` | **Backend** | Inicia o daemon Rust (requer privilégios ou mock). |
+| `./setup_ganache_enhanced.sh` | **System** | Script de setup inicial do ambiente. |
+
 ## 8. Protocolo de Segurança e Commits Atômicos (MANDATÓRIO)
 
 Para garantir rastreabilidade e segurança cibernética em fluxos multi-agente, o seguinte protocolo é **INVIOLÁVEL**:
@@ -108,25 +117,67 @@ git add docs/
 git commit -m "docs: completion of story 2.4"
 ```
 
-## 9. Regras de Comportamento do Agente (Agent Behavior)
+## 9. Universal Agent Behavior Protocols (BMAD Standard)
 
-Estas regras têm precedência sobre quaisquer instruções gerais:
+To ensure a perfect workflow and data safety across multiple AI agents, these protocols are **MANDATORY**.
 
-1. **Leitura Proativa:** Ao iniciar qualquer tarefa, leia o `project-context.md` e o `AGENTS.md`.
-2. **Contexto Limpo:** Nunca assuma que uma biblioteca existe. Verifique `package.json` ou `Cargo.toml`.
-3. **Respeito ao Fluxo:**
-    * Planejamento (`PLANNING`): Crie/Atualize o plano. Peça Aprovação.
-    * Execução (`EXECUTION`): Implemente (Red-Green-Refactor).
-    * Verificação (`VERIFICATION`): Testes e Validação BMAD.
-    * Finalização: Commits Atômicos -> Atualização de Docs -> Handoff.
-4. **Não Adivinhe:** Se um script falhar, investigue o erro. Não tente "pular" para o próximo passo.
+### 9.1 The "Physical Commit" Trigger Rule (Process Safety)
 
-## 9. Agent Workflow
+* **Context:** Completing a task in code is not enough. The process state must be saved.
+* **Rule:** The action of marking a checkbox `[x]` in a Story Documentation file is a **Physical Commit Trigger**.
+* **Constraint:** You are BLOCKED from moving to the next task until the current task's checkbox is marked.
+* **Pre-Requisite:** Before marking `[x]`, you MUST have: Code Implemented + Tests Passed + Validation Script Run (if applicable).
+
+### 9.2 The "Atomic State" Rule
+
+* **Rule:** Never mentally "queue" updates. Update the project state (docs/status) **immediately** after the physical work is done.
+* **Why:** Consistency between "Disk State" and "Reality" avoids hallucinations if the agent is restarted.
+
+### 9.3 The Safety Commit Protocol (Inviolable)
+
+* **Principle:** Git is the ultimate "Save Point".
+* **Rule 1 (Local First):** You MUST commit to local git **immediately** after any meaningful unit of work (e.g., "Created Component X", "Updated Doc Y").
+  * *Do not wait for the full story to complete.*
+  * *Safe Harbor:* Local commits ensure we can rollback even if remote push fails.
+* **Rule 2 (Remote Sync):** Push to remote regularly to secure data off-site.
+  * **Frequency:** Attempt to `git push` at least every 3 local commits or at every "Task Boundary" completion.
+  * **Resilience (Retry Policy):** If `git push` fails (network/auth):
+        1. Retry immediately (Attempt 1).
+        2. Wait 5s and Retry (Attempt 2).
+        3. Wait 10s and Retry (Attempt 3).
+        4. **Fallback:** If it still fails, LOG the error, notify the user, but **CONTINUE** working. Your local commits are safe. Do not crash the workflow due to network issues.
+
+## 10. Semantic Documentation Strategy (Code-to-RAG)
+
+To enable future automated documentation generation and Vector Database indexing (RAG), strict commenting standards are enforced.
+
+### 10.1 The "Why > What" Rule
+
+* **Rule:** Comments must explain the *Intent* and *Context*, not just describe the code syntax.
+* **Target:** `Public Interfaces`, `Helper Functions`, `Complex Algorithms`, and `State Management`.
+
+### 10.2 Format Standard (Parsable Blocks)
+
+* **Rust:** Use Triple Slash `///` for all pub structs/fns.
+  * Required Sections: `# Purpose`, `# Arguments`, `# Returns`, `# Panic`.
+* **TypeScript:** Use JSDoc `/** ... */` for all exported components/hooks.
+  * Required Tags: `@description` (what/why), `@param`, `@returns`.
+
+### 10.3 The "Semantic Link" Pattern
+
+* Whenever code implements a specific requirement, reference it using the `@ref` tag:
+  * `@ref [Story-ID] - [Context]`
+  * *Example:* `// @ref Story-2.4 - Implements ZFS dataset creation logic`
+* **Goal:** This tag allows future scripts to map Code Chunks <-> User Stories for the RAG system.
 
 ---
 
 ### Maintained by the BMAD Governance Team
 
+* **bmm-workflow-status.yaml**: The central conductor of the agent orchestra.
+
 ---
 
 ### Maintained by the UX/Documentation Team
+
+* **Living Documentation**: Documentation that breathes and evolves with the code.

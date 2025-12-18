@@ -6,7 +6,7 @@
     "git.enableSmartCommit": true,
     "git.enableCommitSigning": false,
     "gitcom.commitStyle": "semantic",
-    "gitcom.batchCommits": false,
+    "gitcom.batchCommits": true,
     "terminal.integrated.cwd": "${workspaceFolder}",
     "git.defaultCloneDirectory": "${workspaceFolder}",
     "git.useEditorAsCommitInput": false,

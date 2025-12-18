@@ -1,0 +1,16 @@
+[package]
+name = "ganache-core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ganache-api = { path = "../ganache-api" }
+ganache-lib = { path = "../ganache-lib" }
+axum = "0.8.1"
+tokio = { version = "1.43.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+utoipa = { version = "5.4.0", features = ["axum_extras"] }
+utoipa-swagger-ui = { version = "9.0.0", features = ["axum"] }

@@ -1,0 +1,3 @@
+[workspace]
+members = ["ganache-core", "ganache-api", "ganache-lib"]
+resolver = "2"

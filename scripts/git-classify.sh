@@ -13,6 +13,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
 NC='\033[0m' # No Color
 
 # Temporary arrays for grouping
@@ -22,11 +23,11 @@ declare -a TEST_FILES
 declare -a DOCS_FILES
 declare -a STYLE_FILES
 declare -a CHORE_FILES
+declare -a BUILD_ARTIFACTS
 declare -a UNKNOWN_FILES
 
 # 1. Get Status
 # Only look at Modified (M), Added (A), Renamed (R), Deleted (D), Untracked (??)
-# We process strict file paths
 CHANGES=$(git status --porcelain)
 
 if [ -z "$CHANGES" ]; then
@@ -43,15 +44,25 @@ while IFS= read -r line; do
     STATUS=${line:0:2}
     FILE=${line:3}
     
-    # Remove quotes if present (git status can quote paths with spaces)
+    # Remove quotes if present
     FILE="${FILE%\"}"
     FILE="${FILE#\"}"
 
-    # Classification Logic
-    TYPE="unknown"
+    # Check if file is ignored by git (but tracked)
+    # git check-ignore returns 0 if ignored, 1 if not
+    if git check-ignore -q "$FILE"; then
+        BUILD_ARTIFACTS+=("$FILE")
+        continue
+    fi
+    
+    # Special handling for explicitly known artifacts/logs that might not be in .gitignore yet or are confusing
+    if [[ "$FILE" == *".next/"* ]] || [[ "$FILE" == *"test-output"* ]] || [[ "$FILE" == *".log" ]]; then
+        BUILD_ARTIFACTS+=("$FILE")
+        continue
+    fi
 
     # CRITICAL GOVERNANCE DOCS
-    if [[ "$FILE" == "project-context.md" ]] || [[ "$FILE" == *"docs/governance"* ]] || [[ "$FILE" == *"sprint-artifacts"* ]]; then
+    if [[ "$FILE" == "project-context.md" ]] || [[ "$FILE" == *".agent/"* ]] || [[ "$FILE" == "AGENTS.md" ]] || [[ "$FILE" == "CONTRIBUTING.md" ]] || [[ "$FILE" == *"docs/governance"* ]] || [[ "$FILE" == *"sprint-artifacts"* ]]; then
         DOCS_FILES+=("$FILE")
         continue
     fi
@@ -69,7 +80,7 @@ while IFS= read -r line; do
     fi
 
     # CONFIG / SCRIPTS / CHORE
-    if [[ "$FILE" == *"scripts/"* ]] || [[ "$FILE" == *".json" ]] || [[ "$FILE" == *".yaml" ]] || [[ "$FILE" == *".yml" ]] || [[ "$FILE" == *".toml" ]] || [[ "$FILE" == *".config."* ]] || [[ "$FILE" == ".gitignore" ]]; then
+    if [[ "$FILE" == *"scripts/"* ]] || [[ "$FILE" == *".githooks/"* ]] || [[ "$FILE" == *".json" ]] || [[ "$FILE" == *".yaml" ]] || [[ "$FILE" == *".yml" ]] || [[ "$FILE" == *".toml" ]] || [[ "$FILE" == *".config."* ]] || [[ "$FILE" == ".gitignore" ]]; then
         CHORE_FILES+=("$FILE")
         continue
     fi
@@ -81,7 +92,6 @@ while IFS= read -r line; do
     fi
 
     # SOURCE CODE (FEAT/FIX)
-    # If it's in src/ or core/ or lib/ and hasn't been caught yet
     if [[ "$FILE" == *"src/"* ]] || [[ "$FILE" == *"core/"* ]] || [[ "$FILE" == *"ganache-lib/"* ]] || [[ "$FILE" == *"ganache-api/"* ]]; then
         FEAT_FILES+=("$FILE")
         continue
@@ -102,10 +112,20 @@ function print_group() {
 
     if [ ${#files[@]} -gt 0 ]; then
         echo -e "${color}[${label}] ${#files[@]} file(s)${NC}"
-        for f in "${files[@]}"; do
-            echo -e "  $f"
-        done
-        echo -e "${CYAN}Suggestion:${NC} git add ${files[*]} && git commit -m \"${type}: description...\""
+        # Limit output for large sets
+        if [ ${#files[@]} -gt 10 ]; then
+             for ((i=0; i<5; i++)); do echo -e "  ${files[$i]}"; done
+             echo -e "  ... and $((${#files[@]} - 5)) more"
+        else
+             for f in "${files[@]}"; do echo -e "  $f"; done
+        fi
+        
+        if [ "$label" == "BUILD ARTIFACTS / IGNORED" ]; then
+             echo -e "${MAGENTA}Suggestion:${NC} git rm --cached ${files[*]:0:10} ... (or add to .gitignore)"
+             echo -e "${MAGENTA}Auto-Fix:${NC} git rm --cached -r .next/ test-output* 2>/dev/null"
+        else
+             echo -e "${CYAN}Suggestion:${NC} git add <files> && git commit -m \"${type}: description...\""
+        fi
         echo ""
     fi
 }
@@ -115,6 +135,7 @@ print_group "TEST" "$YELLOW" "test" TEST_FILES[@]
 print_group "DOCS" "$BLUE" "docs" DOCS_FILES[@]
 print_group "STYLE" "$CYAN" "style" STYLE_FILES[@]
 print_group "CHORE" "$RED" "chore" CHORE_FILES[@]
+print_group "BUILD ARTIFACTS / IGNORED" "$MAGENTA" "cleanup" BUILD_ARTIFACTS[@]
 print_group "UNKNOWN" "$RED" "revert" UNKNOWN_FILES[@]
 
 echo -e "--------------------------------------------------------"

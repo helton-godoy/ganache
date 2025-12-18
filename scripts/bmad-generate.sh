@@ -444,13 +444,13 @@ Este documento fornece instruções detalhadas para configurar o ambiente de des
 ## System Requirements
 
 ### Minimum Requirements
-- **OS:** Ubuntu 20.04+ / Debian 12+ / macOS 12+ / Windows 10+
+- **OS:** Ubuntu 20.04+ / Debian 13+ / macOS 12+ / Windows 10+
 - **RAM:** 8GB (16GB recomendado)
 - **Storage:** 50GB espaço livre
 - **Network:** Conexão estável para downloads
 
 ### Recommended Requirements
-- **OS:** Ubuntu 22.04 LTS / Debian 12
+- **OS:** Ubuntu 22.04 LTS / Debian 13
 - **RAM:** 32GB
 - **Storage:** 200GB SSD
 - **CPU:** 8 cores

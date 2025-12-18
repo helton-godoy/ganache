@@ -1,7 +1,7 @@
 use axum::{routing::get, Json, Router};
 use ganache_api::{
-    BootEnvironment, BootEnvironmentActivation, ClusterConfig, ClusterStatus, HardwareInfo,
-    PoolConfig, PoolInfo, StorageDevice, SystemResources,
+    BootEnvironment, BootEnvironmentActivation, ClusterConfig, ClusterStatus, DatasetConfig,
+    DatasetInfo, HardwareInfo, PoolConfig, PoolInfo, StorageDevice, SystemResources,
 };
 use ganache_lib::{BootService, ClusterService, HardwareService, MemoryService, ZpoolService};
 use serde::{Deserialize, Serialize};
@@ -50,7 +50,10 @@ async fn main() {
             get_pools,
             get_system_logs,
             promote_node,
-            list_disks
+            list_disks,
+            list_datasets,
+            create_dataset,
+            destroy_dataset
         ),
         components(schemas(
             ganache_api::HardwareInfo,
@@ -61,7 +64,11 @@ async fn main() {
             ganache_api::BootEnvironmentActivation,
             ganache_api::PoolConfig,
             ganache_api::PoolInfo,
+            ganache_api::PoolConfig,
+            ganache_api::PoolInfo,
             ganache_api::StorageDevice,
+            ganache_api::DatasetConfig,
+            ganache_api::DatasetInfo,
             SystemLog,
             DiskInfo
         ))
@@ -110,6 +117,14 @@ async fn main() {
         .route("/api/v1/system/logs", get(get_system_logs))
         .route("/api/v1/system/promote", axum::routing::post(promote_node))
         .route("/api/v1/storage/disks", get(list_disks))
+        .route(
+            "/api/v1/storage/datasets",
+            get(list_datasets).post(create_dataset),
+        )
+        .route(
+            "/api/v1/storage/datasets/delete",
+            axum::routing::post(destroy_dataset),
+        )
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .layer(CorsLayer::permissive());
 
@@ -260,4 +275,37 @@ async fn enforce_quotas_on_all_pools() -> anyhow::Result<()> {
         }
     }
     Ok(())
+}
+
+#[derive(Deserialize, utoipa::IntoParams)]
+struct ListDatasetsQuery {
+    pool: String,
+}
+
+#[derive(Deserialize, utoipa::ToSchema)]
+struct DeleteDatasetPayload {
+    pool: String,
+    name: String,
+}
+
+#[utoipa::path(get, path = "/api/v1/storage/datasets", params(ListDatasetsQuery), responses((status = 200, description = "List datasets for a pool", body = Vec<DatasetInfo>)))]
+async fn list_datasets(
+    axum::extract::Query(params): axum::extract::Query<ListDatasetsQuery>,
+) -> Json<Vec<DatasetInfo>> {
+    let datasets = ZpoolService::list_datasets(&params.pool).await.unwrap();
+    Json(datasets)
+}
+
+#[utoipa::path(post, path = "/api/v1/storage/datasets", request_body = DatasetConfig, responses((status = 200, description = "Dataset created", body = DatasetInfo)))]
+async fn create_dataset(Json(payload): Json<DatasetConfig>) -> Json<DatasetInfo> {
+    let ds = ZpoolService::create_dataset(payload).await.unwrap();
+    Json(ds)
+}
+
+#[utoipa::path(post, path = "/api/v1/storage/datasets/delete", request_body = DeleteDatasetPayload, responses((status = 200, description = "Dataset destroyed", body = String)))]
+async fn destroy_dataset(Json(payload): Json<DeleteDatasetPayload>) -> Json<String> {
+    ZpoolService::destroy_dataset(&payload.pool, &payload.name)
+        .await
+        .unwrap();
+    Json("Dataset destroyed".to_string())
 }

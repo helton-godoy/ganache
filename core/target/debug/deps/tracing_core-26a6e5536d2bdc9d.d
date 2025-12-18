@@ -1,0 +1,14 @@
+/root/GANACHE/core/target/debug/deps/tracing_core-26a6e5536d2bdc9d.d: /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/lib.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/lazy.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/callsite.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/dispatcher.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/event.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/field.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/metadata.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/parent.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/span.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/subscriber.rs
+
+/root/GANACHE/core/target/debug/deps/libtracing_core-26a6e5536d2bdc9d.rmeta: /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/lib.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/lazy.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/callsite.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/dispatcher.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/event.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/field.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/metadata.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/parent.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/span.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/subscriber.rs
+
+/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/lib.rs:
+/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/lazy.rs:
+/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/callsite.rs:
+/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/dispatcher.rs:
+/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/event.rs:
+/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/field.rs:
+/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/metadata.rs:
+/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/parent.rs:
+/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/span.rs:
+/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-core-0.1.35/src/subscriber.rs:

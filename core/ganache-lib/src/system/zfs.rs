@@ -1,5 +1,5 @@
 use anyhow::Result;
-use ganache_api::{PoolConfig, PoolInfo, StorageDevice};
+use ganache_api::{DatasetConfig, DatasetInfo, PoolConfig, PoolInfo, StorageDevice};
 
 pub struct ZpoolService;
 
@@ -114,6 +114,52 @@ impl ZpoolService {
         tokio::time::sleep(std::time::Duration::from_millis(200)).await;
         Ok(())
     }
+
+    /// Lista os datasets de um pool
+    pub async fn list_datasets(pool_name: &str) -> Result<Vec<DatasetInfo>> {
+        println!("Mocking 'zfs list -t dataset -r {}'", pool_name);
+        // Mocking some datasets
+        Ok(vec![
+            DatasetInfo {
+                pool: pool_name.to_string(),
+                name: "Marketing".to_string(),
+                mountpoint: format!("/{}/Marketing", pool_name),
+                used: "1.2G".to_string(),
+                available: "448G".to_string(),
+                compression: "lz4".to_string(),
+            },
+            DatasetInfo {
+                pool: pool_name.to_string(),
+                name: "Backups".to_string(),
+                mountpoint: format!("/{}/Backups", pool_name),
+                used: "45G".to_string(),
+                available: "403G".to_string(),
+                compression: "gzip".to_string(),
+            },
+        ])
+    }
+
+    /// Cria um novo dataset
+    pub async fn create_dataset(config: DatasetConfig) -> Result<DatasetInfo> {
+        println!("Mocking 'zfs create {}/{}'", config.pool_name, config.name);
+        tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+
+        Ok(DatasetInfo {
+            pool: config.pool_name.clone(),
+            name: config.name.clone(),
+            mountpoint: format!("/{}/{}", config.pool_name, config.name),
+            used: "128K".to_string(),
+            available: "unknown".to_string(),
+            compression: "lz4".to_string(),
+        })
+    }
+
+    /// Remove um dataset
+    pub async fn destroy_dataset(pool_name: &str, dataset_name: &str) -> Result<()> {
+        println!("Mocking 'zfs destroy {}/{}'", pool_name, dataset_name);
+        tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -146,5 +192,23 @@ mod tests {
         assert_eq!(ZpoolService::calculate_90_percent("10.5T").unwrap(), "9.5T"); // 10.5 * 0.9 = 9.45, rounded to 9.5 due to .1 format
         assert_eq!(ZpoolService::calculate_90_percent("1000").unwrap(), "900");
         assert_eq!(ZpoolService::calculate_90_percent("2M").unwrap(), "1.8M");
+    }
+
+    #[tokio::test]
+    async fn test_dataset_operations() {
+        let config = DatasetConfig {
+            pool_name: "data-pool".to_string(),
+            name: "TestDataset".to_string(),
+        };
+
+        let ds: DatasetInfo = ZpoolService::create_dataset(config).await.unwrap();
+        assert_eq!(ds.name, "TestDataset");
+        assert_eq!(ds.pool, "data-pool");
+
+        let list: Vec<DatasetInfo> = ZpoolService::list_datasets("data-pool").await.unwrap();
+        assert!(list.len() >= 2);
+
+        let result: Result<()> = ZpoolService::destroy_dataset("data-pool", "TestDataset").await;
+        assert!(result.is_ok());
     }
 }

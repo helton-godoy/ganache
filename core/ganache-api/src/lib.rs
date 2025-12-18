@@ -30,3 +30,59 @@ pub struct SystemResources {
     pub arc_target_bytes: u64,
     pub status: String,
 }
+
+#[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]
+pub struct BootEnvironment {
+    pub name: String,
+    pub active: String, // "N" (Now), "R" (Reboot), "NR" (Both), "-" (Inactive)
+    pub created: String,
+    pub space: String,
+    pub keep: bool,
+}
+
+#[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]
+pub struct BootEnvironmentActivation {
+    pub name: String,
+}
+
+#[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]
+pub struct PoolConfig {
+    pub name: String,
+    pub device: String,
+    pub compression: bool,
+}
+
+#[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]
+pub struct PoolInfo {
+    pub name: String,
+    pub size: String,
+    pub alloc: String,
+    pub free: String,
+    pub health: String,
+    pub mountpoint: String,
+    pub quota: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]
+pub struct StorageDevice {
+    pub path: String,
+    pub name: String,
+    pub size: String,
+    pub device_type: String, // "drbd" | "disk"
+}
+
+#[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]
+pub struct DatasetConfig {
+    pub pool_name: String,
+    pub name: String,
+}
+
+#[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]
+pub struct DatasetInfo {
+    pub pool: String,
+    pub name: String,
+    pub mountpoint: String,
+    pub used: String,
+    pub available: String,
+    pub compression: String,
+}

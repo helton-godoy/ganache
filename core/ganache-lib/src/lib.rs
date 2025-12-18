@@ -1,7 +1,11 @@
-use std::process::Command;pub mod system;
-pub use system::memory::MemoryService;
+use std::process::Command;
+pub mod system;
+use anyhow::{Context, Result};
 use ganache_api::HardwareInfo;
-use anyhow::{Result, Context};
+pub use system::boot::BootService;
+pub use system::cluster::ClusterService;
+pub use system::memory::MemoryService;
+pub use system::zfs::ZpoolService;
 
 pub struct HardwareService;
 
@@ -13,12 +17,12 @@ impl HardwareService {
         // For this build, we mock it or try to run it.
         // Mock override for testing
         if std::env::var("GANACHE_MOCK_RAID").is_ok() {
-             return Ok(HardwareInfo {
+            return Ok(HardwareInfo {
                 has_raid: true,
                 controller_name: Some("MOCK RAID CONTROLLER".to_string()),
             });
         }
-        
+
         let output = Command::new("lspci")
             .arg("-mn") // machine readable, numeric IDs
             .output();
@@ -29,42 +33,28 @@ impl HardwareService {
                 // Check for PERC 6/i (1028:0015 usually) or generic LSI MegaRAID
                 // For this MVP, let's mock the "HIT" logic if we see a simulated environment
                 // or just default to false if not found.
-                
+
                 // Mock Logic for "Simulation"
                 let has_perc = stdout.contains("1028:0015") || stdout.contains("MegaRAID");
-                
+
                 Ok(HardwareInfo {
                     has_raid: has_perc,
-                    controller_name: if has_perc { Some("PERC 6/i (Simulated)".to_string()) } else { None },
+                    controller_name: if has_perc {
+                        Some("PERC 6/i (Simulated)".to_string())
+                    } else {
+                        None
+                    },
                 })
-            },
+            }
             Err(_) | Ok(_) => {
                 // If lspci fails (e.g., in container), return default safe Mock for now
                 // "Simulate RAID" for the purpose of the Story Review
                 Ok(HardwareInfo {
-                    has_raid: true, 
+                    has_raid: true,
                     controller_name: Some("PERC 6/i Integrated (Simulated)".to_string()),
                 })
             }
         }
-    }
-}
-
-
-pub struct ClusterService;
-
-impl ClusterService {
-    /// Mock configuration of a twin-node cluster
-    pub async fn configure_node(_config: ganache_api::ClusterConfig) -> Result<ganache_api::ClusterStatus> {
-        // In real life, this would trigger Ansible/Script
-        // Mock delay to simulate work
-        tokio::time::sleep(std::time::Duration::from_millis(500)).await;
-        
-        Ok(ganache_api::ClusterStatus {
-            state: "syncing".to_string(),
-            progress: 0.1,
-            message: "Initializing blocking replication...".to_string(),
-        })
     }
 }
 
@@ -75,31 +65,22 @@ mod tests {
     #[test]
     fn test_detect_returns_simulated_result_in_dev() {
         // Set the mock environment variable
-        unsafe { std::env::set_var("GANACHE_MOCK_RAID", "1"); }
-        
+        unsafe {
+            std::env::set_var("GANACHE_MOCK_RAID", "1");
+        }
+
         let result = HardwareService::detect_raid_controller();
         assert!(result.is_ok());
         let info = result.unwrap();
-        
+
         assert!(info.has_raid);
-        assert_eq!(info.controller_name, Some("MOCK RAID CONTROLLER".to_string()));
-        
-        
-        unsafe { std::env::remove_var("GANACHE_MOCK_RAID"); }
-    }
+        assert_eq!(
+            info.controller_name,
+            Some("MOCK RAID CONTROLLER".to_string())
+        );
 
-    #[tokio::test]
-    async fn test_configure_node_returns_syncing_state() {
-        let config = ganache_api::ClusterConfig {
-            mode: "compatibility".to_string(),
-            node_id: 1,
-            peer_ip: "10.0.0.2".to_string(),
-        };
-
-        let result = ClusterService::configure_node(config).await;
-        assert!(result.is_ok());
-        let status = result.unwrap();
-        assert_eq!(status.state, "syncing");
-        assert!(status.progress > 0.0);
+        unsafe {
+            std::env::remove_var("GANACHE_MOCK_RAID");
+        }
     }
 }

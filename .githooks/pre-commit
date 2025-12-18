@@ -20,7 +20,7 @@ fi
 # ----------------------------------------------------------------
 echo "🔐 [2/4] Escaneando Segredos..."
 STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
-if echo "$STAGED_FILES" | grep -qE "(.env|id_rsa|token)"; then
+if echo "$STAGED_FILES" | grep -qE "(\.env|id_rsa|token)"; then
     echo "❌ [SEGURANÇA] Arquivos sensíveis detectados no stage!"
     exit 1
 fi

@@ -1,8 +1,9 @@
 #!/bin/bash
 
-# BMAD Validation Script
-# Valida conformidade total com padrões BMAD para projetos web+backend
+# BMAD Universal Validation Script v4.1 (Guardian)
+# Conformidade de Fluxo, Conteúdo, Paridade de Status e Orquestração
 
+clear
 set -e
 
 # Cores para output
@@ -12,266 +13,168 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Contadores
-TOTAL_CHECKS=0
-PASSED_CHECKS=0
-FAILED_CHECKS=0
+# 1. Identificação Dinâmica do Projeto
+PROJECT_NAME="Unknown"
+if [ -f "project-context.md" ]; then
+    PROJECT_NAME=$(grep -m 1 "# Project Context for AI Agents:" project-context.md | sed 's/.*: //')
+    [ -z "$PROJECT_NAME" ] && PROJECT_NAME=$(grep -m 1 "project_name:" project-context.md | awk -F"'" '{print $2}')
+fi
+if [ "$PROJECT_NAME" == "Unknown" ] && [ -f "docs/analysis/prd.md" ]; then
+    PROJECT_NAME=$(grep -i "project_name:" docs/analysis/prd.md | head -1 | awk -F"'" '{print $2}')
+fi
+[ -z "$PROJECT_NAME" ] && PROJECT_NAME="Ganache Appliance"
 
-echo -e "${BLUE}🔍 BMAD Validation Script v1.0${NC}"
-echo "=================================="
-echo "Projeto: Ganache Enterprise NAS"
-echo "Data: $(date)"
-echo "Compliance Target: Web + Backend"
-echo ""
+echo -e "${BLUE}🛡️  BMAD Diagnostic Validation Script v4.1${NC}"
+echo -e "================================================================================"
+echo -e "\n\nNOME DO PROJETO: ${YELLOW}\"${PROJECT_NAME}\"${NC}\n"
 
-# Função para logging
-log_check() {
-	local check_name="$1"
-	local status="$2"
-	local message="$3"
 
-	TOTAL_CHECKS=$((TOTAL_CHECKS + 1))
+ERRORS=0
+ERROR_LIST=()
 
-	if [ "$status" = "PASS" ]; then
-		echo -e "${GREEN}✅ PASS${NC} - $check_name: $message"
-		PASSED_CHECKS=$((PASSED_CHECKS + 1))
-	else
-		echo -e "${RED}❌ FAIL${NC} - $check_name: $message"
-		FAILED_CHECKS=$((FAILED_CHECKS + 1))
-	fi
+# Função auxiliar para validar documento e seção
+validate_item() {
+    local phase="$1"
+    local file="$2"
+    local pattern="$3"
+    local display_item="$4"
+    local detail="$5"
+
+    if [ ! -f "$file" ]; then
+        echo -e "\n  ${RED}[✗] ${NC}Documento:${BLUE} '$(basename "$file   ")'${NC} AUSENTE${NC}"
+        ERROR_LIST+=("Fase $phase: Arquivo $file não encontrado.")
+        ERRORS=$((ERRORS + 1))
+        return 1
+    fi
+
+    if grep -qi "$pattern" "$file"; then
+        echo -e "\n  ${GREEN}[✓] ${NC}Documento:${BLUE} '$(basename "$file")'${NC} $display_item:${BLUE} '$detail'${NC}"
+    else
+        echo -e "\n  ${RED}[✗] ${NC}Documento:${BLUE} '$(basename "$file")'${NC} $display_item:${BLUE} '$detail'${NC} (AUSENTE)${NC}"
+        ERROR_LIST+=("Fase $phase: Arquivo $(basename "$file") não contém a seção/conteúdo '$detail'.")
+        ERRORS=$((ERRORS + 1))
+    fi
 }
 
-# Função para verificar se arquivo existe
-check_file_exists() {
-	local file_path="$1"
-	local check_name="$2"
+# === 1. Concepção ===
+echo -e "\n\n=== 1. Concepção ==============================================================="
+PRD="docs/analysis/prd.md"
+validate_item "1" "$PRD" "Executive Summary" "Seção" "Executive Summary"
+validate_item "1" "$PRD" "Project Scoping" "Seção" "Project Scoping"
 
-	if [ -f "$file_path" ]; then
-		log_check "$check_name" "PASS" "Arquivo encontrado: $file_path"
-	else
-		log_check "$check_name" "FAIL" "Arquivo não encontrado: $file_path"
-	fi
-}
+# === 2. Requisitos ===
+echo -e "\n\n=== 2. Requisitos =============================================================="
+validate_item "2" "$PRD" "Core Requirements" "Seção" "Core Requirements"
+validate_item "2" "$PRD" "Functional Requirements" "Seção" "Functional Requirements"
 
-# Função para verificar diretório
-check_directory_exists() {
-	local dir_path="$1"
-	local check_name="$2"
+# === 3. Arquitetura Global ===
+echo -e "\n\n=== 3. Arquitetura Global ======================================================"
+ARCH="docs/architecture.md"
+validate_item "3" "$ARCH" "Backend" "Seção" "Detalhamento Backend"
+validate_item "3" "$ARCH" "Frontend" "Seção" "Detalhamento Frontend"
+validate_item "3" "$ARCH" "Estratégia de Integração" "Seção" "Estratégia de Integração"
+validate_item "3" "$ARCH" "Modelo de Segurança" "Seção" "Modelo de Segurança"
 
-	if [ -d "$dir_path" ]; then
-		log_check "$check_name" "PASS" "Diretório encontrado: $dir_path"
-	else
-		log_check "$check_name" "FAIL" "Diretório não encontrado: $dir_path"
-	fi
-}
+# === 4. Epics & Stories ===
+echo -e "\n\n=== 4. Epics & Stories ========================================================="
+EPICS="docs/epics.md"
+validate_item "4" "$EPICS" "Epic 1" "Seção" "Definição de Épicos"
+validate_item "4" "$EPICS" "Acceptance Criteria" "Seção" "Critérios de Aceitação"
 
-# Função para validar meta-informações YAML
-validate_yaml_frontmatter() {
-	local file_path="$1"
-	local check_name="$2"
-
-	if [ ! -f "$file_path" ]; then
-		log_check "$check_name" "FAIL" "Arquivo não encontrado: $file_path"
-		return
-	fi
-
-	# Verificar se tem frontmatter YAML
-	if head -n 1 "$file_path" | grep -q "^---$"; then
-		log_check "$check_name" "PASS" "Frontmatter YAML presente"
-	else
-		log_check "$check_name" "FAIL" "Frontmatter YAML ausente"
-	fi
-}
-
-# Função para verificar nomenclatura BMAD
-validate_bmad_naming() {
-	local file_path="$1"
-	local check_name="$2"
-
-	if [ ! -f "$file_path" ]; then
-		log_check "$check_name" "FAIL" "Arquivo não encontrado: $file_path"
-		return
-	fi
-
-	local filename=$(basename "$file_path")
-	local dirname=$(dirname "$file_path")
-
-	# Padrões BMAD válidos
-	local bmad_patterns=(
-		"project-overview-"
-		"architecture-"
-		"development-"
-		"validation-"
-		"handoff-"
-		"api-"
-		"deployment-"
-		"setup-"
-		"index\.md$"
-	)
-
-	local is_valid=false
-	for pattern in "${bmad_patterns[@]}"; do
-		if echo "$filename" | grep -qE "$pattern"; then
-			is_valid=true
-			break
-		fi
-	done
-
-	if [ "$is_valid" = true ]; then
-		log_check "$check_name" "PASS" "Nomenclatura BMAD válida: $filename"
-	else
-		log_check "$check_name" "FAIL" "Nomenclatura não BMAD: $filename"
-	fi
-}
-
-echo -e "${YELLOW}📁 Validando Estrutura de Diretórios BMAD${NC}"
-echo "============================================"
-
-# Verificar estrutura BMAD obrigatória
-check_directory_exists "docs" "Estrutura Base"
-check_directory_exists "docs/architecture" "Architecture Directory"
-check_directory_exists "docs/development" "Development Directory"
-check_directory_exists "docs/validation" "Validation Directory"
-check_directory_exists "docs/validation/reports" "Validation Reports Directory"
-check_directory_exists "docs/handoff" "Handoff Directory"
-check_directory_exists "docs/assets" "Assets Directory"
-check_directory_exists "docs/assets/diagrams" "Diagrams Directory"
-check_directory_exists "docs/assets/templates" "Templates Directory"
-check_directory_exists "scripts" "Scripts Directory"
-
-# Arquivos movidos
-check_file_exists "docs/analysis/prd.md" "Product Requirements Document"
-check_file_exists "docs/development/documentation-methodology.md" "Methodology Guide"
-check_file_exists "docs/sprint-artifacts/bmm-workflow-status.yaml" "Sprint Status"
-
-echo ""
-echo -e "${YELLOW}📄 Validando Documentos Obrigatórios BMAD${NC}"
-echo "==============================================="
-
-# Verificar documentos obrigatórios
-check_file_exists "docs/index.md" "Master Documentation Index"
-check_file_exists "docs/project-overview-ganache.md" "Project Overview (BMAD Template)"
-check_file_exists "docs/architecture/architecture-ganache.md" "Architecture Documentation"
-check_file_exists "docs/architecture/source-tree-analysis.md" "Source Tree Analysis (BMAD Template)"
-check_file_exists "docs/development/development-guide.md" "Development Guide"
-check_file_exists "docs/development/setup-instructions.md" "Setup Instructions"
-check_directory_exists "docs/validation/reports" "Validation Reports Directory"
-check_file_exists "docs/handoff/handoff-technical-specs.md" "Technical Specifications"
-check_file_exists "docs/handoff/deployment-guide.md" "Deployment Guide"
-check_file_exists "docs/handoff/handoff-maintenance-manual.md" "Maintenance Manual"
-check_file_exists "docs/handoff/api-documentation.md" "API Documentation"
-
-echo ""
-echo -e "${YELLOW}🛠️ Validando Scripts de Automação BMAD${NC}"
-echo "=========================================="
-
-# Verificar scripts de automação
-check_file_exists "scripts/bmad-validate.sh" "BMAD Validation Script"
-check_file_exists "scripts/bmad-generate.sh" "BMAD Generation Script"
-check_file_exists "scripts/bmad-sync.sh" "BMAD Sync Script"
-
-echo ""
-echo -e "${YELLOW}✅ Validando Meta-informações BMAD${NC}"
-echo "======================================"
-
-# Validar meta-informações nos documentos principais
-validate_yaml_frontmatter "docs/index.md" "Index Meta-informations"
-validate_yaml_frontmatter "docs/project-overview-ganache.md" "Project Overview Meta-informations"
-validate_yaml_frontmatter "docs/architecture/architecture-ganache.md" "Architecture Meta-informations"
-
-echo ""
-echo -e "${YELLOW}🏷️ Validando Nomenclatura BMAD${NC}"
-echo "================================="
-
-# Validar nomenclatura BMAD para documentos principais
-validate_bmad_naming "docs/index.md" "Index Naming"
-validate_bmad_naming "docs/project-overview-ganache.md" "Project Overview Naming"
-validate_bmad_naming "docs/architecture/architecture-ganache.md" "Architecture Naming"
-validate_bmad_naming "docs/development/development-guide.md" "Development Guide Naming"
-validate_bmad_naming "docs/handoff/handoff-technical-specs.md" "Technical Specs Naming"
-
-echo ""
-echo -e "${YELLOW}🔍 Validando Templates BMAD${NC}"
-echo "==============================="
-
-# Verificar se templates BMAD oficiais existem
-check_file_exists ".bmad/bmm/workflows/document-project/templates/project-overview-template.md" "BMAD Project Overview Template"
-check_file_exists ".bmad/bmm/workflows/document-project/templates/deep-dive-template.md" "BMAD Deep Dive Template"
-check_file_exists ".bmad/bmm/workflows/document-project/documentation-requirements.csv" "BMAD Requirements CSV"
-
-echo ""
-echo -e "${YELLOW}🔗 Validando Navegação Cruzada${NC}"
-echo "================================"
-
-# Verificar se links cruzados existem (básico)
-if grep -q "\[.*\](.*\.md)" "docs/index.md"; then
-	log_check "Cross References" "PASS" "Links cruzados detectados no index"
+# === 5. Sprint Status & Orchestration ===
+echo -e "\n\n=== 5. Sprint Status & Orchestration ==========================================="
+SPRINT_STATUS="docs/sprint-artifacts/sprint-status.yaml"
+if [ -f "$SPRINT_STATUS" ]; then
+    LAST_UPDATE=$(grep -m 1 "generated:" "$SPRINT_STATUS" | awk -F': ' '{print $2}' | tr -d '"')
+    echo -e "\n  ${GREEN}[✓] ${NC}Documento:${BLUE} 'sprint-status.yaml'${NC} Status:${BLUE} 'Atualizado em $LAST_UPDATE'${NC}"
 else
-	log_check "Cross References" "FAIL" "Nenhum link cruzado detectado no index"
+    echo -e "\n  ${RED}[✗] ${NC}Documento:${BLUE} 'sprint-status.yaml'${NC} AUSENTE${NC}"
+    ERROR_LIST+=("Fase 5: sprint-status.yaml não encontrado.")
+    ERRORS=$((ERRORS + 1))
 fi
 
+WFLOW_STATUS="docs/sprint-artifacts/bmm-workflow-status.yaml"
+if [ -f "$WFLOW_STATUS" ]; then
+    NEXT_STEP=$(grep -A 2 "next_steps:" "$WFLOW_STATUS" | grep "workflow:" | head -1 | awk '{print $NF}' | tr -d '"')
+    REASON=$(grep -A 2 "next_steps:" "$WFLOW_STATUS" | grep "reason:" | head -1 | cut -d'"' -f2)
+    echo -e "\n  ${GREEN}[✓] ${NC}Documento:${BLUE} 'bmm-workflow-status.yaml'${NC} Próximo Passo:${BLUE} '*$NEXT_STEP'${NC}"
+    [ ! -z "$REASON" ] && echo -e "\n  ${BLUE}NOTA:${YELLOW} $REASON${NC}"
+else
+    echo -e "\n  ${RED}[✗] ${NC}Documento:${BLUE} 'bmm-workflow-status.yaml'${NC} AUSENTE${NC}"
+    ERROR_LIST+=("Fase 5: bmm-workflow-status.yaml (Orquestração) não encontrado.")
+    ERRORS=$((ERRORS + 1))
+fi
+
+# === 6. Contextos de História ===
+echo -e "\n\n=== 6. Contextos de História ==================================================="
+if [ -f "$SPRINT_STATUS" ]; then
+    # Extrair IDs e Status do YAML (Suporta os dois formatos presentes no Ganache)
+    # 1. Chave direta: "2-3-90-hard-quota-enforcement: ready-for-dev"
+    # 2. Lista estruturada: "- id: \"2-1...\" \n status: \"done\""
+    
+    # Processar formato chave direta
+    grep -E "^  [0-9]-[0-9].*:" "$SPRINT_STATUS" | while read -r line; do
+        ID=$(echo "$line" | awk -F':' '{print $1}' | tr -d ' ')
+        [[ "$ID" == "generated" || "$ID" == "id" || "$ID" == "status" ]] && continue
+        
+        YAML_STATUS=$(echo "$line" | awk -F': ' '{print $2}' | tr -d '" ')
+        [ "$YAML_STATUS" == "backlog" ] && continue
+        
+        STORY_FILE=$(ls docs/sprint-artifacts/${ID}*.md 2>/dev/null | head -1)
+        if [ -f "$STORY_FILE" ]; then
+            FILE_STATUS=$(grep -i "Status:" "$STORY_FILE" | head -1 | sed -E 's/.*Status:[[:space:]]*//i' | tr -d '[:space:]#*')
+            if [ "$YAML_STATUS" == "$FILE_STATUS" ]; then
+                echo -e "\n  ${GREEN}[✓] ${NC}Documento:${BLUE} '$(basename "$STORY_FILE")'${NC} Status:${BLUE} '$YAML_STATUS'${NC}"
+            else
+                echo -e "\n  ${RED}[✗] ${NC}Documento:${BLUE} '$(basename "$STORY_FILE")'${NC} Status:${BLUE} '$YAML_STATUS'${NC} (DIVERGENTE: Doc=$FILE_STATUS)${NC}"
+                ERROR_LIST+=("Fase 6: Story $ID divergiu. YAML=$YAML_STATUS, Doc=$FILE_STATUS.")
+                ERRORS=$((ERRORS + 1))
+            fi
+        else
+            echo -e "\n  ${RED}[✗] ${NC}Documento:${BLUE} 'Story $ID'${NC} AUSENTE${NC}"
+            ERROR_LIST+=("Fase 6: Arquivo para Story $ID não encontrado.")
+            ERRORS=$((ERRORS + 1))
+        fi
+    done
+
+    # Processar formato lista id/status
+    grep -E "id: \"[0-9]-[0-9].*\"" "$SPRINT_STATUS" | while read -r line; do
+        ID=$(echo "$line" | awk -F'"' '{print $2}')
+        YAML_STATUS=$(grep -A 5 "id: \"$ID\"" "$SPRINT_STATUS" | grep "status:" | head -1 | awk -F'"' '{print $2}')
+        [ "$YAML_STATUS" == "backlog" ] && continue
+        
+        STORY_FILE=$(ls docs/sprint-artifacts/${ID}*.md 2>/dev/null | head -1)
+        if [ -f "$STORY_FILE" ]; then
+            FILE_STATUS=$(grep -i "Status:" "$STORY_FILE" | head -1 | sed -E 's/.*Status:[[:space:]]*//i' | tr -d '[:space:]#*')
+            if [ "$YAML_STATUS" == "$FILE_STATUS" ]; then
+                echo -e "\n  ${GREEN}[✓] ${NC}Documento:${BLUE} '$(basename "$STORY_FILE")'${NC} Status:${BLUE} '$YAML_STATUS'${NC}"
+            else
+                 # Evitar duplicados se já processado pelo loop acima (IDs são únicos)
+                 if ! grep -q "Story $ID divergiu" <<< "${ERROR_LIST[*]}"; then
+                    echo -e "\n  ${RED}[✗] ${NC}Documento:${BLUE} '$(basename "$STORY_FILE")'${NC} Status:${BLUE} '$YAML_STATUS'${NC} (DIVERGENTE)${NC}"
+                    ERROR_LIST+=("Fase 6: Story $ID divergiu.")
+                    ERRORS=$((ERRORS + 1))
+                 fi
+            fi
+        fi
+    done
+fi
+
+# === 7. Contexto do Projeto ===
+echo -e "\n\n=== 7. Contexto do Projeto ====================================================="
+CTX="project-context.md"
+validate_item "7" "$CTX" "Documentation Methodology" "Seção" "Metodologia de Documentação"
+validate_item "7" "$CTX" "Anti-Fragmentation Rules" "Seção" "Regras Anti-Fragmentação"
+
 echo ""
-echo -e "${YELLOW}📊 Validação de Compliance Web + Backend${NC}"
-echo "==========================================="
-
-# Verificar patterns específicos para projetos web+backend
-if grep -q "web" "docs/project-overview-ganache.md"; then
-	log_check "Web Project Classification" "PASS" "Classificação web presente"
+echo -e "\n--------------------------------------------------------------------------------"
+if [ $ERRORS -eq 0 ]; then
+    echo -e "\n${GREEN}🎉 VALIDATION SUCCESS! Todos os critérios BMAD 6 foram atendidos.${NC}\n\n"
+    exit 0
 else
-	log_check "Web Project Classification" "FAIL" "Classificação web ausente"
-fi
-
-if grep -q "backend" "docs/project-overview-ganache.md"; then
-	log_check "Backend Project Classification" "PASS" "Classificação backend presente"
-else
-	log_check "Backend Project Classification" "FAIL" "Classificação backend ausente"
-fi
-
-if grep -q "OpenAPI" "docs/project-overview-ganache.md"; then
-	log_check "API Specification" "PASS" "Especificação OpenAPI mencionada"
-else
-	log_check "API Specification" "FAIL" "Especificação OpenAPI não mencionada"
-fi
-
-echo ""
-echo -e "${YELLOW}🚀 Validando CI/CD BMAD${NC}"
-echo "=========================="
-
-# Verificar workflows de CI/CD
-check_directory_exists ".github/workflows" "GitHub Workflows Directory"
-if [ -f ".github/workflows/docs-bmad.yml" ]; then
-	log_check "BMAD CI/CD Workflow" "PASS" "Workflow BMAD encontrado"
-else
-	log_check "BMAD CI/CD Workflow" "FAIL" "Workflow BMAD não encontrado"
-fi
-
-echo ""
-echo "==============================================="
-echo -e "${BLUE}📈 RESUMO DA VALIDAÇÃO BMAD${NC}"
-echo "==============================================="
-echo "Total de Verificações: $TOTAL_CHECKS"
-echo -e "✅ Aprovadas: ${GREEN}$PASSED_CHECKS${NC}"
-echo -e "❌ Reprovadas: ${RED}$FAILED_CHECKS${NC}"
-
-# Calcular percentage
-if [ $TOTAL_CHECKS -gt 0 ]; then
-	PERCENTAGE=$((PASSED_CHECKS * 100 / TOTAL_CHECKS))
-	echo "Taxa de Compliance: $PERCENTAGE%"
-fi
-
-echo ""
-
-# Determinar status final
-if [ $FAILED_CHECKS -eq 0 ]; then
-	echo -e "${GREEN}🎉 BMAD COMPLIANCE: 100% TOTAL${NC}"
-	echo -e "${GREEN}✅ Projeto totalmente conforme com padrões BMAD${NC}"
-	exit 0
-elif [ $PERCENTAGE -ge 80 ]; then
-	echo -e "${YELLOW}⚠️ BMAD COMPLIANCE: $PERCENTAGE% PARCIAL${NC}"
-	echo -e "${YELLOW}⚠️ Projeto parcialmente conforme, ações corretivas necessárias${NC}"
-	exit 1
-else
-	echo -e "${RED}❌ BMAD COMPLIANCE: $PERCENTAGE% INSUFICIENTE${NC}"
-	echo -e "${RED}❌ Projeto não conforme com padrões BMAD, reorganização necessária${NC}"
-	exit 2
+    echo -e "\n${RED}💥 VALIDATION FAILED! Foram detectadas $ERRORS desconformidades.${NC}\n\n"
+    for err in "${ERROR_LIST[@]}"; do
+        echo -e "\n  - $err"
+    done
+    exit 1
 fi

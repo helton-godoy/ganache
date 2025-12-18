@@ -1,5 +1,4 @@
 import { diskRouter } from "@/server/api/routers/disk";
-import { systemRouter } from "@/server/api/routers/system";
 import { zfsRouter } from "@/server/api/routers/zfs";
 import { createCallerFactory, createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 
@@ -14,7 +13,7 @@ import { createCallerFactory, createTRPCRouter, publicProcedure } from "@/server
 export const appRouter = createTRPCRouter({
     disk: diskRouter,
     zfs: zfsRouter,
-    system: systemRouter,
+    // system: systemRouter, // REMOVED: Moved to Rust Core
     // Mock health check for now
     health: createTRPCRouter({
         check: publicProcedure.query(() => "ok"),

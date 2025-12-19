@@ -1,4 +1,4 @@
-use axum::{routing::get, Json, Router};
+use axum::{http::StatusCode, routing::get, Json, Router};
 use ganache_api::{
     BootEnvironment, BootEnvironmentActivation, ClusterConfig, ClusterStatus, DatasetConfig,
     DatasetInfo, HardwareInfo, PoolConfig, PoolInfo, StorageDevice, SystemResources,
@@ -297,9 +297,20 @@ async fn list_datasets(
 }
 
 #[utoipa::path(post, path = "/api/v1/storage/datasets", request_body = DatasetConfig, responses((status = 200, description = "Dataset created", body = DatasetInfo)))]
-async fn create_dataset(Json(payload): Json<DatasetConfig>) -> Json<DatasetInfo> {
-    let ds = ZpoolService::create_dataset(payload).await.unwrap();
-    Json(ds)
+async fn create_dataset(
+    Json(payload): Json<DatasetConfig>,
+) -> Result<Json<DatasetInfo>, (StatusCode, String)> {
+    match ZpoolService::create_dataset(payload).await {
+        Ok(ds) => Ok(Json(ds)),
+        Err(e) => {
+            let msg = e.to_string();
+            if msg.contains("exists") {
+                Err((StatusCode::CONFLICT, msg))
+            } else {
+                Err((StatusCode::INTERNAL_SERVER_ERROR, msg))
+            }
+        }
+    }
 }
 
 #[utoipa::path(post, path = "/api/v1/storage/datasets/delete", request_body = DeleteDatasetPayload, responses((status = 200, description = "Dataset destroyed", body = String)))]

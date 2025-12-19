@@ -61,8 +61,8 @@ development_status:
       status: "done"
     - id: "2.4"
       name: "Dataset Management"
-      status: "review"
-      scrum_master_notes: "Review fixes applied. Ready for verification."
+      status: "done"
+      scrum_master_notes: "Verified by Dev Agent. All tests passed."
   2-5-automated-failover-panic-logic: backlog
   epic-2-retrospective: optional
 

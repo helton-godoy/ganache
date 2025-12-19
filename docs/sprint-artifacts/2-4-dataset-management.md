@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Status:** review
+- **Status:** done
 - **Sprint:** 1
 - **Epic:** Epic 2: Resilient HA Storage
 

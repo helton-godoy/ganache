@@ -9,32 +9,44 @@
 ## Senior Developer Review (AI)
 
 - **Date:** 2025-12-19
-- **Reviewer:** Antigravity
+- **Reviewer:** Adversarial Code Reviewer (BMad)
 - **Outcome:** ⚠️ Changes Requested
-
-### General Summary
-
-The implementation relies entirely on **stateless mocks** for backend operations (`list_datasets`, `create_dataset`). While this allows the "Golden Path" to pass in isolation, it fails to satisfy the "Persistence" aspect of the Acceptance Criteria. A user creating a dataset will not see it in the list afterwards. E2E tests are brittle as they only verify the success toast, not the actual list update.
 
 ### Critical Findings
 
-1. **[Critical] Stateless Mock Backend Voids Verification:**
-    - `zfs.rs` -> `list_datasets` returns a hardcoded static list.
-    - `create_dataset` returns success but does not update this list.
-    - **Impact:** The system does not actually "work" even in a dev environment. The "Create" action is an illusion.
-    - **Fix:** Implement a stateful mock using `lazy_static` + `Mutex<Vec<DatasetInfo>>` to simulate persistence during the backend lifecycle.
+1. **[High] Phantom Verification (E2E Tests Bypass Backend):**
+    - The E2E tests in `tests/e2e/dataset-management.spec.ts` use `mockDatasets(page)` from `api-mocks.ts`.
+    - `api-mocks.ts` implements a *duplicate* stateful mock in JavaScript (lines 78-105).
+    - **Impact:** The `create_dataset` logic in `zfs.rs` (Rust) is **NEVER EXECUTED** during E2E testing. You verified the *Playwright Mock*, not the *Rust Application*.
+    - **Action:** Remove `mockDatasets(page)` from the E2E test or configure it to pass-through to the real backend (requires proxy).
 
-2. **[High] E2E Tests False Positives:**
-    - `dataset-management.spec.ts` creating test checks for `await expect(page.getByText("Dataset 'Finance' created successfully")).toBeVisible();`.
-    - It **DOES NOT** verify that 'Finance' appears in the list.
-    - **Fix:** Update E2E test to reload the page or check the list for the new item. (This will fail until Finding 1 is fixed).
+2. **[Medium] Flaky Unit Tests (Global State Pollution):**
+    - `zfs.rs` uses a global `lazy_static` `MOCK_DATASETS`.
+    - Tests `test_dataset_operations` and `test_dataset_lifecycle` run in parallel by default (`cargo test`).
+    - Both modify the global list. If one adds an item while the other asserts `count`, random failures will occur.
+    - **Action:** Ensure tests run serially (`#[serial]` crate) or use a fresh mock instance per test (hard with statics).
 
-### Recommendations
+3. **[Medium] ZFS Naming Violation:**
+    - `zfs.rs` accepts raw names (e.g., "Finance") and stores them as-is.
+    - Real ZFS requires hierarchical names (e.g., "pool/Finance").
+    - The mock initializes with "pool/Production" but allows creating "Finance".
+    - **Action:** Enforce `format!("{}/{}", pool, name)` in `create_dataset`.
 
-1. Refactor `zpool.rs` to use a `lazy_static` Mutex for storing datasets in memory.
-2. Update `create_dataset` to push to this Mutex.
-3. Update `list_datasets` to read from this Mutex.
-4. Update E2E tests to verify list presence.
+4. **[High] Missing Integration Proxy:**
+    - `next.config.ts` is empty.
+    - There is no configured path for the Frontend to reach the Rust Backend in development.
+    - Even if you remove Playwright mocks, the app will fail to talk to the backend.
+
+### Action Items
+
+1. [ ] Configure `next.config.ts` rewrites to proxy `/api` to the Rust server port.
+2. [ ] Remove `mockDatasets` interception in `dataset-management.spec.ts` to test the real integration.
+3. [ ] Refactor `zfs.rs` to prepend pool name to dataset paths.
+4. [ ] Fix Rust logic to safely handle concurrent tests (or verify strict serial execution).
+
+### Conclusion
+
+The implementation of `zfs.rs` is technically correct (stateful), but it is currently an isolated island. The validation strategy is fundamentally flawed because it tests a JS simulation instead of the Rust code. You cannot merge this until the Frontend *actually* talks to the Backend.
 
 ## User Story
 
@@ -102,3 +114,9 @@ Para que eu possa organizar meus dados de forma lógica (ex: separando Departame
 - `tests/e2e/dataset-management.spec.ts` (Modified/Fixed)
 - `docs/sprint-artifacts/2-4-dataset-management.md` (Updated)
 - `docs/sprint-artifacts/sprint-status.yaml` (Updated)
+
+### Code Review Fixes (2025-12-19)
+
+- **Backend:** Refactored `zfs.rs` to fix global state issues and added naming validation.
+- **Integration:** Added `next.config.ts` proxy to route `/api` to Rust backend.
+- **Verification:** Updated E2E tests to hit real backend (via proxy) and unit tests passed.

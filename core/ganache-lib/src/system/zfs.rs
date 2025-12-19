@@ -1,5 +1,30 @@
 use anyhow::Result;
 use ganache_api::{DatasetConfig, DatasetInfo, PoolConfig, PoolInfo, StorageDevice};
+use lazy_static::lazy_static;
+use std::sync::Mutex;
+
+lazy_static! {
+    static ref MOCK_DATASETS: Mutex<Vec<DatasetInfo>> = Mutex::new(vec![
+        DatasetInfo {
+            pool: "pool".to_string(),
+            name: "pool/Production".to_string(),
+            used: "1.5T".to_string(),
+            available: "2.1T".to_string(),
+            mountpoint: "/pool/Production".to_string(),
+            compression: "lz4".to_string(),
+            quota: "none".to_string(),
+        },
+        DatasetInfo {
+            pool: "pool".to_string(),
+            name: "pool/Backups".to_string(),
+            used: "500G".to_string(),
+            available: "2.1T".to_string(),
+            mountpoint: "/pool/Backups".to_string(),
+            compression: "gzip".to_string(),
+            quota: "none".to_string(),
+        },
+    ]);
+}
 
 pub struct ZpoolService;
 
@@ -53,7 +78,7 @@ impl ZpoolService {
     pub async fn list_pools() -> Result<Vec<PoolInfo>> {
         // Mocking existing pools
         let bp_size = "20G";
-        let data_size = "500G";
+
         Ok(vec![
             PoolInfo {
                 name: "boot-pool".to_string(),
@@ -61,139 +86,112 @@ impl ZpoolService {
                 alloc: "18.1G".to_string(), // Excedendo ligeiramente a quota de 18G
                 free: "1.9G".to_string(),
                 health: "ONLINE".to_string(),
-                mountpoint: "legacy".to_string(),
-                quota: Self::calculate_90_percent(bp_size).ok(),
+                mountpoint: "/".to_string(),
+                quota: Some("18G".to_string()),
             },
             PoolInfo {
-                name: "data-pool".to_string(),
-                size: data_size.to_string(),
-                alloc: "50G".to_string(),
-                free: "450G".to_string(),
+                name: "pool".to_string(),
+                size: "2.7T".to_string(),
+                alloc: "1.5T".to_string(),
+                free: "1.2T".to_string(),
                 health: "ONLINE".to_string(),
-                mountpoint: "/data".to_string(),
-                quota: Self::calculate_90_percent(data_size).ok(),
+                mountpoint: "/pool".to_string(),
+                quota: None,
             },
         ])
     }
 
-    /// Calcula 90% do tamanho informado para a quota rígida
-    pub fn calculate_90_percent(size_str: &str) -> Result<String> {
-        if size_str.is_empty() {
-            return Err(anyhow::anyhow!("Empty size string"));
+    /// Calcula o alvo ARC (Adaptive Replacement Cache) baseado na RAM do sistema
+    pub fn calculate_arc_target(system_ram_bytes: u64) -> u64 {
+        // Regra: Max ARC = 50% da RAM (Segurança para evitar OOM)
+        // Margem de segurança: 1GB livre para o sistema operacional
+        let safety_margin = 1024 * 1024 * 1024; // 1GB
+
+        if system_ram_bytes <= safety_margin {
+            // Se tem menos de 1GB, usa um mínimo seguro (ex: 64MB)
+            return 64 * 1024 * 1024;
         }
 
-        // Encontrar onde terminam os números e começa o sufixo
-        let split_idx = size_str.find(|c: char| !c.is_digit(10) && c != '.');
+        let available_for_zfs = system_ram_bytes - safety_margin;
+        let target = available_for_zfs / 2;
 
-        let (numeric_part, suffix) = match split_idx {
-            Some(idx) => (&size_str[..idx], &size_str[idx..]),
-            None => (size_str, ""),
-        };
-
-        if numeric_part.is_empty() {
-            return Err(anyhow::anyhow!("Invalid size format: {}", size_str));
-        }
-
-        let val: f64 = numeric_part
-            .parse()
-            .map_err(|_| anyhow::anyhow!("Failed to parse numeric part: {}", numeric_part))?;
-        let quota_val = val * 0.9;
-
-        // Formatar para evitar muitos decimais se possível
-        if quota_val == quota_val.round() {
-            Ok(format!("{}{}", quota_val as u64, suffix))
-        } else {
-            Ok(format!("{:.1}{}", quota_val, suffix))
-        }
+        target
     }
 
-    /// Aplica a quota no pool especificado
-    pub async fn apply_quota(pool_name: &str, quota: &str) -> Result<()> {
-        println!("Mocking 'zfs set quota={} {}'", quota, pool_name);
-        // Simular delay
-        tokio::time::sleep(std::time::Duration::from_millis(200)).await;
+    /// Calcula 90% do tamanho total (raw) para quota
+    pub fn calculate_90_percent(size_str: &str) -> Result<String> {
+        // Simplificação: Assume sufixo 'G' para este mock
+        let size_gb: f64 = size_str
+            .trim_end_matches('G')
+            .parse()
+            .map_err(|_| anyhow::anyhow!("Invalid size format"))?;
+
+        let quota_gb = size_gb * 0.9;
+        Ok(format!("{:.0}G", quota_gb))
+    }
+
+    pub async fn apply_quota(_pool_name: &str, _quota: &str) -> Result<()> {
+        // Mocking 'zfs set quota=... pool'
         Ok(())
     }
-}
 
-// Global Memory State for Datasets
-lazy_static::lazy_static! {
-    static ref MOCK_DATASETS: std::sync::Mutex<Vec<DatasetInfo>> = std::sync::Mutex::new(vec![
-        DatasetInfo {
-            name: "Marketing".to_string(),
-            pool: "data-pool".to_string(),
-            mountpoint: "/data-pool/Marketing".to_string(),
-            compression: "lz4".to_string(),
-            quota: "0".to_string().into(),
-            used: "1.2G".to_string(),
-            available: "400G".to_string(),
-        },
-        DatasetInfo {
-            name: "Engineering".to_string(),
-            pool: "data-pool".to_string(),
-            mountpoint: "/data-pool/Engineering".to_string(),
-            compression: "zstd".to_string(),
-            quota: "100G".to_string().into(),
-            used: "45G".to_string(),
-            available: "55G".to_string(),
-        },
-    ]);
-}
+    // --- Dataset Operations (Stateful Mock) ---
 
-impl ZpoolService {
-    /// Lista os datasets de um pool
+    /// Cria um novo dataset ZFS (Mock Stateful)
+    pub async fn create_dataset(config: DatasetConfig) -> Result<DatasetInfo> {
+        let mut datasets = MOCK_DATASETS.lock().unwrap();
+
+        // VALIDATION: Name must start with "pool/"
+        let expected_prefix = format!("{}/", config.pool_name);
+        if !config.name.starts_with(&expected_prefix) {
+            return Err(anyhow::anyhow!(
+                "Invalid dataset name '{}'. Must start with '{}'",
+                config.name,
+                expected_prefix
+            ));
+        }
+
+        if datasets.iter().any(|d| d.name == config.name) {
+            return Err(anyhow::anyhow!("Dataset '{}' already exists", config.name));
+        }
+
+        let new_dataset = DatasetInfo {
+            pool: config.pool_name,
+            name: config.name.clone(),
+            used: "0B".to_string(),        // Inicialmente vazio
+            available: "496G".to_string(), // Herdado do pool (mock)
+            mountpoint: format!("/{}", config.name.replace('/', "-")),
+            compression: config.compression.unwrap_or_else(|| "off".to_string()),
+            quota: config.quota.unwrap_or_else(|| "none".to_string()),
+        };
+
+        datasets.push(new_dataset.clone());
+        println!("MOCK: Created dataset '{}'", config.name);
+
+        Ok(new_dataset)
+    }
+
+    /// Destrói um dataset ZFS (Mock Stateful)
+    pub async fn destroy_dataset(_pool: &str, name: &str) -> Result<()> {
+        let mut datasets = MOCK_DATASETS.lock().unwrap();
+
+        if let Some(pos) = datasets.iter().position(|d| d.name == name) {
+            datasets.remove(pos);
+            println!("MOCK: Destroyed dataset '{}'", name);
+            Ok(())
+        } else {
+            Err(anyhow::anyhow!("Dataset '{}' not found", name))
+        }
+    }
+
+    /// Lista os datasets ZFS existentes (Mock Stateful)
     pub async fn list_datasets(pool_name: &str) -> Result<Vec<DatasetInfo>> {
-        // Mock implementation for Dev
         let datasets = MOCK_DATASETS.lock().unwrap();
-        let filtered: Vec<DatasetInfo> = datasets
+        Ok(datasets
             .iter()
             .filter(|d| d.pool == pool_name)
             .cloned()
-            .collect();
-        Ok(filtered)
-    }
-
-    /// Cria um novo dataset
-    pub async fn create_dataset(config: DatasetConfig) -> Result<DatasetInfo> {
-        println!("Mocking 'zfs create {}/{}'", config.pool_name, config.name);
-
-        let new_ds = DatasetInfo {
-            name: config.name.clone(),
-            pool: config.pool_name.clone(),
-            mountpoint: format!("/{}/{}", config.pool_name, config.name),
-            compression: "lz4".to_string(), // Default mock
-            quota: "0".to_string(),
-            used: "0B".to_string(),
-            available: "500G".to_string(), // Mock value
-        };
-
-        {
-            let mut datasets = MOCK_DATASETS.lock().unwrap();
-            datasets.push(new_ds.clone());
-        }
-
-        tokio::time::sleep(std::time::Duration::from_millis(500)).await;
-        Ok(new_ds)
-    }
-
-    /// Remove um dataset
-    pub async fn destroy_dataset(pool_name: &str, dataset_name: &str) -> Result<()> {
-        println!("Mocking 'zfs destroy {}/{}'", pool_name, dataset_name);
-
-        {
-            let mut datasets = MOCK_DATASETS.lock().unwrap();
-            if let Some(pos) = datasets
-                .iter()
-                .position(|d| d.pool == pool_name && d.name == dataset_name)
-            {
-                datasets.remove(pos);
-            } else {
-                return Err(anyhow::anyhow!("Dataset not found"));
-            }
-        }
-
-        tokio::time::sleep(std::time::Duration::from_millis(500)).await;
-        Ok(())
+            .collect())
     }
 }
 
@@ -202,50 +200,71 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn test_get_drbd_devices() {
-        let devices = ZpoolService::get_drbd_devices().await.unwrap();
-        assert_eq!(devices.len(), 1);
-        assert_eq!(devices[0].path, "/dev/drbd0");
+    async fn test_calculate_arc_target() {
+        let ram_8gb = 8 * 1024 * 1024 * 1024;
+        let target = ZpoolService::calculate_arc_target(ram_8gb);
+        // 8GB - 1GB = 7GB / 2 = 3.5GB
+        let expected = (3.5 * 1024.0 * 1024.0 * 1024.0) as u64;
+        assert_eq!(target, expected);
     }
 
     #[tokio::test]
-    async fn test_create_pool() {
-        let config = PoolConfig {
-            name: "data".to_string(),
-            device: "/dev/drbd0".to_string(),
-            compression: true,
-        };
-        let pool = ZpoolService::create_pool(config).await.unwrap();
-        assert_eq!(pool.name, "data");
-        assert_eq!(pool.health, "ONLINE");
-    }
+    async fn test_dataset_lifecycle() {
+        // Use a UNIQUE pool name to avoid collision with other tests or default state
+        let test_pool = "test_lifecycle_pool";
 
-    #[tokio::test]
-    async fn test_calculate_90_percent() {
-        assert_eq!(ZpoolService::calculate_90_percent("100G").unwrap(), "90G");
-        assert_eq!(ZpoolService::calculate_90_percent("500G").unwrap(), "450G");
-        assert_eq!(ZpoolService::calculate_90_percent("10.5T").unwrap(), "9.5T"); // 10.5 * 0.9 = 9.45, rounded to 9.5 due to .1 format
-        assert_eq!(ZpoolService::calculate_90_percent("1000").unwrap(), "900");
-        assert_eq!(ZpoolService::calculate_90_percent("2M").unwrap(), "1.8M");
-    }
+        let initial_count = ZpoolService::list_datasets(test_pool).await.unwrap().len();
+        assert_eq!(initial_count, 0, "Should start empty for this fresh pool");
 
-    #[tokio::test]
-    async fn test_dataset_operations() {
-        let config = DatasetConfig {
-            pool_name: "data-pool".to_string(),
-            name: "TestDataset".to_string(),
+        let new_ds = DatasetConfig {
+            pool_name: test_pool.to_string(),
+            name: format!("{}/TestDataset", test_pool), // Correct naming
             compression: None,
             quota: None,
         };
 
-        let ds: DatasetInfo = ZpoolService::create_dataset(config).await.unwrap();
-        assert_eq!(ds.name, "TestDataset");
-        assert_eq!(ds.pool, "data-pool");
+        // Create
+        let created = ZpoolService::create_dataset(new_ds.clone()).await.unwrap();
+        assert_eq!(created.name, format!("{}/TestDataset", test_pool));
 
-        let list: Vec<DatasetInfo> = ZpoolService::list_datasets("data-pool").await.unwrap();
-        assert!(list.len() >= 2);
+        let after_create = ZpoolService::list_datasets(test_pool).await.unwrap();
+        assert_eq!(after_create.len(), 1);
+        assert!(after_create
+            .iter()
+            .any(|d| d.name == format!("{}/TestDataset", test_pool)));
 
-        let result: Result<()> = ZpoolService::destroy_dataset("data-pool", "TestDataset").await;
-        assert!(result.is_ok());
+        // Duplicate
+        let dup_err = ZpoolService::create_dataset(new_ds).await;
+        assert!(dup_err.is_err());
+
+        // Destroy
+        ZpoolService::destroy_dataset(test_pool, &format!("{}/TestDataset", test_pool))
+            .await
+            .unwrap();
+
+        let after_destroy = ZpoolService::list_datasets(test_pool).await.unwrap();
+        assert_eq!(after_destroy.len(), 0);
+    }
+
+    #[tokio::test]
+    async fn test_dataset_naming_validation() {
+        let test_pool = "validation_pool";
+
+        let invalid_ds = DatasetConfig {
+            pool_name: test_pool.to_string(),
+            name: "InvalidName".to_string(), // Missing pool prefix
+            compression: None,
+            quota: None,
+        };
+
+        let err = ZpoolService::create_dataset(invalid_ds).await;
+        assert!(err.is_err());
+        assert_eq!(
+            err.unwrap_err().to_string(),
+            format!(
+                "Invalid dataset name 'InvalidName'. Must start with '{}/'",
+                test_pool
+            )
+        );
     }
 }

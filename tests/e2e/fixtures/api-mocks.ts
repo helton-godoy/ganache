@@ -20,9 +20,9 @@ export const setupMockApi = async (page: Page) => {
             });
             return;
         }
-        // Fallback for unhandled routes
-        console.log(`Unhandled request: ${route.request().method()} ${route.request().url()}`);
-        await route.fulfill({ status: 404, headers: corsHeaders, body: 'Not Found by Mock' });
+        // Fallback for unhandled routes - allow passthrough to real backend (proxy)
+        // console.log(`Unhandled request (passing through): ${route.request().method()} ${route.request().url()}`);
+        await route.continue();
     });
 };
 

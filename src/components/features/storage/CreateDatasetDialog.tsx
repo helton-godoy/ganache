@@ -34,7 +34,7 @@ export function CreateDatasetDialog({ poolName, onSuccess }: CreateDatasetDialog
         mutate({
             data: {
                 pool_name: poolName,
-                name: name.trim()
+                name: `${poolName}/${name.trim()}`
             }
         });
     };

@@ -1,15 +1,17 @@
 import { expect, test } from '@playwright/test';
-import { mockBootEnvironments, mockDatasets, mockPools, mockSystemResources, setupMockApi } from './fixtures/api-mocks';
+import { mockBootEnvironments, mockSystemResources, setupMockApi } from './fixtures/api-mocks';
 
 test.describe('Dataset Management', () => {
     test.beforeEach(async ({ page }) => {
         // Setup API mocks
         await setupMockApi(page);
         await mockSystemResources(page);
-        await mockPools(page);
-        await mockDatasets(page);
-        await mockBootEnvironments(page);
+        // await mockPools(page); // Let's rely on backend mock for pools too if possible, or keep it if backend is empty.
+        // Actually, zfs.rs mock has "pool" and "boot-pool". So we can trust the backend.
+        // Removing mockPools(page) assumes the frontend implementation of getPools calls the backend.
 
+        // Remove mockDatasets(page) as requested
+        // await mockDatasets(page); 
         await mockBootEnvironments(page);
 
         await page.goto('/');
@@ -24,7 +26,13 @@ test.describe('Dataset Management', () => {
     });
 
     test('should allow creating a new dataset', async ({ page }) => {
-        // 1. Expand the accordion for the first pool
+        // 1. Expand the accordion for the first pool (likely 'boot-pool' or 'pool')
+        // We target 'pool' specifically if possible, or just the one that is NOT boot-pool
+        // But for now, let's just click the one with 'Manage Datasets'.
+        // If sorting is alphabetical, 'boot-pool' might be first.
+        // Let's verify we are in 'pool'.
+
+        // Just click "Manage Datasets & Shares"
         const accordionTrigger = page.getByRole('button', { name: 'Manage Datasets & Shares' }).first();
         await expect(accordionTrigger).toBeVisible();
         await accordionTrigger.click();
@@ -42,11 +50,13 @@ test.describe('Dataset Management', () => {
         // 4. Submit
         await page.getByRole('button', { name: 'Create Dataset' }).click();
 
-        // 5. Verify success toast
+        // 5. Verify success toast (uses input name, so 'Finance')
         await expect(page.getByText("Dataset 'Finance' created successfully")).toBeVisible();
 
         // 6. Verify persistence in list
-        await expect(page.getByRole('cell', { name: 'Finance', exact: true })).toBeVisible();
+        // Backend returns "pool/Finance" (or whatever pool/Finance).
+        // Checks for partial match or adjust selector
+        await expect(page.getByRole('cell', { name: 'Finance' })).toBeVisible();
     });
 
     test('should allow deleting a dataset', async ({ page }) => {

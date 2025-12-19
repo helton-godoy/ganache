@@ -114,49 +114,84 @@ impl ZpoolService {
         tokio::time::sleep(std::time::Duration::from_millis(200)).await;
         Ok(())
     }
+}
 
+// Global Memory State for Datasets
+lazy_static::lazy_static! {
+    static ref MOCK_DATASETS: std::sync::Mutex<Vec<DatasetInfo>> = std::sync::Mutex::new(vec![
+        DatasetInfo {
+            name: "Marketing".to_string(),
+            pool: "data-pool".to_string(),
+            mountpoint: "/data-pool/Marketing".to_string(),
+            compression: "lz4".to_string(),
+            quota: "0".to_string().into(),
+            used: "1.2G".to_string(),
+            available: "400G".to_string(),
+        },
+        DatasetInfo {
+            name: "Engineering".to_string(),
+            pool: "data-pool".to_string(),
+            mountpoint: "/data-pool/Engineering".to_string(),
+            compression: "zstd".to_string(),
+            quota: "100G".to_string().into(),
+            used: "45G".to_string(),
+            available: "55G".to_string(),
+        },
+    ]);
+}
+
+impl ZpoolService {
     /// Lista os datasets de um pool
     pub async fn list_datasets(pool_name: &str) -> Result<Vec<DatasetInfo>> {
-        println!("Mocking 'zfs list -t dataset -r {}'", pool_name);
-        // Mocking some datasets
-        Ok(vec![
-            DatasetInfo {
-                pool: pool_name.to_string(),
-                name: "Marketing".to_string(),
-                mountpoint: format!("/{}/Marketing", pool_name),
-                used: "1.2G".to_string(),
-                available: "448G".to_string(),
-                compression: "lz4".to_string(),
-            },
-            DatasetInfo {
-                pool: pool_name.to_string(),
-                name: "Backups".to_string(),
-                mountpoint: format!("/{}/Backups", pool_name),
-                used: "45G".to_string(),
-                available: "403G".to_string(),
-                compression: "gzip".to_string(),
-            },
-        ])
+        // Mock implementation for Dev
+        let datasets = MOCK_DATASETS.lock().unwrap();
+        let filtered: Vec<DatasetInfo> = datasets
+            .iter()
+            .filter(|d| d.pool == pool_name)
+            .cloned()
+            .collect();
+        Ok(filtered)
     }
 
     /// Cria um novo dataset
     pub async fn create_dataset(config: DatasetConfig) -> Result<DatasetInfo> {
         println!("Mocking 'zfs create {}/{}'", config.pool_name, config.name);
-        tokio::time::sleep(std::time::Duration::from_millis(500)).await;
 
-        Ok(DatasetInfo {
-            pool: config.pool_name.clone(),
+        let new_ds = DatasetInfo {
             name: config.name.clone(),
+            pool: config.pool_name.clone(),
             mountpoint: format!("/{}/{}", config.pool_name, config.name),
-            used: "128K".to_string(),
-            available: "unknown".to_string(),
-            compression: "lz4".to_string(),
-        })
+            compression: "lz4".to_string(), // Default mock
+            quota: "0".to_string(),
+            used: "0B".to_string(),
+            available: "500G".to_string(), // Mock value
+        };
+
+        {
+            let mut datasets = MOCK_DATASETS.lock().unwrap();
+            datasets.push(new_ds.clone());
+        }
+
+        tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+        Ok(new_ds)
     }
 
     /// Remove um dataset
     pub async fn destroy_dataset(pool_name: &str, dataset_name: &str) -> Result<()> {
         println!("Mocking 'zfs destroy {}/{}'", pool_name, dataset_name);
+
+        {
+            let mut datasets = MOCK_DATASETS.lock().unwrap();
+            if let Some(pos) = datasets
+                .iter()
+                .position(|d| d.pool == pool_name && d.name == dataset_name)
+            {
+                datasets.remove(pos);
+            } else {
+                return Err(anyhow::anyhow!("Dataset not found"));
+            }
+        }
+
         tokio::time::sleep(std::time::Duration::from_millis(500)).await;
         Ok(())
     }
@@ -199,6 +234,8 @@ mod tests {
         let config = DatasetConfig {
             pool_name: "data-pool".to_string(),
             name: "TestDataset".to_string(),
+            compression: None,
+            quota: None,
         };
 
         let ds: DatasetInfo = ZpoolService::create_dataset(config).await.unwrap();

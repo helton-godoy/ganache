@@ -74,7 +74,7 @@ As ferramentas abaixo garantem que a documentação e o código estejam sempre s
 - **Arquitetura:** [Architecture SSoT](./docs/architecture.md)
 - **Backlog:** [Epics & Stories](./docs/epics.md)
 - **Status da Sprint:** [Sprint Status](./docs/sprint-artifacts/sprint-status.yaml)
-- **Orquestração:** [Workflow Status](./docs/sprint-artifacts/bmm-workflow-status.yaml)
+- **Orquestração:** [Workflow Status](./docs/bmm-workflow-status.yaml)
 
 ---
 *Maintained by the Ganache Team*

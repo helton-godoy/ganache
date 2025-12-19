@@ -62,6 +62,7 @@ development_status:
     - id: "2.4"
       name: "Dataset Management"
       status: "review"
+      scrum_master_notes: "Code review passed. Stateful mocks implemented and verified."
   2-5-automated-failover-panic-logic: backlog
   epic-2-retrospective: optional
 

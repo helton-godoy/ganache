@@ -44,18 +44,22 @@ test.describe('Dataset Management', () => {
 
         // 5. Verify success toast
         await expect(page.getByText("Dataset 'Finance' created successfully")).toBeVisible();
+
+        // 6. Verify persistence in list
+        await expect(page.getByRole('cell', { name: 'Finance', exact: true })).toBeVisible();
     });
 
     test('should allow deleting a dataset', async ({ page }) => {
         // 1. Expand
         await page.getByRole('button', { name: 'Manage Datasets & Shares' }).first().click();
 
-        // 2. Find a delete button (assuming mock data exists)
-        // We use a more specific selector to find the trash icon button
-        const deleteBtn = page.locator('button:has(.lucide-trash-2)').first();
-        await expect(deleteBtn).toBeVisible();
+        // 2. Find the row for 'Marketing' (mock data)
+        const row = page.getByRole('row', { name: 'Marketing' });
+        await expect(row).toBeVisible();
 
-        // 3. Click delete
+        // 3. Click delete within that row
+        const deleteBtn = row.getByRole('button').filter({ has: page.locator('.lucide-trash-2') });
+        await expect(deleteBtn).toBeVisible();
         await deleteBtn.click();
 
         // 4. Confirm dialog
@@ -70,5 +74,8 @@ test.describe('Dataset Management', () => {
 
         // 5. Verify toast
         await expect(page.getByText("Dataset 'Marketing' deleted")).toBeVisible();
+
+        // 6. Verify persistence (removed from list)
+        await expect(page.getByRole('row', { name: 'Marketing' })).not.toBeVisible();
     });
 });

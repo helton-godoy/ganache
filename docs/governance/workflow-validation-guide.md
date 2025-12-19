@@ -113,10 +113,10 @@ Use this guide to audit whether Agents (Analyst, PM, Architect, Dev) are strictl
 
 ## Summary of Critical Failures (Red Flags)
 
-| Red Flag 🚩 | Violation Type | Consequence |
-| :--- | :--- | :--- |
-| **"I'll update the status later"** | Atomic State Violation | Hallucination risk on restart. |
-| **"Marking [x] before tests pass"** | Physical Trigger Violation | Broken build / Fake progress. |
-| **"Giant commit at end of story"** | Semantic Strategy Violation | No rollback point; high risk. |
-| **"Code without JSDoc/RustDoc"** | Semantic Strategy Violation | RAG system blindness. |
-| **"Architecture contradicts Context"** | Governance Violation | Technical Debt accumulation. |
+| Red Flag 🚩                            | Violation Type              | Consequence                    |
+|:---------------------------------------|:----------------------------|:-------------------------------|
+| **"I'll update the status later"**     | Atomic State Violation      | Hallucination risk on restart. |
+| **"Marking [x] before tests pass"**    | Physical Trigger Violation  | Broken build / Fake progress.  |
+| **"Giant commit at end of story"**     | Semantic Strategy Violation | No rollback point; high risk.  |
+| **"Code without JSDoc/RustDoc"**       | Semantic Strategy Violation | RAG system blindness.          |
+| **"Architecture contradicts Context"** | Governance Violation        | Technical Debt accumulation.   |

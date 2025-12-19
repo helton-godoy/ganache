@@ -75,6 +75,8 @@ pub struct StorageDevice {
 pub struct DatasetConfig {
     pub pool_name: String,
     pub name: String,
+    pub compression: Option<String>,
+    pub quota: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]
@@ -85,4 +87,5 @@ pub struct DatasetInfo {
     pub used: String,
     pub available: String,
     pub compression: String,
+    pub quota: String,
 }

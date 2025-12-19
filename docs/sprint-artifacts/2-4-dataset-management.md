@@ -6,6 +6,36 @@
 - **Sprint:** 1
 - **Epic:** Epic 2: Resilient HA Storage
 
+## Senior Developer Review (AI)
+
+- **Date:** 2025-12-19
+- **Reviewer:** Antigravity
+- **Outcome:** ⚠️ Changes Requested
+
+### General Summary
+
+The implementation relies entirely on **stateless mocks** for backend operations (`list_datasets`, `create_dataset`). While this allows the "Golden Path" to pass in isolation, it fails to satisfy the "Persistence" aspect of the Acceptance Criteria. A user creating a dataset will not see it in the list afterwards. E2E tests are brittle as they only verify the success toast, not the actual list update.
+
+### Critical Findings
+
+1. **[Critical] Stateless Mock Backend Voids Verification:**
+    - `zfs.rs` -> `list_datasets` returns a hardcoded static list.
+    - `create_dataset` returns success but does not update this list.
+    - **Impact:** The system does not actually "work" even in a dev environment. The "Create" action is an illusion.
+    - **Fix:** Implement a stateful mock using `lazy_static` + `Mutex<Vec<DatasetInfo>>` to simulate persistence during the backend lifecycle.
+
+2. **[High] E2E Tests False Positives:**
+    - `dataset-management.spec.ts` creating test checks for `await expect(page.getByText("Dataset 'Finance' created successfully")).toBeVisible();`.
+    - It **DOES NOT** verify that 'Finance' appears in the list.
+    - **Fix:** Update E2E test to reload the page or check the list for the new item. (This will fail until Finding 1 is fixed).
+
+### Recommendations
+
+1. Refactor `zpool.rs` to use a `lazy_static` Mutex for storing datasets in memory.
+2. Update `create_dataset` to push to this Mutex.
+3. Update `list_datasets` to read from this Mutex.
+4. Update E2E tests to verify list presence.
+
 ## User Story
 
 Como um Administrador de Armazenamento,

@@ -93,7 +93,7 @@ else
     ERRORS=$((ERRORS + 1))
 fi
 
-WFLOW_STATUS="docs/sprint-artifacts/bmm-workflow-status.yaml"
+WFLOW_STATUS="docs/bmm-workflow-status.yaml"
 if [ -f "$WFLOW_STATUS" ]; then
     NEXT_STEP=$(grep -A 2 "next_steps:" "$WFLOW_STATUS" | grep "workflow:" | head -1 | awk '{print $NF}' | tr -d '"')
     REASON=$(grep -A 2 "next_steps:" "$WFLOW_STATUS" | grep "reason:" | head -1 | cut -d'"' -f2)

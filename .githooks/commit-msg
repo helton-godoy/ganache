@@ -27,7 +27,7 @@ fi
 COMMIT_TYPE=$(echo "$COMMIT_MSG" | sed -n 's/^\([a-zA-Z]*\).*/\1/p')
 
 # Classificação das mudanças do commit
-COMMIT_CHANGES=$(git show --name-status HEAD 2>/dev/null)
+COMMIT_CHANGES=$(git diff --cached --name-status)
 if [ -z "$COMMIT_CHANGES" ]; then
     # Se não conseguir obter mudanças, pular validação
     exit 0

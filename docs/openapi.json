@@ -9,6 +9,85 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/api/v1/ad/join": {
+      "post": {
+        "tags": [],
+        "summary": "Join Active Directory domain",
+        "description": "# Purpose\nJoins the Ganache appliance to an Active Directory domain using the provided credentials\n\n# Arguments\n* `user` - Authenticated user making the request (extracted from X-Auth-User header)\n* `payload` - AD join request containing domain name, credentials, and DNS settings\n\n# Returns\nJSON response with join status or error message\n\n@ref Story-4.1 - API endpoint for AD domain join",
+        "operationId": "join_ad_domain",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdJoinRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully joined domain",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdJoinResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "500": {
+            "description": "Failed to join domain"
+          }
+        }
+      }
+    },
+    "/api/v1/ad/leave": {
+      "post": {
+        "tags": [],
+        "summary": "Leave Active Directory domain",
+        "description": "# Purpose\nRemoves the Ganache appliance from the current AD domain\n\n# Arguments\n* `user` - Authenticated user making the request\n\n@ref Story-4.1 - Leave AD domain functionality",
+        "operationId": "leave_ad_domain",
+        "responses": {
+          "200": {
+            "description": "Successfully left domain",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdJoinResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to leave domain"
+          }
+        }
+      }
+    },
+    "/api/v1/ad/status": {
+      "get": {
+        "tags": [],
+        "summary": "Get Active Directory status",
+        "description": "# Purpose\nReturns current AD join status including domain name and service state\n\n@ref Story-4.1 - Query AD join status",
+        "operationId": "get_ad_status",
+        "responses": {
+          "200": {
+            "description": "AD status retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/cluster/configure": {
       "post": {
         "tags": [],
@@ -546,6 +625,98 @@
   },
   "components": {
     "schemas": {
+      "AdJoinRequest": {
+        "type": "object",
+        "description": "Request payload for joining an Active Directory domain\n\n# Purpose\nContains all necessary information to join a Ganache appliance to an AD domain\n\n@ref Story-4.1 - Active Directory domain join request model",
+        "required": [
+          "domain_name",
+          "username",
+          "password",
+          "dns_servers"
+        ],
+        "properties": {
+          "dns_servers": {
+            "type": "string",
+            "description": "DNS server IP addresses (comma-separated, e.g., \"192.168.1.1,192.168.1.2\")"
+          },
+          "domain_name": {
+            "type": "string",
+            "description": "Active Directory domain name (e.g., \"corp.example.com\")"
+          },
+          "organizational_unit": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Optional organizational unit for computer account (e.g., \"OU=Servers,DC=corp,DC=example,DC=com\")"
+          },
+          "password": {
+            "type": "string",
+            "description": "Domain administrator password (encrypted in transit via HTTPS)"
+          },
+          "username": {
+            "type": "string",
+            "description": "Domain administrator username"
+          }
+        }
+      },
+      "AdJoinResponse": {
+        "type": "object",
+        "description": "Response after joining AD domain\n\n# Purpose\nProvides feedback about AD join operation success/failure\n\n@ref Story-4.1 - Active Directory domain join response model",
+        "required": [
+          "success",
+          "message"
+        ],
+        "properties": {
+          "current_domain": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Current AD domain name if successfully joined"
+          },
+          "message": {
+            "type": "string",
+            "description": "Detailed status message"
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Success status of the join operation"
+          }
+        }
+      },
+      "AdStatus": {
+        "type": "object",
+        "description": "Active Directory status information\n\n# Purpose\nProvides current AD join state and service health\n\n@ref Story-4.1 - Active Directory status model",
+        "required": [
+          "is_joined",
+          "service_status"
+        ],
+        "properties": {
+          "domain_name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Current domain name if joined"
+          },
+          "is_joined": {
+            "type": "boolean",
+            "description": "Whether the system is currently joined to a domain"
+          },
+          "last_sync": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Last successful sync timestamp (ISO 8601 format)"
+          },
+          "service_status": {
+            "type": "string",
+            "description": "AD service status: \"active\", \"inactive\", \"error\""
+          }
+        }
+      },
       "BootEnvironment": {
         "type": "object",
         "required": [

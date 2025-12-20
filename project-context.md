@@ -88,6 +88,12 @@ O ecossistema Ganache utiliza ferramentas de automação para garantir a integri
 
 ## 8. Protocolo de Segurança e Commits Atômicos (MANDATÓRIO)
 
+### 8.0 Pré-Requisito de Commit: Validação Automática
+
+* **Regra:** Sempre execute `@git-classify.sh` (ou `./scripts/git-classify.sh`) antes de realizar commits.
+* **Propósito:** Este script valida o contexto do projeto, integridade dos artefatos e ajuda na classificação semântica do commit, garantindo conformidade com o BMAD Validation Checklist (`bmad-validate.sh`).
+* **Nota:** O script deve ser usado como "gatekeeper" para evitar commits que quebrem as regras de governança.
+
 Para garantir rastreabilidade e segurança cibernética em fluxos multi-agente, o seguinte protocolo é **INVIOLÁVEL**:
 
 1. 🔄 **Atomic Commits:** Agentes são **OBRIGADOS** a realizar commits atômicos e granulares.

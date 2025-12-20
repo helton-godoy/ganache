@@ -287,8 +287,25 @@ A story 4-1 documentou limitações que afetam esta implementação:
 - Arquitetura: docs/architecture.md
 - História anterior: docs/sprint-artifacts/4-1-active-directory-domain-join-rust-middleware.md
 - **nfs4xdr-acl-tools:** <https://github.com/truenas/nfs4xdr-acl-tools>
+- **TrueNAS Middleware:** <https://github.com/truenas/middleware>
 - **Documentação ZFS ACL:** docs/notas/Chapter 8 Using ACLs and Attributes to Protect ZFS Files (Solaris ZFS Administration Guide).pdf
+- **📚 Referência TrueNAS:** docs/notas/truenas-acl-reference.md **(CRÍTICO - Ler antes de continuar)**
 - NFSv4 ACL: RFC 7530
+- LDAP Paging: RFC 2696
+
+### Aprendizados da Pesquisa TrueNAS SCALE
+
+**IMPORTANTE:** Pesquisa extensiva realizada no código TrueNAS SCALE (projeto em produção).
+
+**Descobertas-Chave:**
+
+1. **Formato XDR:** Serialização XDR garante compatibilidade Samba-NFS-ZFS ✅
+2. **Tools Validados:** nfs4xdr_getfacl/setfacl são corretos ✅
+3. **Paginação LDAP:** Page size = 1000 (OID 1.2.840.113556.1.4.319) ✅
+4. **ZFS Properties:** aclmode=passthrough, aclinherit=passthrough
+5. **Edge Cases:** ADs 100k+ users, cache rebuild, NTP sync crítico
+
+**Ver:** `docs/notas/truenas-acl-reference.md` para checklist completo
 
 ## Registro do Agente de Desenvolvimento
 

@@ -6,7 +6,11 @@
  */
 
 export interface ClusterConfig {
+  dev_mode?: boolean;
+  drbd_resource?: string;
   mode: string;
+  network_interface: string;
   node_id: number;
   peer_ip: string;
+  vip_address: string;
 }

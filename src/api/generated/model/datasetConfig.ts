@@ -4,8 +4,12 @@
  * ganache-core
  * OpenAPI spec version: 0.1.0
  */
+import type { DatasetConfigCompression } from './datasetConfigCompression';
+import type { DatasetConfigQuota } from './datasetConfigQuota';
 
 export interface DatasetConfig {
+  compression?: DatasetConfigCompression;
   name: string;
   pool_name: string;
+  quota?: DatasetConfigQuota;
 }

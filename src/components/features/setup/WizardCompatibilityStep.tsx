@@ -22,7 +22,9 @@ export function WizardCompatibilityStep({ onNext, onBack }: WizardCompatibilityS
             data: {
                 mode: "compatibility",
                 node_id: 1,
-                peer_ip: "192.168.1.20"
+                peer_ip: "192.168.1.20",
+                network_interface: "eth0",
+                vip_address: ""
             }
         }, {
             onSuccess: () => {

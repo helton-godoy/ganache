@@ -39,6 +39,9 @@ import type {
   DatasetInfo,
   DeleteDatasetPayload,
   DiskInfo,
+  GetConfigHistoryParams,
+  GitCommit,
+  GitDiff,
   HardwareInfo,
   ListDatasetsParams,
   PoolConfig,
@@ -104,6 +107,114 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       > => {
 
       const mutationOptions = getConfigureClusterMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    export const heartbeat = (
+     options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<void>> => {
+    
+    
+    return axios.post(
+      `http://localhost:3005/api/v1/cluster/heartbeat`,undefined,options
+    );
+  }
+
+
+
+export const getHeartbeatMutationOptions = <TError = AxiosError<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof heartbeat>>, TError,void, TContext>, axios?: AxiosRequestConfig}
+): UseMutationOptions<Awaited<ReturnType<typeof heartbeat>>, TError,void, TContext> => {
+
+const mutationKey = ['heartbeat'];
+const {mutation: mutationOptions, axios: axiosOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, axios: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof heartbeat>>, void> = () => {
+          
+
+          return  heartbeat(axiosOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type HeartbeatMutationResult = NonNullable<Awaited<ReturnType<typeof heartbeat>>>
+    
+    export type HeartbeatMutationError = AxiosError<unknown>
+
+    export const useHeartbeat = <TError = AxiosError<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof heartbeat>>, TError,void, TContext>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof heartbeat>>,
+        TError,
+        void,
+        TContext
+      > => {
+
+      const mutationOptions = getHeartbeatMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    export const simulateFailure = (
+     options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<ClusterStatus>> => {
+    
+    
+    return axios.post(
+      `http://localhost:3005/api/v1/cluster/simulate-failure`,undefined,options
+    );
+  }
+
+
+
+export const getSimulateFailureMutationOptions = <TError = AxiosError<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof simulateFailure>>, TError,void, TContext>, axios?: AxiosRequestConfig}
+): UseMutationOptions<Awaited<ReturnType<typeof simulateFailure>>, TError,void, TContext> => {
+
+const mutationKey = ['simulateFailure'];
+const {mutation: mutationOptions, axios: axiosOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, axios: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof simulateFailure>>, void> = () => {
+          
+
+          return  simulateFailure(axiosOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SimulateFailureMutationResult = NonNullable<Awaited<ReturnType<typeof simulateFailure>>>
+    
+    export type SimulateFailureMutationError = AxiosError<unknown>
+
+    export const useSimulateFailure = <TError = AxiosError<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof simulateFailure>>, TError,void, TContext>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof simulateFailure>>,
+        TError,
+        void,
+        TContext
+      > => {
+
+      const mutationOptions = getSimulateFailureMutationOptions(options);
 
       return useMutation(mutationOptions, queryClient);
     }
@@ -180,6 +291,190 @@ export function useGetClusterStatus<TData = Awaited<ReturnType<typeof getCluster
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetClusterStatusQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @ref Story-3.2 - Fetch paginated list of configuration commits
+ * @summary Get configuration history with pagination and filtering
+ */
+export const getConfigHistory = (
+    params?: GetConfigHistoryParams, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<GitCommit[]>> => {
+    
+    
+    return axios.get(
+      `http://localhost:3005/api/v1/config/history`,{
+    ...options,
+        params: {...params, ...options?.params},}
+    );
+  }
+
+
+
+
+export const getGetConfigHistoryQueryKey = (params?: GetConfigHistoryParams,) => {
+    return [
+    `http://localhost:3005/api/v1/config/history`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getGetConfigHistoryQueryOptions = <TData = Awaited<ReturnType<typeof getConfigHistory>>, TError = AxiosError<void>>(params?: GetConfigHistoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getConfigHistory>>, TError, TData>>, axios?: AxiosRequestConfig}
+) => {
+
+const {query: queryOptions, axios: axiosOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetConfigHistoryQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getConfigHistory>>> = ({ signal }) => getConfigHistory(params, { signal, ...axiosOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getConfigHistory>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetConfigHistoryQueryResult = NonNullable<Awaited<ReturnType<typeof getConfigHistory>>>
+export type GetConfigHistoryQueryError = AxiosError<void>
+
+
+export function useGetConfigHistory<TData = Awaited<ReturnType<typeof getConfigHistory>>, TError = AxiosError<void>>(
+ params: undefined |  GetConfigHistoryParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getConfigHistory>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getConfigHistory>>,
+          TError,
+          Awaited<ReturnType<typeof getConfigHistory>>
+        > , 'initialData'
+      >, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetConfigHistory<TData = Awaited<ReturnType<typeof getConfigHistory>>, TError = AxiosError<void>>(
+ params?: GetConfigHistoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getConfigHistory>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getConfigHistory>>,
+          TError,
+          Awaited<ReturnType<typeof getConfigHistory>>
+        > , 'initialData'
+      >, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetConfigHistory<TData = Awaited<ReturnType<typeof getConfigHistory>>, TError = AxiosError<void>>(
+ params?: GetConfigHistoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getConfigHistory>>, TError, TData>>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get configuration history with pagination and filtering
+ */
+
+export function useGetConfigHistory<TData = Awaited<ReturnType<typeof getConfigHistory>>, TError = AxiosError<void>>(
+ params?: GetConfigHistoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getConfigHistory>>, TError, TData>>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetConfigHistoryQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @ref Story-3.2 - Visual comparison of configuration changes
+ * @summary Get diff for a specific commit
+ */
+export const getCommitDiff = (
+    commitId: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<GitDiff>> => {
+    
+    
+    return axios.get(
+      `http://localhost:3005/api/v1/config/history/${commitId}/diff`,options
+    );
+  }
+
+
+
+
+export const getGetCommitDiffQueryKey = (commitId?: string,) => {
+    return [
+    `http://localhost:3005/api/v1/config/history/${commitId}/diff`
+    ] as const;
+    }
+
+    
+export const getGetCommitDiffQueryOptions = <TData = Awaited<ReturnType<typeof getCommitDiff>>, TError = AxiosError<void>>(commitId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCommitDiff>>, TError, TData>>, axios?: AxiosRequestConfig}
+) => {
+
+const {query: queryOptions, axios: axiosOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCommitDiffQueryKey(commitId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCommitDiff>>> = ({ signal }) => getCommitDiff(commitId, { signal, ...axiosOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(commitId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCommitDiff>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetCommitDiffQueryResult = NonNullable<Awaited<ReturnType<typeof getCommitDiff>>>
+export type GetCommitDiffQueryError = AxiosError<void>
+
+
+export function useGetCommitDiff<TData = Awaited<ReturnType<typeof getCommitDiff>>, TError = AxiosError<void>>(
+ commitId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCommitDiff>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getCommitDiff>>,
+          TError,
+          Awaited<ReturnType<typeof getCommitDiff>>
+        > , 'initialData'
+      >, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetCommitDiff<TData = Awaited<ReturnType<typeof getCommitDiff>>, TError = AxiosError<void>>(
+ commitId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCommitDiff>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getCommitDiff>>,
+          TError,
+          Awaited<ReturnType<typeof getCommitDiff>>
+        > , 'initialData'
+      >, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetCommitDiff<TData = Awaited<ReturnType<typeof getCommitDiff>>, TError = AxiosError<void>>(
+ commitId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCommitDiff>>, TError, TData>>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get diff for a specific commit
+ */
+
+export function useGetCommitDiff<TData = Awaited<ReturnType<typeof getCommitDiff>>, TError = AxiosError<void>>(
+ commitId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCommitDiff>>, TError, TData>>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetCommitDiffQueryOptions(commitId,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

@@ -11,5 +11,6 @@ export interface DatasetInfo {
   mountpoint: string;
   name: string;
   pool: string;
+  quota: string;
   used: string;
 }

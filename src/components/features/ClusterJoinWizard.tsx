@@ -55,6 +55,8 @@ export function ClusterJoinWizard() {
                 mode: "compatibility",
                 node_id: 1,
                 peer_ip: peerIp,
+                network_interface: "eth0",
+                vip_address: "",
             }
         });
     };

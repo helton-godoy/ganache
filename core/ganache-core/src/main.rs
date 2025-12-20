@@ -1,5 +1,6 @@
 use axum::{http::StatusCode, routing::get, Json, Router};
 use ganache_api::{
+    models::git_commit::{GitCommit, GitDiff},
     BootEnvironment, BootEnvironmentActivation, ClusterConfig, ClusterStatus, DatasetConfig,
     DatasetInfo, HardwareInfo, PoolConfig, PoolInfo, StorageDevice, SystemResources,
 };
@@ -8,7 +9,7 @@ use ganache_lib::{
 };
 mod services;
 use serde::{Deserialize, Serialize};
-use services::git_service::GitServiceIntegration;
+use services::{git_history_service::GitHistoryService, git_service::GitServiceIntegration};
 use std::net::SocketAddr;
 use tower_http::cors::CorsLayer;
 use tracing::{info, warn};
@@ -62,7 +63,9 @@ async fn main() {
             list_datasets,
             create_dataset,
             destroy_dataset,
-            heartbeat
+            heartbeat,
+            get_config_history,
+            get_commit_diff
         ),
         components(schemas(
             ganache_api::HardwareInfo,
@@ -78,6 +81,9 @@ async fn main() {
             ganache_api::StorageDevice,
             ganache_api::DatasetConfig,
             ganache_api::DatasetInfo,
+            ganache_api::models::git_commit::GitCommit,
+            ganache_api::models::git_commit::GitDiff,
+            ganache_api::models::git_commit::GitFileDiff,
             SystemLog,
             DiskInfo
         ))
@@ -87,7 +93,7 @@ async fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() > 1 && args[1] == "--export-openapi" {
         let json = ApiDoc::openapi().to_pretty_json().unwrap();
-        let path = "../docs/openapi.json";
+        let path = "../../docs/openapi.json";
         fs::write(path, json).expect("Unable to write openapi.json");
         println!("OpenAPI spec exported to {}", path);
         return;
@@ -141,6 +147,11 @@ async fn main() {
         .route(
             "/api/v1/storage/datasets/delete",
             axum::routing::post(destroy_dataset),
+        )
+        .route("/api/v1/config/history", get(get_config_history))
+        .route(
+            "/api/v1/config/history/{commit_id}/diff",
+            get(get_commit_diff),
         )
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .layer(CorsLayer::permissive());
@@ -352,6 +363,32 @@ struct DeleteDatasetPayload {
     name: String,
 }
 
+/// Query parameters for config history endpoint
+///
+/// @ref Story-3.2 - Server-side filtering and pagination for git history
+#[derive(Deserialize, utoipa::IntoParams)]
+struct ConfigHistoryQuery {
+    /// Maximum number of commits to return (default: 50, max: 200)
+    #[serde(default = "default_limit")]
+    limit: u32,
+    /// Number of commits to skip for pagination
+    #[serde(default)]
+    offset: u32,
+    /// Filter commits by author name
+    #[serde(default)]
+    author_filter: Option<String>,
+    /// Filter commits from this date (ISO 8601)
+    #[serde(default)]
+    date_from: Option<String>,
+    /// Filter commits until this date (ISO 8601)
+    #[serde(default)]
+    date_to: Option<String>,
+}
+
+fn default_limit() -> u32 {
+    50
+}
+
 #[utoipa::path(get, path = "/api/v1/storage/datasets", params(ListDatasetsQuery), responses((status = 200, description = "List datasets for a pool", body = Vec<DatasetInfo>)))]
 async fn list_datasets(
     axum::extract::Query(params): axum::extract::Query<ListDatasetsQuery>,
@@ -402,4 +439,77 @@ async fn destroy_dataset(Json(payload): Json<DeleteDatasetPayload>) -> Json<Stri
         warn!("Failed to delete dataset configuration: {}", e);
     }
     Json("Dataset destroyed".to_string())
+}
+
+/// Get configuration history with pagination and filtering
+///
+/// @ref Story-3.2 - Fetch paginated list of configuration commits
+#[utoipa::path(
+    get,
+    path = "/api/v1/config/history",
+    params(ConfigHistoryQuery),
+    responses(
+        (status = 200, description = "Configuration commit history", body = Vec<GitCommit>),
+        (status = 503, description = "Configuration repository not yet created")
+    )
+)]
+async fn get_config_history(
+    axum::extract::Query(params): axum::extract::Query<ConfigHistoryQuery>,
+) -> Result<Json<Vec<GitCommit>>, (StatusCode, String)> {
+    match GitHistoryService::read_commit_log(
+        ganache_lib::git::DEFAULT_REPO_PATH,
+        params.limit,
+        params.offset,
+        params.author_filter.as_deref(),
+        params.date_from.as_deref(),
+        params.date_to.as_deref(),
+    ) {
+        Ok(commits) => Ok(Json(commits)),
+        Err(e) => {
+            let msg = e.to_string();
+            if msg.contains("Configuration repository not yet created") {
+                Err((StatusCode::SERVICE_UNAVAILABLE, msg))
+            } else if msg.contains("corrupted") {
+                Err((StatusCode::INTERNAL_SERVER_ERROR, msg))
+            } else {
+                Err((StatusCode::INTERNAL_SERVER_ERROR, msg))
+            }
+        }
+    }
+}
+
+/// Get diff for a specific commit
+///
+/// @ref Story-3.2 - Visual comparison of configuration changes
+#[utoipa::path(
+    get,
+    path = "/api/v1/config/history/{commit_id}/diff",
+    params(
+        ("commit_id" = String, Path, description = "Commit hash ID")
+    ),
+    responses(
+        (status = 200, description = "Commit diff with file changes", body = GitDiff),
+        (status = 404, description = "Commit not found"),
+        (status = 503, description = "Configuration repository not yet created")
+    )
+)]
+async fn get_commit_diff(
+    axum::extract::Path(commit_id): axum::extract::Path<String>,
+) -> Result<Json<GitDiff>, (StatusCode, String)> {
+    match GitHistoryService::get_commit_diff(ganache_lib::git::DEFAULT_REPO_PATH, &commit_id) {
+        Ok(diff) => Ok(Json(diff)),
+        Err(e) => {
+            let msg = e.to_string();
+            if msg.contains("Configuration repository not yet created") {
+                Err((StatusCode::SERVICE_UNAVAILABLE, msg))
+            } else if msg.contains("Failed to get diff") {
+                Err((
+                    StatusCode::NOT_FOUND,
+                    format!("Commit {} not found", commit_id),
+                ))
+            } else {
+                Err((StatusCode::INTERNAL_SERVER_ERROR, msg))
+            }
+        }
+    }
 }

@@ -76,5 +76,86 @@ As ferramentas abaixo garantem que a documentação e o código estejam sempre s
 - **Status da Sprint:** [Sprint Status](./docs/sprint-artifacts/sprint-status.yaml)
 - **Orquestração:** [Workflow Status](./docs/bmm-workflow-status.yaml)
 
+## 🔧 Git Workflow & Githooks Inteligentes
+
+O projeto GANACHE utiliza um sistema de **githooks inteligentes** para garantir qualidade de código e conformidade com padrões antes de cada commit e push.
+
+### 🚦 Instalação dos Githooks
+
+#### Obrigatório após o clone do repositório
+
+```bash
+./scripts/install-githooks.sh
+```
+
+Este comando instala automaticamente os seguintes hooks:
+
+- **pre-commit**: Valida conflitos, segredos, formatação, linting, tipos e testes unitários
+- **prepare-commit-msg**: Cria template de mensagem com auto-detecção de escopo
+- **commit-msg**: Valida formato Conventional Commits
+- **post-commit**: Notificações e verificações de sincronização
+- **pre-push**: Validação BMAD completa, testes de integração (opcional) e builds
+
+### 📝 Ferramenta de Classificação de Mudanças
+
+Para visualizar e classificar mudanças antes de commitar:
+
+```bash
+# Classificar mudanças pendentes
+./scripts/git-classify.sh
+
+# Com validações de integridade (compilação, tipos, BMAD)
+./scripts/git-classify.sh --validate
+
+# Auto-remover build artifacts do stage
+./scripts/git-classify.sh --fix
+
+# Ver todas as opções
+./scripts/git-classify.sh --help
+```
+
+### 🎯 Conventional Commits
+
+Todas as mensagens de commit devem seguir o padrão [Conventional Commits](https://www.conventionalcommits.org/):
+
+```text
+tipo(escopo): descrição curta
+
+Tipos válidos:
+- feat:     Nova funcionalidade
+- fix:      Correção de bug
+- docs:     Mudanças em documentação
+- style:    Formatação (não afeta código)
+- refactor: Refatoração (sem adicionar features ou corrigir bugs)
+- perf:     Melhoria de performance
+- test:     Adição ou correção de testes
+- chore:    Mudanças em build, configs, dependências
+- ci:       Mudanças em CI/CD
+
+Exemplos:
+- feat(backend): adicionar suporte a pools ZFS
+- fix(frontend): corrigir erro de autenticação no login
+- docs: atualizar README com instruções de githooks
+```
+
+### 🔓 Bypass de Hooks (Apenas Emergências)
+
+Em situações críticas, os hooks podem ser pulados, sendo obrigatório a justificativa no PR:
+
+```bash
+git commit --no-verify -m "fix: correção emergencial"
+git push --no-verify
+```
+
+**⚠️ Use com moderação!** Hooks existem para proteger a qualidade do código.
+
+### 🔄 Desinstalar Githooks
+
+Se precisar desativar temporariamente:
+
+```bash
+./scripts/uninstall-githooks.sh
+```
+
 ---
 *Maintained by the Ganache Team*

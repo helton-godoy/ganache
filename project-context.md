@@ -88,21 +88,90 @@ O ecossistema Ganache utiliza ferramentas de automação para garantir a integri
 
 ## 8. Protocolo de Segurança e Commits Atômicos (MANDATÓRIO)
 
-### 8.0 Pré-Requisito de Commit: Validação Automática
+### 8.0 Githooks Inteligentes e Validação Automática
 
-* **Regra:** Sempre execute `@git-classify.sh` (ou `./scripts/git-classify.sh`) antes de realizar commits.
-* **Propósito:** Este script valida o contexto do projeto, integridade dos artefatos e ajuda na classificação semântica do commit, garantindo conformidade com o BMAD Validation Checklist (`bmad-validate.sh`).
-* **Nota:** O script deve ser usado como "gatekeeper" para evitar commits que quebrem as regras de governança.
+O projeto GANACHE implementa um **sistema completo de githooks** que valida automaticamente a qualidade do código e conformidade com padrões em cada commit e push.
+
+#### Instalação Obrigatória
+
+Após clonar o repositório, execute:
+
+```bash
+./scripts/install-githooks.sh
+```
+
+Este comando instala os seguintes hooks:
+
+| Hook | Quando Executa | O Que Faz |
+| :--- | :--- | :--- |
+| **pre-commit** | Antes de cada commit | Valida conflitos de merge, segredos expostos, formatação de código (rustfmt, prettier), linting (clippy, ESLint), verificação de tipos TypeScript, testes unitários e conformidade BMAD |
+| **prepare-commit-msg** | Antes de editar mensagem | Cria template de mensagem com auto-detecção de escopo baseado em arquivos modificados e referência automática a Story IDs do branch |
+| **commit-msg** | Ao salvar mensagem | Valida formato Conventional Commits e consistência entre tipo de commit e arquivos modificados |
+| **post-commit** | Após commit bem-sucedido | Notifica sucesso, verifica sincronização de `sprint-status.yaml`, auto-executa `bmad-sync.sh` se OpenAPI mudou, sugere push após múltiplos commits locais |
+| **pre-push** | Antes de push remoto | Valida nome do branch, working tree limpo, executa validação BMAD completa, testes de integração (opcional), verifica builds de produção e registra auditoria de classificações |
+
+#### Ferramenta de Classificação de Mudanças
+
+Antes de realizar commits, use `git-classify.sh` para classificar e validar mudanças:
+
+```bash
+# Classificar mudanças pendentes por categoria (feat, test, docs, etc)
+./scripts/git-classify.sh
+
+# Executar validações completas de integridade (compilação, tipos, BMAD)
+./scripts/git-classify.sh --validate
+
+# Auto-remover build artifacts do staging
+./scripts/git-classify.sh --fix
+
+# Modo interativo para staging seletivo
+./scripts/git-classify.sh --interactive
+```
+
+**Funcionalidades do git-classify.sh v2.0:**
+
+* ✅ Detecta e bloqueia conflitos de merge (status `UU` e marcadores `<<<<<<<`)
+* ✅ Rastreia arquivos removidos separadamente
+* ✅ Valida integridade de código Rust e TypeScript
+* ✅ Avisa sobre arquivos grandes (>1MB)
+* ✅ Integra validação BMAD automaticamente com `--validate`
+* ✅ Categoriza mudanças semanticamente (feat, fix, test, docs, etc.)
+
+#### Bypass de Hooks (Apenas Emergências)
+
+Em situações críticas, hooks podem ser pulados com `--no-verify`:
+
+```bash
+git commit --no-verify -m "fix: correção emergencial"
+git push --no-verify
+```
+
+**⚠️ AVISO:** Use com extrema moderação! Hooks existem para proteger a qualidade do código e conformidade do projeto.
+
+### 8.1 Pré-Requisito de Commit: Conventional Commits
+
+* **Regra:** Todas as mensagens de commit DEVEM seguir o padrão [Conventional Commits](https://www.conventionalcommits.org/).
+* **Formato:** `tipo(escopo): descrição`
+  * **Tipos válidos:** `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`, `ci`
+  * **Escopo:** Área afetada (`backend`, `frontend`, `governance`, etc.) - detectado automaticamente pelo `prepare-commit-msg`
+* **Validação:** O hook `commit-msg` bloqueia commits que não seguem o padrão.
+* **Nota:** O hook `prepare-commit-msg` cria um template automático para facilitar a conformidade.
 
 Para garantir rastreabilidade e segurança cibernética em fluxos multi-agente, o seguinte protocolo é **INVIOLÁVEL**:
 
+### 8.2 Atomic Commits
+
 1. 🔄 **Atomic Commits:** Agentes são **OBRIGADOS** a realizar commits atômicos e granulares.
-    * **NUNCA** faça um único commit gigante ("commitão") ao final da história.
-    * Separe commits por escopo lógico: `feat(backend)`, `feat(frontend)`, `test(e2e)`, `docs(governance)`.
+   * **NUNCA** faça um único commit gigante ("commitão") ao final da história.
+   * Separe commits por escopo lógico: `feat(backend)`, `feat(frontend)`, `test(e2e)`, `docs(governance)`.
+
 2. 🛡️ **Gatilhos de Auditoria:** Cada commit aciona validações no CI/CD. Commits misturados quebram a rastreabilidade e são REJEITADOS.
+
 3. 🛑 **Check-point de Finalização:** É **PROIBIDO** marcar uma Story ou Epic como `completed` no `sprint-status.yaml` sem antes ter realizado os commits de todas as alterações.
 
-### 8.1 Exemplo de Sequência de Commit Válida
+4. 🧹 **Zero Pending Policy:** Antes de finalizar qualquer tarefa, execute `scripts/ensure-clean-git.sh`. Se houver arquivos pendentes (modificados ou untracked), o agente está **BLOQUEADO** de prosseguir.
+
+### 8.3 Exemplo de Sequência de Commit Válida
 
 ```bash
 # 1. Backend Work
@@ -152,6 +221,139 @@ To ensure a perfect workflow and data safety across multiple AI agents, these pr
         2. Wait 5s and Retry (Attempt 2).
         3. Wait 10s and Retry (Attempt 3).
         4. **Fallback:** If it still fails, LOG the error, notify the user, but **CONTINUE** working. Your local commits are safe. Do not crash the workflow due to network issues.
+
+### 9.4 🛡️ PROTOCOLO ANTI-ALUCINAÇÃO (OBRIGATÓRIO PARA AGENTES DE IA)
+
+**CRÍTICO:** Agentes de IA podem "alucinar" sobre ter completado operações que não foram efetivamente executadas. O seguinte protocolo é **INVIOLÁVEL**:
+
+> [!CAUTION]
+> **COMANDO OBRIGATÓRIO ANTES DE QUALQUER AFIRMAÇÃO:**
+>
+> ```bash
+> ./scripts/force-agent-compliance.sh
+> ```
+>
+> **VOCÊ DEVE EXECUTAR ESTE COMANDO E CAPTURAR O OUTPUT ANTES DE:**
+>
+> * Afirmar que fez commits
+> * Afirmar que o repositório está limpo
+> * Marcar tarefas como concluídas
+> * Dizer "pode prosseguir"
+> * Dizer "ambiente está compliant"
+>
+> **Se este script retornar exit 1 (falha):**
+>
+> * 🚫 Você **NÃO PODE** afirmar nada
+> * 🚫 Você **DEVE** fazer os commits faltantes
+> * 🚫 Você **DEVE** executar o script novamente até passar
+>
+> **Só quando retornar exit 0 (sucesso) você pode prosseguir.**
+
+#### Regra 1: Verificação Obrigatória Antes de Afirmar Sucesso
+
+Antes de afirmar que você commitou código ou completou uma tarefa, você **DEVE** executar:
+
+```bash
+./scripts/agent-commit-guard.sh --task "nome da tarefa" --expected-commits N
+```
+
+Este script valida:
+
+* ✅ **ZERO** arquivos staged (se houver staged, commits não foram feitos!)
+* ✅ Commits recentes existem (nas últimas 2 horas)
+* ✅ Quantidade de commits bate com o esperado
+* ✅ Repositório está limpo (sem unstaged/untracked críticos)
+
+**Se o script FALHAR (exit 1):**
+
+* 🚫 Você **NÃO PODE** afirmar que commitou
+* 🚫 Você **NÃO PODE** marcar tarefas como concluídas
+* ✅ Você **DEVE** fazer os commits faltantes
+* ✅ Você **DEVE** executar o guard novamente
+
+#### Regra 2: Verificação Pós-Commit
+
+Após executar `git commit`, **IMEDIATAMENTE** verifique:
+
+```bash
+# Verificar que não há staged files
+git diff --cached --name-only
+# Deve retornar VAZIO
+
+# Verificar último commit
+git log -1 --oneline
+# Deve mostrar SEU commit recente
+```
+
+**Se ainda houver arquivos staged:** Você **alucinuou** o commit. Repita o comando `git commit`.
+
+#### Regra 3: Validação de Realidade ao Final
+
+Ao finalizar **qualquer** tarefa multi-commit, execute:
+
+```bash
+./scripts/verify-commit-reality.sh
+```
+
+Este script detecta:
+
+* ❌ Arquivos staged (alucinação de commit)
+* ❌ Zero commits recentes (alucinação total)
+* ⚠️ Arquivos unstaged/untracked (trabalho incompleto)
+
+**Bloqueios Automáticos:**
+
+* Se **staged > 0**: Script retorna **exit 1** (BLOQUEIO TOTAL)
+* Se **commits recentes = 0**: Script retorna **exit 1** (BLOQUEIO TOTAL)
+
+#### Regra 4: Comunicação Honesta
+
+**NUNCA** afirme:
+
+* ❌ "Commitei 4 mudanças atômicas" se você apenas stageu
+* ❌ "Repositório está limpo" sem executar `git status`
+* ❌ "Executei os testes" sem capturar o output
+
+**SEMPRE:**
+
+* ✅ Execute os scripts de validação **ANTES** de afirmar
+* ✅ Mostre evidências (output de comandos)
+* ✅ Admita se você **não tem certeza**
+
+#### Exemplo de Uso Correto
+
+```bash
+# 1. Fazer commits (múltiplos)
+git add core/
+git commit -m "feat(backend): implementar serviço X"
+
+git add tests/
+git commit -m "test: adicionar testes do serviço X"
+
+git add docs/
+git commit -m "docs: documentar serviço X"
+
+# 2. ANTES de afirmar sucesso: VALIDAR
+./scripts/agent-commit-guard.sh --task "Implementar Serviço X" --expected-commits 3
+
+# 3. Se passou: AGORA você pode afirmar
+echo "✅ Commitei 3 mudanças atômicas e o guard passou!"
+
+# 4. Validação final
+./scripts/verify-commit-reality.sh
+```
+
+#### Penalidades por Violação
+
+Se um agente afirmar sucesso sem executar os guards e for detectada alucinação:
+
+1. **Primeira vez:** Aviso documentado
+2. **Segunda vez:** Revisão obrigatória de todos os commits do agente
+3. **Terceira vez:** Agente não pode fazer commits sem supervisão humana
+
+**ESTA REGRA NÃO É NEGOCIÁVEL.**
+
+---
 
 ## 10. Semantic Documentation Strategy (Code-to-RAG)
 

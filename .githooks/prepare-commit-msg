@@ -1,0 +1,131 @@
+#!/bin/bash
+# .githooks/prepare-commit-msg
+# Hook para auxiliar na criação de mensagens de commit seguindo Conventional Commits
+#
+# Este hook é executado ANTES do editor de commit ser aberto
+# Ele pode enriquecer a mensagem com contexto automático
+
+COMMIT_MSG_FILE=$1
+COMMIT_SOURCE=$2
+SHA1=$3
+
+# Não modificar mensagens de merge, amend, squash, etc
+if [ "$COMMIT_SOURCE" = "merge" ] || [ "$COMMIT_SOURCE" = "squash" ] || [ "$COMMIT_SOURCE" = "commit" ]; then
+    exit 0
+fi
+
+# Ler mensagem atual (se alguém passou via -m)
+CURRENT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+# Se já tem mensagem (git commit -m "..."), apenas adicionar contexto extra
+if [ ! -z "$CURRENT_MSG" ] && [ "$CURRENT_MSG" != "" ]; then
+    # Mensagem já existe, não sobrescrever
+    # Mas podemos adicionar rodapé com refs
+    
+    # Detectar Story ID do branch
+    BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    if echo "$BRANCH" | grep -qE "[0-9]+-[0-9]+"; then
+        STORY_ID=$(echo "$BRANCH" | grep -oE "[0-9]+-[0-9]+" | head -1)
+        
+        # Adicionar Refs se não existir
+        if ! grep -q "Refs:" "$COMMIT_MSG_FILE"; then
+            echo "" >> "$COMMIT_MSG_FILE"
+            echo "Refs: #$STORY_ID" >> "$COMMIT_MSG_FILE"
+        fi
+    fi
+    
+    exit 0
+fi
+
+# Se mensagem está vazia, criar template útil
+# ================================================
+
+# Auto-detectar escopo baseado em arquivos modificados
+SCOPE=""
+STAGED_FILES=$(git diff --cached --name-only)
+
+if echo "$STAGED_FILES" | grep -q "^core/" || echo "$STAGED_FILES" | grep -q "\.rs$"; then
+    SCOPE="backend"
+elif echo "$STAGED_FILES" | grep -q "^src/"; then
+    SCOPE="frontend"
+elif echo "$STAGED_FILES" | grep -q "^tests/"; then
+    SCOPE="test"
+elif echo "$STAGED_FILES" | grep -q "^docs/"; then
+    SCOPE="docs"
+elif echo "$STAGED_FILES" | grep -q "^\.github/"; then
+    SCOPE="ci"
+elif echo "$STAGED_FILES" | grep -qE "(\.bmad/|\.agent/)"; then
+    SCOPE="governance"
+elif echo "$STAGED_FILES" | grep -q "^scripts/"; then
+    SCOPE="scripts"
+fi
+
+# Detectar Story ID do branch
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+STORY_REF=""
+STORY_ID=""
+if echo "$BRANCH" | grep -qE "[0-9]+-[0-9]+"; then
+    STORY_ID=$(echo "$BRANCH" | grep -oE "[0-9]+-[0-9]+" | head -1)
+    STORY_REF="[Story $STORY_ID] "
+fi
+
+# Criar template
+cat > "$COMMIT_MSG_FILE" << EOF
+# ${STORY_REF}Digite sua mensagem de commit seguindo Conventional Commits
+# 
+# Formato: type(scope): description
+# 
+# Tipos válidos:
+#   feat:     Nova funcionalidade para o usuário
+#   fix:      Correção de bug
+#   docs:     Mudanças apenas em documentação
+#   style:    Formatação, espaços, ponto-e-vírgula (não afeta código)
+#   refactor: Refatoração de código (sem adicionar feature ou corrigir bug)
+#   perf:     Melhoria de performance
+#   test:     Adição ou correção de testes
+#   chore:    Mudanças em build, configs, dependências
+#   ci:       Mudanças em CI/CD workflows
+#
+EOF
+
+if [ ! -z "$SCOPE" ]; then
+    cat >> "$COMMIT_MSG_FILE" << EOF
+# Escopo detectado automaticamente: $SCOPE
+# Exemplo: feat($SCOPE): adicionar funcionalidade X
+#
+EOF
+fi
+
+if [ ! -z "$STORY_ID" ]; then
+    cat >> "$COMMIT_MSG_FILE" << EOF
+# Story detectada: $STORY_ID (baseado no branch)
+# O sistema adicionará "Refs: #$STORY_ID" automaticamente ao rodapé
+#
+EOF
+fi
+
+cat >> "$COMMIT_MSG_FILE" << EOF
+# ────────────────────────────────────────────────────────────
+# Arquivos staged neste commit:
+EOF
+
+# Listar arquivos staged (primeiras 10 linhas)
+git diff --cached --name-status | head -10 | while read -r line; do
+    echo "#   $line" >> "$COMMIT_MSG_FILE"
+done
+
+STAGED_COUNT=$(git diff --cached --name-only | wc -l)
+if [ "$STAGED_COUNT" -gt 10 ]; then
+    echo "#   ... e mais $((STAGED_COUNT - 10)) arquivos" >> "$COMMIT_MSG_FILE"
+fi
+
+cat >> "$COMMIT_MSG_FILE" << EOF
+# ────────────────────────────────────────────────────────────
+#
+# Dicas:
+#   - Mantenha a primeira linha com no máximo 50 caracteres
+#   - Use o corpo da mensagem para explicar "o quê" e "por quê"
+#   - Separe o título do corpo com uma linha em branco
+#   - Linhas começando com '#' serão ignoradas
+#
+EOF

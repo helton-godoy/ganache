@@ -1,13 +1,89 @@
 #!/bin/bash
 # Hook unificado: BMad Compliance + Code Quality (Rust/TS) + Security
+# Enhanced v2.0 with conflict detection and advanced secret scanning
 
 exec 1>&2 # Redireciona output para stderr para visibilidade imediata
 
 echo "🛡️  [GANACHE GUARDIAN] Iniciando inspeção pré-commit..."
 
+# === PRE-FLIGHT CHECKS ===
+# -----------------------------------------------------------------
+# 0.1 Detect Merge Conflicts (CRITICAL - Must pass first)
+# -----------------------------------------------------------------
+echo "⚔️  [0.1/6] Detectando conflitos de merge..."
+
+HAS_CONFLICTS=false
+
+# Check for UU (both modified) status
+if git status --porcelain | grep -q "^UU "; then
+    echo "❌ [BLOQUEIO] Conflitos de merge detectados (both modified)!"
+    git status --porcelain | grep "^UU " | while read -r line; do
+        echo "   - ${line:3}"
+    done
+    HAS_CONFLICTS=true
+fi
+
+# Check for conflict markers in staged files
+STAGED_FILES=$(git diff --cached --name-only)
+if [ ! -z "$STAGED_FILES" ]; then
+    while IFS= read -r file; do
+        if [ -f "$file" ] && grep -q "^<<<<<<< " "$file" 2>/dev/null; then
+            if [ "$HAS_CONFLICTS" = false ]; then
+                echo "❌ [BLOQUEIO] Marcadores de conflito encontrados em arquivos!"
+                HAS_CONFLICTS=true
+            fi
+            echo "   - $file (contém <<<<<<<, =======, >>>>>>>)"
+        fi
+    done <<< "$STAGED_FILES"
+fi
+
+if [ "$HAS_CONFLICTS" = true ]; then
+    echo ""
+    echo "🚫 Resolva todos os conflitos antes de commitar."
+    echo "   Passos:"
+    echo "   1. Abra os arquivos listados acima"
+    echo "   2. Remova os marcadores de conflito"
+    echo "   3. Execute: git add <arquivos-resolvidos>"
+    echo "   4. Tente commitar novamente"
+    exit 1
+fi
+
+echo "✅ Sem conflitos de merge detectados"
+
+# 0.2 Zero Pending Policy (Gatekeeper for Status Updates)
+# ----------------------------------------------------------------
+# Se estivermos commitando mudanças em artefatos de sprint (status ou histórias),
+# o workspace deve estar COMPLETAMENTE LIMPO (sem unstaged ou untracked files).
+STAGED_FILES_CHECK=$(git diff --cached --name-only)
+if echo "$STAGED_FILES_CHECK" | grep -qE "(sprint-status.yaml|docs/sprint-artifacts/.*\.md)"; then
+    echo "🧹 [0.2/6] Verificando Política Zero Pending (Status Update)..."
+    
+    # Check for unstaged changes (modified but not added)
+    if ! git diff --quiet; then
+        echo "❌ [BLOQUEIO] Você possui alterações não stagadas (unstaged changes)."
+        echo "   A atualização de status de Sprint exige que TODO o trabalho esteja commitado ou stagado."
+        echo "   Arquivos pendentes:"
+        git diff --name-only | head -n 5
+        echo "   ..."
+        exit 1
+    fi
+    
+    # Check for untracked files
+    UNTRACKED=$(git ls-files --others --exclude-standard)
+    if [ -n "$UNTRACKED" ]; then
+        echo "❌ [BLOQUEIO] Você possui arquivos não rastreados (untracked files)."
+        echo "   A atualização de status de Sprint exige workspace limpo."
+        echo "   Arquivos untracked:"
+        echo "$UNTRACKED" | head -n 5
+        echo "   ..."
+        exit 1
+    fi
+    echo "✅ [ZERO PENDING] Workspace limpo. Prosseguindo..."
+fi
+
 # 1. Validação Estrutural (Seu script existente)
 # ----------------------------------------------------------------
-echo "🔍 [1/4] Verificando Conformidade BMad..."
+echo "🔍 [1/6] Verificando Conformidade BMad..."
 if [ -f "scripts/bmad-validate.sh" ]; then
     ./scripts/bmad-validate.sh
     if [ $? -ne 0 ]; then
@@ -16,19 +92,42 @@ if [ -f "scripts/bmad-validate.sh" ]; then
     fi
 fi
 
-# 2. Segurança de Segredos (AWS, Chaves Privadas)
+# 2. Segurança de Segredos (AWS, Chaves Privadas) - Enhanced
 # ----------------------------------------------------------------
-echo "🔐 [2/4] Escaneando Segredos..."
-STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
-if echo "$STAGED_FILES" | grep -qE "(\.env|id_rsa|token)"; then
+echo "🔐 [2/6] Escaneando Segredos..."
+
+# Check for sensitive files
+STAGED_FILES_LIST=$(git diff --cached --name-only --diff-filter=ACM)
+if echo "$STAGED_FILES_LIST" | grep -qE "(\.env$|id_rsa|\.pem$|\.key$|token|secret)"; then
     echo "❌ [SEGURANÇA] Arquivos sensíveis detectados no stage!"
+    echo "$STAGED_FILES_LIST" | grep -E "(\.env$|id_rsa|\.pem$|\.key$|token|secret)"
+    echo ""
+    echo "💡 Se estes arquivos são necessários:"
+    echo "   - Use .env.example com valores de placeholder"
+    echo "   - Adicione chaves reais ao .gitignore"
     exit 1
 fi
 
+# Scan file contents for secrets (more robust patterns)
+SECRETS_PATTERN='(API[_-]?KEY|SECRET|PASSWORD|TOKEN|PRIVATE[_-]?KEY|AWS[_-]?ACCESS)["\s]*[:=]["\s]*['\''""][A-Za-z0-9+/=_-]{16,}['\''""]'
+SECRET_MATCHES=$(git diff --cached | grep -iE "$SECRETS_PATTERN" | grep -v "EXAMPLE\|PLACEHOLDER\|TODO\|FIXME\|process\.env" || true)
+
+if [ ! -z "$SECRET_MATCHES" ]; then
+    echo "❌ [SEGURANÇA] Possíveis segredos detectados em staged files!"
+    echo ""
+    echo "Linhas suspeitas:"
+    echo "$SECRET_MATCHES" | head -5
+    echo ""
+    echo "💡 Remova segredos hardcoded e use variáveis de ambiente."
+    exit 1
+fi
+
+echo "✅ Nenhum segredo detectado"
+
 # 3. Qualidade Backend (Rust) - Só roda se houver arquivos .rs modificados
 # ----------------------------------------------------------------
-if echo "$STAGED_FILES" | grep -q "\.rs$"; then
-    echo "🦀 [3/4] Verificando Backend (Rust)..."
+if echo "$STAGED_FILES_LIST" | grep -q "\.rs$"; then
+    echo "🦀 [3/6] Verificando Backend (Rust)..."
     
     # Verifica formatação sem alterar arquivos
     if [ -d "core" ]; then
@@ -52,30 +151,48 @@ if echo "$STAGED_FILES" | grep -q "\.rs$"; then
             exit 1
         fi
     fi
+    
+    echo "✅ Backend Rust verificado"
 fi
 
 # 4. Qualidade Frontend (React/TS) - Só roda se houver arquivos .ts/tsx modificados
 # ----------------------------------------------------------------
-if echo "$STAGED_FILES" | grep -qE "\.(ts|tsx|js|jsx)$"; then
-    echo "⚛️  [4/5] Verificando Frontend (React)..."
+if echo "$STAGED_FILES_LIST" | grep -qE "\.(ts|tsx|js|jsx)$"; then
+    echo "⚛️  [4/6] Verificando Frontend (React)..."
 
     # Executa Type Check (rápido)
     if ! npm run type-check 2>/dev/null; then
         echo "❌ [REACT] Erros de tipagem TypeScript detectados."
         exit 1
     fi
+    
+    echo "✅ Frontend React/TypeScript verificado"
 fi
 
-# 5. Classificação Semântica de Mudanças - Garante Atomicidade
+# 5. Classificação Semântica com git-classify.sh --validate
 # ----------------------------------------------------------------
-# echo "📊 [5/5] Classificando Mudanças Semanticamente..."
-# if [ -f "scripts/git-classify.sh" ]; then
-#     ./scripts/git-classify.sh --hook --strict
-#     if [ $? -ne 0 ]; then
-#         echo "❌ [CLASSIFICAÇÃO] Commit não atômico ou categoria inválida."
-#         exit 1
-#     fi
-# fi
+echo "📊 [5/6] Validando integridade de código com git-classify.sh..."
+if [ -f "scripts/git-classify.sh" ]; then
+    if ! ./scripts/git-classify.sh --validate > /tmp/git-classify.log 2>&1; then
+        echo "❌ [VALIDAÇÃO] git-classify.sh detectou problemas:"
+        cat /tmp/git-classify.log
+        exit 1
+    fi
+    echo "✅ Validação de integridade passou"
+else
+    echo "⚠️  scripts/git-classify.sh não encontrado, pulando validação adicional..."
+fi
 
-echo "✅ [APROVADO] Commit liberado com sucesso."
+# 6. Summary and Success
+# ----------------------------------------------------------------
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "✅ [APROVADO] Commit liberado com sucesso!"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "💡 Dicas:"
+echo "   - Para pular validações em emergências: git commit --no-verify"
+echo "   - Para classificar mudanças: ./scripts/git-classify.sh"
+echo "   - Para validar projeto: ./scripts/bmad-validate.sh"
+echo ""
 exit 0

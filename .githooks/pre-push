@@ -1,19 +1,114 @@
 #!/bin/bash
-# Hook: pre-push
-# Objetivo: Padronizar nomes de branches
+# Hook: pre-push - Enhanced v2.0
+# Objetivo: Validações rigorosas antes de enviar código ao remoto
+#
+# Validações:
+# 1. Padrão de nome de branch
+# 2. Working tree limpo (sem mudanças não commitadas)
+# 3. Validação BMAD completa
+# 4. Testes de integração (opcional, baseado em env var)
+# 5. Builds de produção
+# 6. Auditoria de classificações
+
+set -e
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+echo ""
+echo -e "${BOLD}${CYAN}🚀 Iniciando Validações Pré-Push...${NC}"
+echo ""
 
 CURRENT_BRANCH=$(git symbolic-ref --short HEAD)
 
-# Padrões permitidos: main, develop, feature/..., bugfix/..., hotfix/..., release/...
-PATTERN="^(main|develop|master|feature\/[a-z0-9-]+|bugfix\/[a-z0-9-]+|hotfix\/[a-z0-9-]+|release\/[a-z0-9.-]+)$"
+# 1. Validar nome da branch
+# ----------------------------------------------------------------
+echo -e "${CYAN}[1/6] Validando nome da branch...${NC}"
+
+# Padrões permitidos: main, develop, feature/..., bugfix/..., hotfix/..., release/..., story/...
+PATTERN="^(main|develop|master|feature\/[a-z0-9-]+|bugfix\/[a-z0-9-]+|hotfix\/[a-z0-9-]+|release\/[a-z0-9.-]+|story-[0-9]+-[0-9]+-.*)$"
 
 if [[ ! "$CURRENT_BRANCH" =~ $PATTERN ]]; then
-	echo "❌ [ERRO] Nome da branch '$CURRENT_BRANCH' fora do padrão."
-	echo "Use: feature/nome-da-feature, bugfix/desc-erro, hotfix/..., main, develop"
-	exit 1
+    echo -e "${RED}❌ Nome da branch '$CURRENT_BRANCH' fora do padrão.${NC}"
+    echo -e "${YELLOW}Use: feature/nome, bugfix/desc, hotfix/..., story-X-Y-desc${NC}"
+    exit 1
 fi
 
-# Logging de classificações para auditoria
+echo -e "${GREEN}✓ Branch '$CURRENT_BRANCH' válida${NC}"
+
+# 2. Verificar working tree limpo
+# ----------------------------------------------------------------
+echo -e "${CYAN}[2/6] Verificando working tree...${NC}"
+
+if ! git diff-index --quiet HEAD --; then
+    echo -e "${RED}❌ Working tree não está limpo!${NC}"
+    echo -e "${YELLOW}Você tem mudanças não commitadas:${NC}"
+    git status --short | head -10
+    echo ""
+    echo -e "${YELLOW}Commit ou stash as mudanças antes de fazer push.${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✓ Working tree limpo${NC}"
+
+# 3. Validação BMAD completa
+# ----------------------------------------------------------------
+echo -e "${CYAN}[3/6] Executando validação BMAD...${NC}"
+
+if [ -f "./scripts/bmad-validate.sh" ]; then
+    if ! ./scripts/bmad-validate.sh > /tmp/bmad-push.log 2>&1; then
+        echo -e "${RED}❌ Validação BMAD falhou!${NC}"
+        echo -e "${YELLOW}Últimos erros:${NC}"
+        tail -15 /tmp/bmad-push.log
+        exit 1
+    fi
+    echo -e "${GREEN}✓ Validação BMAD passou${NC}"
+else
+    echo -e "${YELLOW}⚠  bmad-validate.sh não encontrado, pulando...${NC}"
+fi
+
+# 4. Testes de integração (opcional via env var)
+# ----------------------------------------------------------------
+if [ "${GANACHE_PRE_PUSH_TESTS:-0}" = "1" ]; then
+    echo -e "${CYAN}[4/6] Executando testes de integração...${NC}"
+    
+    # Rust integration tests
+    if [ -d "core" ]; then
+        cd core
+        if ! cargo test --quiet 2>&1; then
+            echo -e "${RED}❌ Testes Rust falharam!${NC}"
+            cd ..
+            exit 1
+        fi
+        cd ..
+        echo -e "${GREEN}✓ Testes Rust passaram${NC}"
+    fi
+else
+    echo -e "${CYAN}[4/6] Testes de integração: ${YELLOW}PULADOS${NC} (defina GANACHE_PRE_PUSH_TESTS=1 para ativar)"
+fi
+
+# 5. Builds de produção (rápido check)
+# ----------------------------------------------------------------
+echo -e "${CYAN}[5/6] Verificando builds de produção...${NC}"
+
+# Rust build check (não precisa compilar tudo, apenas verificar)
+if [ -d "core" ] && ls core/**/*.rs 1> /dev/null 2>&1; then
+    cd core
+    if ! cargo check --release --quiet 2>&1; then
+        echo -e "${RED}❌ Build Rust (release) falhou!${NC}"
+        cd ..
+        exit 1
+    fi
+    cd ..
+    echo -e "${GREEN}✓ Build Rust verificado${NC}"
+fi
+
+# 6. Logging de classificações para auditoria
 echo "📊 [AUDITORIA] Registrando classificações de commits..."
 LOG_DIR=".bmad/logs"
 mkdir -p "$LOG_DIR"
@@ -31,5 +126,15 @@ while read local_ref local_sha remote_ref remote_sha; do
     fi
 done
 
-echo "✅ [PUSH] Branch '$CURRENT_BRANCH' validada e auditada."
+echo ""
+echo -e "${BOLD}${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BOLD}${GREEN}✅ Todas as Validações Pré-Push Passaram!${NC}"
+echo -e "${BOLD}${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "   Branch: ${BOLD}$CURRENT_BRANCH${NC}"
+echo -e "   Auditoria salva em: ${CYAN}.bmad/logs/push-classifications.log${NC}"
+echo -e "${BOLD}${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+echo -e "${CYAN}💡 Push em andamento...${NC}"
+echo ""
+
 exit 0

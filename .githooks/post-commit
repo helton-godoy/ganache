@@ -1,0 +1,118 @@
+#!/bin/bash
+# .githooks/post-commit
+# Hook executado APÓS um commit bem-sucedido
+#
+# Propósito:
+# - Notificar sucesso visual
+# - Verificar sincronização de sprint-status.yaml
+# - Auto-executar bmad-sync.sh quando necessário
+# - Sugerir push após múltiplos commits locais
+
+# Colors
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+# Obter informações do commit
+COMMIT_HASH=$(git log -1 --format=%h)
+COMMIT_MSG=$(git log -1 --format=%s)
+COMMIT_AUTHOR=$(git log -1 --format=%an)
+
+# ANTI-ALUCINAÇÃO: Verificar se ainda há arquivos staged após commit
+# Se houver, significa que algo deu errado ou o agente está alucinando
+STAGED_AFTER_COMMIT=$(git diff --cached --name-only | wc -l)
+if [ "$STAGED_AFTER_COMMIT" -gt 0 ]; then
+    echo ""
+    echo -e "${BOLD}${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BOLD}${RED}⚠️  ALERTA: POSSÍVEL ALUCINAÇÃO DETECTADA! ⚠️${NC}"
+    echo -e "${BOLD}${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo -e "${YELLOW}⚠️  Commit registrado, mas ainda existem $STAGED_AFTER_COMMIT arquivos staged!${NC}"
+    echo -e "${YELLOW}   Isso pode indicar que você não terminou o trabalho.${NC}"
+    echo ""
+    echo -e "${CYAN}Arquivos ainda staged:${NC}"
+    git diff --cached --name-status | head -5
+    if [ "$STAGED_AFTER_COMMIT" -gt 5 ]; then
+        echo -e "  ... e mais $((STAGED_AFTER_COMMIT - 5)) arquivos"
+    fi
+    echo ""
+    echo -e "${YELLOW}💡 Execute: ${BOLD}./scripts/verify-commit-reality.sh${NC} para verificar"
+    echo -e "${YELLOW}💡 Ou: ${BOLD}git status${NC} para detalhes"
+    echo ""
+fi
+
+# Notificação visual
+echo ""
+echo -e "${BOLD}${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BOLD}${GREEN}✅  Commit registrado com sucesso!${NC}"
+echo -e "${BOLD}${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "   ${CYAN}Hash:${NC}     ${BOLD}$COMMIT_HASH${NC}"
+echo -e "   ${CYAN}Autor:${NC}    $COMMIT_AUTHOR"
+echo -e "   ${CYAN}Mensagem:${NC} $COMMIT_MSG"
+echo -e "${BOLD}${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+
+# Verificar se Story files foram modificados
+STORY_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD | grep "docs/sprint-artifacts/[0-9]-[0-9].*\.md" || true)
+if [ ! -z "$STORY_FILES" ]; then
+    echo -e "${CYAN}📋 Story file modificado detectado!${NC}"
+    echo -e "   Verificando sincronização com sprint-status.yaml..."
+    
+    # Executar validação (mas não bloquear - é post-commit)
+    if ./scripts/bmad-validate.sh > /dev/null 2>&1; then
+        echo -e "   ${GREEN}✓ sprint-status.yaml está sincronizado${NC}"
+    else
+        echo -e "   ${YELLOW}⚠  AVISO: sprint-status.yaml pode estar dessincronizado${NC}"
+        echo -e "   ${YELLOW}   Execute: ./scripts/bmad-validate.sh para detalhes${NC}"
+    fi
+    echo ""
+fi
+
+# Auto-executar bmad-sync.sh se OpenAPI mudou
+API_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD | grep "core/ganache-api/" || true)
+if [ ! -z "$API_FILES" ]; then
+    echo -e "${CYAN}🔄 Mudanças em ganache-api detectadas!${NC}"
+    
+    if [ -f "./scripts/bmad-sync.sh" ]; then
+        echo -e "   Executando bmad-sync.sh..."
+        
+        if ./scripts/bmad-sync.sh > /dev/null 2>&1; then
+            echo -e "   ${GREEN}✓ Sincronização OpenAPI completa${NC}"
+        else
+            echo -e "   ${YELLOW}⚠  AVISO: bmad-sync.sh falhou${NC}"
+            echo -e "   ${YELLOW}   Execute manualmente: ./scripts/bmad-sync.sh${NC}"
+        fi
+    else
+        echo -e "   ${YELLOW}⚠  scripts/bmad-sync.sh não encontrado${NC}"
+    fi
+    echo ""
+fi
+
+# Sugestão de push após múltiplos commits
+UNPUSHED=$(git log @{u}.. --oneline 2>/dev/null | wc -l || echo "0")
+if [ "$UNPUSHED" -ge 3 ]; then
+    echo -e "${YELLOW}💡 Você tem $UNPUSHED commits locais não enviados ao remoto.${NC}"
+    echo -e "${YELLOW}   Considere executar: ${BOLD}git push${NC}"
+    echo ""
+elif [ "$UNPUSHED" -eq "-1" ] || [ "$UNPUSHED" -eq "0" ]; then
+    # Branch sem upstream ou já sincronizado
+    :
+fi
+
+# Mostrar arquivos modificados opcionalmente
+if [ "${GANACHE_VERBOSE_POST_COMMIT:-0}" = "1" ]; then
+    echo -e "${CYAN}Arquivos modificados neste commit:${NC}"
+    git diff-tree --no-commit-id --name-status -r HEAD | head -5
+    echo ""
+fi
+
+# Dicas úteis
+echo -e "${CYAN}💡 Próximos passos sugeridos:${NC}"
+echo -e "   - Visualizar histórico: ${BOLD}git log --oneline -5${NC}"
+echo -e "   - Ver mudanças:         ${BOLD}git show $COMMIT_HASH${NC}"
+echo -e "   - Classificar pendentes: ${BOLD}./scripts/git-classify.sh${NC}"
+echo ""
+
+exit 0

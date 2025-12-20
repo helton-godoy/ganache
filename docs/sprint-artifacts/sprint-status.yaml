@@ -74,7 +74,7 @@ development_status:
   epic-3: in-progress
   3-1-git-backed-configuration-engine: done
   3-2-configuration-timeline-ui: done
-  3-3-one-click-config-rollback: backlog
+  3-3-one-click-config-rollback: review
   epic-3-retrospective: optional
 
   # Epic 4: Enterprise Integration

@@ -25,6 +25,8 @@ export * from './listDatasetsParams';
 export * from './poolConfig';
 export * from './poolInfo';
 export * from './poolInfoQuota';
+export * from './rollbackRequest';
+export * from './rollbackResponse';
 export * from './storageDevice';
 export * from './systemLog';
 export * from './systemResources';

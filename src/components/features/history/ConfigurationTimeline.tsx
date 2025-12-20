@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Calendar } from 'lucide-react';
 import { useState } from 'react';
+import { RollbackButton } from './RollbackButton';
 
 interface ConfigurationTimelineProps {
   className?: string;
@@ -141,12 +142,6 @@ export function ConfigurationTimeline({ className }: ConfigurationTimelineProps)
   const commits = commitsResponse?.data || [];
   const diff = diffResponse?.data;
 
-  const filteredCommits = commits.filter((commit: GitCommit) => {
-    const matchesAuthor = !authorFilter || commit.author.toLowerCase().includes(authorFilter.toLowerCase());
-    const matchesDate = !dateFilter || commit.date.includes(dateFilter);
-    return matchesAuthor && matchesDate;
-  });
-
   const formatDate = (dateString: string) => {
     try {
       return new Date(dateString).toLocaleString();
@@ -208,7 +203,7 @@ export function ConfigurationTimeline({ className }: ConfigurationTimelineProps)
             {commits.length === 0 ? (
               <div className="text-center py-12 text-slate-500 italic">No configuration changes found</div>
             ) : (
-              filteredCommits.map((commit) => (
+              commits.map((commit) => (
                 <div key={commit.id} className="relative group transition-all duration-300">
                   <div className="absolute -left-10 top-2 w-4 h-4 rounded-full bg-slate-950 border-2 border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)] group-hover:scale-125 transition-transform" />
                   <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-5 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.1)] transition-all duration-300">
@@ -230,40 +225,43 @@ export function ConfigurationTimeline({ className }: ConfigurationTimelineProps)
                           {commit.message}
                         </p>
                       </div>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSelectedCommit(commit)}
-                            className="text-blue-400 hover:text-blue-300 hover:bg-blue-400/10 transition-colors"
-                          >
-                            View Visual Diff
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-4xl max-h-[85vh] bg-slate-950 border-slate-800 text-slate-100 p-0 overflow-hidden shadow-2xl">
-                          <DialogHeader className="p-6 pb-2 border-b border-slate-800">
-                            <DialogTitle className="flex items-center gap-3">
-                              Visual Comparison
-                              <Badge variant="outline" className="font-mono text-blue-400">
-                                {commit.id.substring(0, 7)}
-                              </Badge>
-                            </DialogTitle>
-                            <p className="text-sm text-slate-400 mt-2">{commit.message}</p>
-                          </DialogHeader>
-                          <div className="overflow-auto p-4 bg-slate-950/50">
-                            {diffLoading ? (
-                              <div className="flex items-center justify-center py-20">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
-                              </div>
-                            ) : (
-                              <div className="font-mono text-xs leading-relaxed rounded-lg overflow-hidden border border-slate-800 bg-slate-900/50">
-                                {diff ? formatDiff(diff) : <div className="p-4 text-slate-500 italic">No diff content available</div>}
-                              </div>
-                            )}
-                          </div>
-                        </DialogContent>
-                      </Dialog>
+                      <div className="flex gap-2">
+                        <RollbackButton commit={commit} onSuccess={() => refetch()} />
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setSelectedCommit(commit)}
+                              className="text-blue-400 hover:text-blue-300 hover:bg-blue-400/10 transition-colors"
+                            >
+                              View Visual Diff
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-4xl max-h-[85vh] bg-slate-950 border-slate-800 text-slate-100 p-0 overflow-hidden shadow-2xl">
+                            <DialogHeader className="p-6 pb-2 border-b border-slate-800">
+                              <DialogTitle className="flex items-center gap-3">
+                                Visual Comparison
+                                <Badge variant="outline" className="font-mono text-blue-400">
+                                  {commit.id.substring(0, 7)}
+                                </Badge>
+                              </DialogTitle>
+                              <p className="text-sm text-slate-400 mt-2">{commit.message}</p>
+                            </DialogHeader>
+                            <div className="overflow-auto p-4 bg-slate-950/50">
+                              {diffLoading ? (
+                                <div className="flex items-center justify-center py-20">
+                                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+                                </div>
+                              ) : (
+                                <div className="font-mono text-xs leading-relaxed rounded-lg overflow-hidden border border-slate-800 bg-slate-900/50">
+                                  {diff ? formatDiff(diff) : <div className="p-4 text-slate-500 italic">No diff content available</div>}
+                                </div>
+                              )}
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
                     </div>
                   </div>
                 </div>

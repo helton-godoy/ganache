@@ -2,7 +2,8 @@ use axum::{http::StatusCode, routing::get, Json, Router};
 use ganache_api::{
     models::git_commit::{GitCommit, GitDiff},
     BootEnvironment, BootEnvironmentActivation, ClusterConfig, ClusterStatus, DatasetConfig,
-    DatasetInfo, HardwareInfo, PoolConfig, PoolInfo, StorageDevice, SystemResources,
+    DatasetInfo, HardwareInfo, PoolConfig, PoolInfo, RollbackRequest, RollbackResponse,
+    StorageDevice, SystemResources,
 };
 use ganache_lib::{
     BootService, ClusterService, ConfigDb, HardwareService, MemoryService, ZpoolService,
@@ -67,7 +68,8 @@ async fn main() {
             destroy_dataset,
             heartbeat,
             get_config_history,
-            get_commit_diff
+            get_commit_diff,
+            rollback_config
         ),
         components(schemas(
             ganache_api::HardwareInfo,
@@ -86,6 +88,8 @@ async fn main() {
             ganache_api::models::git_commit::GitCommit,
             ganache_api::models::git_commit::GitDiff,
             ganache_api::models::git_commit::GitFileDiff,
+            ganache_api::RollbackRequest,
+            ganache_api::RollbackResponse,
             SystemLog,
             DiskInfo
         ))
@@ -154,6 +158,10 @@ async fn main() {
         .route(
             "/api/v1/config/history/{commit_id}/diff",
             get(get_commit_diff),
+        )
+        .route(
+            "/api/v1/config/rollback",
+            axum::routing::post(rollback_config),
         )
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .layer(CorsLayer::permissive());
@@ -518,6 +526,61 @@ async fn get_commit_diff(
                 Err((
                     StatusCode::NOT_FOUND,
                     format!("Commit {} not found", commit_id),
+                ))
+            } else {
+                Err((StatusCode::INTERNAL_SERVER_ERROR, msg))
+            }
+        }
+    }
+}
+
+/// Rollback configuration to a specific commit
+///
+/// # Purpose
+/// One-click rollback of configuration to a previous state with audit trail
+///
+/// @ref Story-3.3 - Implements rollback endpoint for configuration time-machine
+#[utoipa::path(
+    post,
+    path = "/api/v1/config/rollback",
+    request_body = RollbackRequest,
+    responses(
+        (status = 200, description = "Configuration rolled back successfully", body = RollbackResponse),
+        (status = 400, description = "Invalid commit ID or request"),
+        (status = 503, description = "Configuration repository not yet created")
+    )
+)]
+async fn rollback_config(
+    user: AuthenticatedUser,
+    Json(payload): Json<RollbackRequest>,
+) -> Result<Json<RollbackResponse>, (StatusCode, String)> {
+    match ganache_lib::GitService::rollback_config(
+        &payload.commit_id,
+        &user.username,
+        &payload.reason,
+    ) {
+        Ok(rollback_commit_id) => {
+            let message = format!(
+                "Configuration rolled back to commit {} by {}. Rollback commit: {}",
+                &payload.commit_id[..7.min(payload.commit_id.len())],
+                user.username,
+                &rollback_commit_id[..7.min(rollback_commit_id.len())]
+            );
+
+            Ok(Json(RollbackResponse {
+                success: true,
+                rollback_commit_id,
+                message,
+            }))
+        }
+        Err(e) => {
+            let msg = e.to_string();
+            if msg.contains("Invalid commit ID") {
+                Err((StatusCode::BAD_REQUEST, msg))
+            } else if msg.contains("not exist") || msg.contains("not found") {
+                Err((
+                    StatusCode::SERVICE_UNAVAILABLE,
+                    "Configuration repository not yet created".to_string(),
                 ))
             } else {
                 Err((StatusCode::INTERNAL_SERVER_ERROR, msg))

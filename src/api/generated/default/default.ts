@@ -46,6 +46,8 @@ import type {
   ListDatasetsParams,
   PoolConfig,
   PoolInfo,
+  RollbackRequest,
+  RollbackResponse,
   StorageDevice,
   SystemLog,
   SystemResources
@@ -486,7 +488,72 @@ export function useGetCommitDiff<TData = Awaited<ReturnType<typeof getCommitDiff
 
 
 
-export const createPool = (
+/**
+ * # Purpose
+One-click rollback of configuration to a previous state with audit trail
+
+@ref Story-3.3 - Implements rollback endpoint for configuration time-machine
+ * @summary Rollback configuration to a specific commit
+ */
+export const rollbackConfig = (
+    rollbackRequest: RollbackRequest, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<RollbackResponse>> => {
+    
+    
+    return axios.post(
+      `http://localhost:3005/api/v1/config/rollback`,
+      rollbackRequest,options
+    );
+  }
+
+
+
+export const getRollbackConfigMutationOptions = <TError = AxiosError<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof rollbackConfig>>, TError,{data: RollbackRequest}, TContext>, axios?: AxiosRequestConfig}
+): UseMutationOptions<Awaited<ReturnType<typeof rollbackConfig>>, TError,{data: RollbackRequest}, TContext> => {
+
+const mutationKey = ['rollbackConfig'];
+const {mutation: mutationOptions, axios: axiosOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, axios: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof rollbackConfig>>, {data: RollbackRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  rollbackConfig(data,axiosOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RollbackConfigMutationResult = NonNullable<Awaited<ReturnType<typeof rollbackConfig>>>
+    export type RollbackConfigMutationBody = RollbackRequest
+    export type RollbackConfigMutationError = AxiosError<void>
+
+    /**
+ * @summary Rollback configuration to a specific commit
+ */
+export const useRollbackConfig = <TError = AxiosError<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof rollbackConfig>>, TError,{data: RollbackRequest}, TContext>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof rollbackConfig>>,
+        TError,
+        {data: RollbackRequest},
+        TContext
+      > => {
+
+      const mutationOptions = getRollbackConfigMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    export const createPool = (
     poolConfig: PoolConfig, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<PoolInfo>> => {
     

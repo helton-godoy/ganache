@@ -3,6 +3,7 @@ use utoipa::ToSchema;
 
 pub mod models;
 pub use models::config_change::ConfigChange;
+pub use models::rollback::{RollbackRequest, RollbackResponse};
 
 #[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]
 pub struct HardwareInfo {

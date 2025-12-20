@@ -207,6 +207,42 @@
         }
       }
     },
+    "/api/v1/config/rollback": {
+      "post": {
+        "tags": [],
+        "summary": "Rollback configuration to a specific commit",
+        "description": "# Purpose\nOne-click rollback of configuration to a previous state with audit trail\n\n@ref Story-3.3 - Implements rollback endpoint for configuration time-machine",
+        "operationId": "rollback_config",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RollbackRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Configuration rolled back successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RollbackResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid commit ID or request"
+          },
+          "503": {
+            "description": "Configuration repository not yet created"
+          }
+        }
+      }
+    },
     "/api/v1/storage/create-pool": {
       "post": {
         "tags": [],
@@ -866,6 +902,47 @@
           },
           "size": {
             "type": "string"
+          }
+        }
+      },
+      "RollbackRequest": {
+        "type": "object",
+        "description": "Rollback request payload\n\n# Purpose\nRequest to rollback configuration to a specific git commit\n\n@ref Story-3.3 - Implements rollback request model for one-click config rollback",
+        "required": [
+          "commit_id",
+          "reason"
+        ],
+        "properties": {
+          "commit_id": {
+            "type": "string",
+            "description": "Commit ID to rollback to"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for rollback (for audit trail)"
+          }
+        }
+      },
+      "RollbackResponse": {
+        "type": "object",
+        "description": "Rollback response payload\n\n# Purpose\nConfirmation of successful rollback operation\n\n@ref Story-3.3 - Rollback success response",
+        "required": [
+          "success",
+          "rollback_commit_id",
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Message describing the rollback"
+          },
+          "rollback_commit_id": {
+            "type": "string",
+            "description": "Rollback commit ID"
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Success status"
           }
         }
       },

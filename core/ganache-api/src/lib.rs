@@ -14,6 +14,16 @@ pub struct ClusterConfig {
     pub mode: String, // "compatibility" | "standard"
     pub node_id: i32,
     pub peer_ip: String,
+    pub vip_address: String,
+    pub network_interface: String,
+    #[serde(default = "default_drbd_resource")]
+    pub drbd_resource: String,
+    #[serde(default)]
+    pub dev_mode: bool,
+}
+
+fn default_drbd_resource() -> String {
+    "r0".to_string()
 }
 
 #[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]

@@ -3,7 +3,9 @@ use ganache_api::{
     BootEnvironment, BootEnvironmentActivation, ClusterConfig, ClusterStatus, DatasetConfig,
     DatasetInfo, HardwareInfo, PoolConfig, PoolInfo, StorageDevice, SystemResources,
 };
-use ganache_lib::{BootService, ClusterService, HardwareService, MemoryService, ZpoolService};
+use ganache_lib::{
+    BootService, ClusterService, GitService, HardwareService, MemoryService, ZpoolService,
+};
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 use tower_http::cors::CorsLayer;
@@ -36,6 +38,11 @@ async fn main() {
     // Initialize tracing
     tracing_subscriber::fmt::init();
 
+    // Initialize git repository for configuration versioning
+    if let Err(e) = GitService::init_repo() {
+        warn!("Failed to initialize git repository: {}", e);
+    }
+
     #[derive(OpenApi)]
     #[openapi(
         paths(
@@ -54,7 +61,8 @@ async fn main() {
             list_disks,
             list_datasets,
             create_dataset,
-            destroy_dataset
+            destroy_dataset,
+            heartbeat
         ),
         components(schemas(
             ganache_api::HardwareInfo,
@@ -93,6 +101,9 @@ async fn main() {
         warn!("Failed to enforce some ZFS quotas at startup: {}", e);
     }
 
+    // Start Cluster Heartbeat Monitor
+    tokio::spawn(ClusterService::start_monitor_loop());
+
     let app = Router::new()
         .route("/api/v1/system/hardware", get(get_hardware_info))
         .route("/api/v1/system/resources", get(get_system_resources))
@@ -105,6 +116,7 @@ async fn main() {
             "/api/v1/cluster/simulate-failure",
             axum::routing::post(simulate_failure),
         )
+        .route("/api/v1/cluster/heartbeat", axum::routing::post(heartbeat))
         .route(
             "/api/v1/system/boot-environments",
             get(get_boot_environments),
@@ -152,8 +164,15 @@ async fn get_system_resources() -> Json<SystemResources> {
 }
 
 #[utoipa::path(post, path = "/api/v1/cluster/configure", request_body = ClusterConfig, responses((status = 200, description = "Cluster Configuration Started", body = ClusterStatus)))]
-async fn configure_cluster(Json(payload): Json<ClusterConfig>) -> Json<ClusterStatus> {
+async fn configure_cluster(Json(mut payload): Json<ClusterConfig>) -> Json<ClusterStatus> {
+    if std::env::var("GANACHE_DEV_MODE").is_ok() {
+        info!("Enabling DEV MODE overrides via GANACHE_DEV_MODE environment variable");
+        payload.dev_mode = true;
+    }
     let status = ClusterService::configure_node(payload).await.unwrap();
+    if let Err(e) = GitService::commit_changes("system", "update", "cluster configuration") {
+        warn!("Failed to commit cluster configuration change: {}", e);
+    }
     Json(status)
 }
 
@@ -169,6 +188,12 @@ async fn simulate_failure() -> Json<ClusterStatus> {
     Json(status)
 }
 
+#[utoipa::path(post, path = "/api/v1/cluster/heartbeat", responses((status = 200, description = "Heartbeat Received")))]
+async fn heartbeat() -> StatusCode {
+    ClusterService::update_heartbeat();
+    StatusCode::OK
+}
+
 #[utoipa::path(get, path = "/api/v1/system/boot-environments", responses((status = 200, description = "List of Boot Environments", body = Vec<BootEnvironment>)))]
 async fn get_boot_environments() -> Json<Vec<ganache_api::BootEnvironment>> {
     let list = BootService::list_boot_environments().unwrap();
@@ -178,6 +203,13 @@ async fn get_boot_environments() -> Json<Vec<ganache_api::BootEnvironment>> {
 #[utoipa::path(post, path = "/api/v1/system/boot-environments/activate", request_body = BootEnvironmentActivation, responses((status = 200, description = "Boot Environment Activated", body = String)))]
 async fn activate_boot_environment(Json(payload): Json<BootEnvironmentActivation>) -> Json<String> {
     let result = BootService::activate_boot_environment(&payload.name).unwrap();
+    if let Err(e) = GitService::commit_changes(
+        "system",
+        "activate",
+        &format!("boot environment {}", payload.name),
+    ) {
+        warn!("Failed to commit boot environment activation: {}", e);
+    }
     Json(result)
 }
 
@@ -190,6 +222,9 @@ async fn get_drbd_devices() -> Json<Vec<ganache_api::StorageDevice>> {
 #[utoipa::path(post, path = "/api/v1/storage/create-pool", request_body = PoolConfig, responses((status = 200, description = "Pool Created", body = PoolInfo)))]
 async fn create_pool(Json(payload): Json<ganache_api::PoolConfig>) -> Json<ganache_api::PoolInfo> {
     let pool = ZpoolService::create_pool(payload).await.unwrap();
+    if let Err(e) = GitService::commit_changes("system", "create", &format!("pool {}", pool.name)) {
+        warn!("Failed to commit pool creation: {}", e);
+    }
     Json(pool)
 }
 
@@ -210,8 +245,22 @@ async fn get_system_logs() -> Json<Vec<SystemLog>> {
 }
 
 #[utoipa::path(post, path = "/api/v1/system/promote", responses((status = 200, description = "Node Promoted Sucessfully", body = String)))]
-async fn promote_node() -> Json<String> {
-    Json("Node promoted successfully (Stub)".to_string())
+async fn promote_node() -> Result<Json<String>, (StatusCode, String)> {
+    info!("Manual promotion trigger received");
+    match ClusterService::promote_peer().await {
+        Ok(_) => {
+            if let Err(e) =
+                GitService::commit_changes("system", "promote", "manual failover trigger")
+            {
+                warn!("Failed to commit system promotion: {}", e);
+            }
+            Ok(Json("Node promoted successfully".to_string()))
+        }
+        Err(e) => {
+            warn!("Promotion failed: {}", e);
+            Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
+        }
+    }
 }
 
 #[utoipa::path(get, path = "/api/v1/storage/disks", responses((status = 200, description = "List of all disks", body = Vec<DiskInfo>)))]
@@ -312,7 +361,14 @@ async fn create_dataset(
     Json(payload): Json<DatasetConfig>,
 ) -> Result<Json<DatasetInfo>, (StatusCode, String)> {
     match ZpoolService::create_dataset(payload).await {
-        Ok(ds) => Ok(Json(ds)),
+        Ok(ds) => {
+            if let Err(e) =
+                GitService::commit_changes("system", "create", &format!("dataset {}", ds.name))
+            {
+                warn!("Failed to commit dataset creation: {}", e);
+            }
+            Ok(Json(ds))
+        }
         Err(e) => {
             let msg = e.to_string();
             if msg.contains("exists") {
@@ -329,5 +385,12 @@ async fn destroy_dataset(Json(payload): Json<DeleteDatasetPayload>) -> Json<Stri
     ZpoolService::destroy_dataset(&payload.pool, &payload.name)
         .await
         .unwrap();
+    if let Err(e) = GitService::commit_changes(
+        "system",
+        "delete",
+        &format!("dataset {}/{}", payload.pool, payload.name),
+    ) {
+        warn!("Failed to commit dataset deletion: {}", e);
+    }
     Json("Dataset destroyed".to_string())
 }

@@ -1,0 +1,23 @@
+[2m2025-12-20T02:56:02.887042Z[0m [33m WARN[0m [2mganache_core[0m[2m:[0m Failed to initialize git repository: No such file or directory (os error 2)
+[2m2025-12-20T02:56:02.887153Z[0m [32m INFO[0m [2mganache_core[0m[2m:[0m Starting Ganache Core System...
+[2m2025-12-20T02:56:02.951118Z[0m [32m INFO[0m [2mganache_lib::system::memory[0m[2m:[0m Auto-Tuning ZFS ARC: Target = 15.62 GB (Total RAM: 31.25 GB)
+[2m2025-12-20T02:56:02.958521Z[0m [32m INFO[0m [2mganache_core[0m[2m:[0m Enforcing 90% hard quotas on all ZFS pools...
+[2m2025-12-20T02:56:02.958605Z[0m [32m INFO[0m [2mganache_core[0m[2m:[0m Applying 18G quota to pool boot-pool
+Starting Cluster Heartbeat Monitor...
+listening on 0.0.0.0:3005
+ssh: connect to host 10.0.0.2 port 22: Connection timed out
+WARNING: SSH link check failed for 10.0.0.2. Proceeding for dev simulation context.
+WARNING: 'drbdadm' command not found. Assuming DEV environment. Skipping DRBD init.
+[2m2025-12-20T02:56:07.361926Z[0m [33m WARN[0m [2mganache_core[0m[2m:[0m Failed to commit cluster configuration change: No such file or directory (os error 2)
+ssh: connect to host 10.0.0.2 port 22: Connection timed out
+WARNING: SSH link check failed for 10.0.0.2. Proceeding for dev simulation context.
+WARNING: 'drbdadm' command not found. Assuming DEV environment. Skipping DRBD init.
+[2m2025-12-20T02:56:07.371115Z[0m [33m WARN[0m [2mganache_core[0m[2m:[0m Failed to commit cluster configuration change: No such file or directory (os error 2)
+ssh: connect to host 10.0.0.2 port 22: Connection timed out
+WARNING: SSH link check failed for 10.0.0.2. Proceeding for dev simulation context.
+WARNING: 'drbdadm' command not found. Assuming DEV environment. Skipping DRBD init.
+[2m2025-12-20T02:56:09.371093Z[0m [33m WARN[0m [2mganache_core[0m[2m:[0m Failed to commit cluster configuration change: No such file or directory (os error 2)
+MONITOR: Heartbeat lost! Initiating Failover...
+Starting HA Promotion Sequence...
+Step 1: DRBD Promotion (Resource: r0)
+MONITOR: Failover failed: Failed to execute drbdadm ["primary", "r0", "--force"]

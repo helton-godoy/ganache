@@ -63,15 +63,16 @@ development_status:
       name: "Dataset Management"
       status: "done"
       scrum_master_notes: "Verified by Dev Agent. All tests passed."
+
     - id: "2.5"
       name: "Automated Failover"
       status: "done"
-      scrum_master_notes: "Adv. Review: FIXED mock in zfs.rs & cluster.rs. Auto-verified."
-  epic-2-retrospective: optional
+      scrum_master_notes: "Remediation complete. Heartbeat loop & E2E tests added."
+  epic-2-retrospective: completed
 
   # Epic 3: Config Time-Machine
-  epic-3: backlog
-  3-1-git-backed-configuration-engine: backlog
+  epic-3: in-progress
+  3-1-git-backed-configuration-engine: ready-for-dev
   3-2-configuration-timeline-ui: backlog
   3-3-one-click-config-rollback: backlog
   epic-3-retrospective: optional

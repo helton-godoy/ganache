@@ -4,5 +4,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-## [ ] Track: Implementar a visualização do histórico de configuração na interface do usuário.
-*Link: [./conductor/tracks/implementar_visualizacao_historico_configuracao_na_interface_do_usuario_20251220/](./conductor/tracks/implementar_visualizacao_historico_configuracao_na_interface_do_usuario_20251220/)*
+## [ ] Track: Implementar o "Wizard de Instalação" no frontend em React, que detecta o hardware do sistema e guia o usuário na configuração inicial.
+*Link: [./conductor/tracks/implementar_wizard_instalacao_20251220/](./conductor/tracks/implementar_wizard_instalacao_20251220/)*

@@ -381,6 +381,7 @@ dependencies = [
  "ganache-api",
  "lazy_static",
  "serde",
+ "serde_json",
  "sysinfo",
  "tempfile",
  "thiserror",

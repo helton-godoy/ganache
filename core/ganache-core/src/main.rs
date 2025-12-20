@@ -4,7 +4,7 @@ use ganache_api::{
     DatasetInfo, HardwareInfo, PoolConfig, PoolInfo, StorageDevice, SystemResources,
 };
 use ganache_lib::{
-    BootService, ClusterService, GitService, HardwareService, MemoryService, ZpoolService,
+    BootService, ClusterService, ConfigDb, GitService, HardwareService, MemoryService, ZpoolService,
 };
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
@@ -169,9 +169,17 @@ async fn configure_cluster(Json(mut payload): Json<ClusterConfig>) -> Json<Clust
         info!("Enabling DEV MODE overrides via GANACHE_DEV_MODE environment variable");
         payload.dev_mode = true;
     }
-    let status = ClusterService::configure_node(payload).await.unwrap();
-    if let Err(e) = GitService::commit_changes("system", "update", "cluster configuration") {
-        warn!("Failed to commit cluster configuration change: {}", e);
+    let status = ClusterService::configure_node(payload.clone())
+        .await
+        .unwrap();
+    if let Err(e) = ConfigDb::save_and_commit(
+        "cluster.json",
+        &payload,
+        "system",
+        "update",
+        "cluster configuration",
+    ) {
+        warn!("Failed to persist cluster configuration: {}", e);
     }
     Json(status)
 }
@@ -221,9 +229,15 @@ async fn get_drbd_devices() -> Json<Vec<ganache_api::StorageDevice>> {
 
 #[utoipa::path(post, path = "/api/v1/storage/create-pool", request_body = PoolConfig, responses((status = 200, description = "Pool Created", body = PoolInfo)))]
 async fn create_pool(Json(payload): Json<ganache_api::PoolConfig>) -> Json<ganache_api::PoolInfo> {
-    let pool = ZpoolService::create_pool(payload).await.unwrap();
-    if let Err(e) = GitService::commit_changes("system", "create", &format!("pool {}", pool.name)) {
-        warn!("Failed to commit pool creation: {}", e);
+    let pool = ZpoolService::create_pool(payload.clone()).await.unwrap();
+    if let Err(e) = ConfigDb::save_and_commit(
+        &format!("pool_{}.json", pool.name),
+        &payload,
+        "system",
+        "create",
+        &format!("pool {}", pool.name),
+    ) {
+        warn!("Failed to persist pool configuration: {}", e);
     }
     Json(pool)
 }
@@ -360,12 +374,16 @@ async fn list_datasets(
 async fn create_dataset(
     Json(payload): Json<DatasetConfig>,
 ) -> Result<Json<DatasetInfo>, (StatusCode, String)> {
-    match ZpoolService::create_dataset(payload).await {
+    match ZpoolService::create_dataset(payload.clone()).await {
         Ok(ds) => {
-            if let Err(e) =
-                GitService::commit_changes("system", "create", &format!("dataset {}", ds.name))
-            {
-                warn!("Failed to commit dataset creation: {}", e);
+            if let Err(e) = ConfigDb::save_and_commit(
+                &format!("dataset_{}.json", ds.name),
+                &payload,
+                "system",
+                "create",
+                &format!("dataset {}", ds.name),
+            ) {
+                warn!("Failed to persist dataset configuration: {}", e);
             }
             Ok(Json(ds))
         }
@@ -385,12 +403,13 @@ async fn destroy_dataset(Json(payload): Json<DeleteDatasetPayload>) -> Json<Stri
     ZpoolService::destroy_dataset(&payload.pool, &payload.name)
         .await
         .unwrap();
-    if let Err(e) = GitService::commit_changes(
+    if let Err(e) = ConfigDb::delete_and_commit(
+        &format!("dataset_{}.json", payload.name),
         "system",
         "delete",
         &format!("dataset {}/{}", payload.pool, payload.name),
     ) {
-        warn!("Failed to commit dataset deletion: {}", e);
+        warn!("Failed to delete dataset configuration: {}", e);
     }
     Json("Dataset destroyed".to_string())
 }

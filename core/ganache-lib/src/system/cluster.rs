@@ -405,6 +405,7 @@ mod tests {
             vip_address: "10.0.0.100".to_string(),
             network_interface: "eth0".to_string(),
             drbd_resource: "test_res".to_string(),
+            dev_mode: true,
         };
 
         let executor = MockCommandExecutor::new();

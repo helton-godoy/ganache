@@ -21,3 +21,35 @@ MONITOR: Heartbeat lost! Initiating Failover...
 Starting HA Promotion Sequence...
 Step 1: DRBD Promotion (Resource: r0)
 MONITOR: Failover failed: Failed to execute drbdadm ["primary", "r0", "--force"]
+ssh: connect to host 10.0.0.2 port 22: Connection timed out
+WARNING: SSH link check failed for 10.0.0.2. Proceeding for dev simulation context.
+WARNING: 'drbdadm' command not found. Assuming DEV environment. Skipping DRBD init.
+[2m2025-12-20T03:13:35.712577Z[0m [33m WARN[0m [2mganache_core[0m[2m:[0m Failed to commit cluster configuration change: No such file or directory (os error 2)
+ssh: connect to host 10.0.0.2 port 22: Connection timed out
+ssh: connect to host 10.0.0.2 port 22: Connection timed out
+WARNING: SSH link check failed for 10.0.0.2. Proceeding for dev simulation context.
+WARNING: SSH link check failed for 10.0.0.2. Proceeding for dev simulation context.
+WARNING: 'drbdadm' command not found. Assuming DEV environment. Skipping DRBD init.
+WARNING: 'drbdadm' command not found. Assuming DEV environment. Skipping DRBD init.
+[2m2025-12-20T03:13:37.722201Z[0m [33m WARN[0m [2mganache_core[0m[2m:[0m Failed to commit cluster configuration change: No such file or directory (os error 2)
+[2m2025-12-20T03:13:37.722310Z[0m [33m WARN[0m [2mganache_core[0m[2m:[0m Failed to commit cluster configuration change: No such file or directory (os error 2)
+MONITOR: Heartbeat lost! Initiating Failover...
+Starting HA Promotion Sequence...
+Step 1: DRBD Promotion (Resource: r0)
+MONITOR: Failover failed: Failed to execute drbdadm ["primary", "r0", "--force"]
+ssh: connect to host 10.0.0.2 port 22: Connection timed out
+WARNING: SSH link check failed for 10.0.0.2. Proceeding for dev simulation context.
+WARNING: 'drbdadm' command not found. Assuming DEV environment. Skipping DRBD init.
+[2m2025-12-20T03:15:36.200369Z[0m [33m WARN[0m [2mganache_core[0m[2m:[0m Failed to commit cluster configuration change: No such file or directory (os error 2)
+ssh: connect to host 10.0.0.2 port 22: Connection timed out
+ssh: connect to host 10.0.0.2 port 22: Connection timed out
+WARNING: SSH link check failed for 10.0.0.2. Proceeding for dev simulation context.
+WARNING: SSH link check failed for 10.0.0.2. Proceeding for dev simulation context.
+WARNING: 'drbdadm' command not found. Assuming DEV environment. Skipping DRBD init.
+WARNING: 'drbdadm' command not found. Assuming DEV environment. Skipping DRBD init.
+[2m2025-12-20T03:15:38.210094Z[0m [33m WARN[0m [2mganache_core[0m[2m:[0m Failed to commit cluster configuration change: No such file or directory (os error 2)
+[2m2025-12-20T03:15:38.210218Z[0m [33m WARN[0m [2mganache_core[0m[2m:[0m Failed to commit cluster configuration change: No such file or directory (os error 2)
+MONITOR: Heartbeat lost! Initiating Failover...
+Starting HA Promotion Sequence...
+Step 1: DRBD Promotion (Resource: r0)
+MONITOR: Failover failed: Failed to execute drbdadm ["primary", "r0", "--force"]

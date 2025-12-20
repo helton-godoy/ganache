@@ -1,13 +1,14 @@
 use std::process::Command;
-pub mod system;
 pub mod git;
+pub mod system;
 use anyhow::Result;
 use ganache_api::HardwareInfo;
+pub use git::GitService;
 pub use system::boot::BootService;
 pub use system::cluster::ClusterService;
+pub use system::config_db::ConfigDb;
 pub use system::memory::MemoryService;
 pub use system::zfs::ZpoolService;
-pub use git::GitService;
 
 pub struct HardwareService;
 

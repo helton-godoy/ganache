@@ -1,88 +1,115 @@
+use anyhow::{anyhow, Result};
+use lazy_static::lazy_static;
+use std::path::Path;
 use std::process::Command;
 use std::sync::Mutex;
-use anyhow::{Result, anyhow};
-use lazy_static::lazy_static;
 
 lazy_static! {
     static ref GIT_LOCK: Mutex<()> = Mutex::new(());
 }
 
+pub const DEFAULT_REPO_PATH: &str = "/etc/ganache";
+
 pub struct GitService;
 
 impl GitService {
-    /// Initialize git repository in /etc/ganache if not exists
+    /// Initialize git repository at the default path if not exists
     pub fn init_repo() -> Result<()> {
-        let repo_path = "/etc/ganache";
+        Self::init_repo_at(DEFAULT_REPO_PATH)
+    }
+
+    /// Initialize git repository at the specified path if not exists
+    pub fn init_repo_at<P: AsRef<Path>>(repo_path: P) -> Result<()> {
+        let path = repo_path.as_ref();
+
+        // Ensure directory exists
+        if !path.exists() {
+            std::fs::create_dir_all(path)?;
+        }
 
         // Check if .git exists
-        if !std::path::Path::new(&format!("{}/.git", repo_path)).exists() {
-            let output = Command::new("git")
-                .arg("init")
-                .current_dir(repo_path)
-                .output()?;
+        if !path.join(".git").exists() {
+            let output = Command::new("git").arg("init").current_dir(path).output()?;
 
             if !output.status.success() {
-                return Err(anyhow!("Failed to init git repo: {}", String::from_utf8_lossy(&output.stderr)));
+                return Err(anyhow!(
+                    "Failed to init git repo: {}",
+                    String::from_utf8_lossy(&output.stderr)
+                ));
             }
 
             // Set basic config
-            Self::set_config("user.name", "Ganache System")?;
-            Self::set_config("user.email", "system@ganache.local")?;
+            Self::set_config(path, "user.name", "Ganache System")?;
+            Self::set_config(path, "user.email", "system@ganache.local")?;
         }
 
         Ok(())
     }
 
     /// Set git config
-    fn set_config(key: &str, value: &str) -> Result<()> {
+    fn set_config<P: AsRef<Path>>(repo_path: P, key: &str, value: &str) -> Result<()> {
         let output = Command::new("git")
             .args(["config", key, value])
-            .current_dir("/etc/ganache")
+            .current_dir(repo_path)
             .output()?;
 
         if !output.status.success() {
-            return Err(anyhow!("Failed to set git config {}: {}", key, String::from_utf8_lossy(&output.stderr)));
+            return Err(anyhow!(
+                "Failed to set git config {}: {}",
+                key,
+                String::from_utf8_lossy(&output.stderr)
+            ));
         }
 
         Ok(())
     }
 
-    /// Commit changes with username and message
+    /// Commit changes using default repository path
     pub fn commit_changes(username: &str, action: &str, resource: &str) -> Result<()> {
+        Self::commit_changes_at(DEFAULT_REPO_PATH, username, action, resource)
+    }
+
+    /// Commit changes with username and message at specific path
+    pub fn commit_changes_at<P: AsRef<Path>>(
+        repo_path: P,
+        username: &str,
+        action: &str,
+        resource: &str,
+    ) -> Result<()> {
         let _lock = GIT_LOCK.lock().unwrap(); // Acquire lock for concurrent safety
+        let path = repo_path.as_ref();
 
         // Add all changes
         let add_output = Command::new("git")
             .args(["add", "."])
-            .current_dir("/etc/ganache")
+            .current_dir(path)
             .output()?;
 
         if !add_output.status.success() {
-            return Err(anyhow!("Failed to add files: {}", String::from_utf8_lossy(&add_output.stderr)));
+            // If it's not a git repo, or other error, return it
+            return Err(anyhow!(
+                "Failed to git add: {}",
+                String::from_utf8_lossy(&add_output.stderr)
+            ));
         }
 
-        // Check if there are changes to commit
-        let status_output = Command::new("git")
-            .args(["status", "--porcelain"])
-            .current_dir("/etc/ganache")
-            .output()?;
-
-        if status_output.stdout.is_empty() {
-            // No changes
-            return Ok(());
-        }
-
-        // Create commit message
-        let timestamp = chrono::Utc::now().to_rfc3339();
-        let message = format!("config: {} {} by {} at {}", action, resource, username, timestamp);
+        // Commit with message structure: "config: [action] [resource] by [username] at [timestamp]"
+        let timestamp = chrono::Local::now().format("%Y-%m-%dT%H:%M:%S").to_string();
+        let message = format!(
+            "config: {} {} by {} at {}",
+            action, resource, username, timestamp
+        );
 
         let commit_output = Command::new("git")
-            .args(["commit", "-m", &message])
-            .current_dir("/etc/ganache")
+            .args(["commit", "--allow-empty", "-m", &message])
+            .current_dir(path)
             .output()?;
 
         if !commit_output.status.success() {
-            return Err(anyhow!("Failed to commit: {}", String::from_utf8_lossy(&commit_output.stderr)));
+            return Err(anyhow!(
+                "Failed to commit: {}",
+                String::from_utf8_lossy(&commit_output.stderr)
+            ));
         }
 
         Ok(())
@@ -93,27 +120,65 @@ impl GitService {
 mod tests {
     use super::*;
     use std::fs;
-    use std::path::Path;
     use tempfile::TempDir;
 
     #[test]
-    fn test_init_repo() {
+    fn test_init_repo_creates_git_dir() {
         let temp_dir = TempDir::new().unwrap();
-        let repo_path = temp_dir.path().join("ganache");
-        fs::create_dir(&repo_path).unwrap();
+        let repo_path = temp_dir.path();
 
-        // Temporarily change the repo path for testing
-        // Note: In real implementation, this would be configurable
-        // For test, we'll assume /tmp/test-ganache
+        // Init repo
+        GitService::init_repo_at(repo_path).unwrap();
 
-        // Since we can't easily mock the path, we'll test the logic indirectly
-        assert!(true); // Placeholder
+        // Verify .git exists
+        assert!(repo_path.join(".git").exists());
+
+        // Verify config
+        let output = Command::new("git")
+            .args(["config", "user.name"])
+            .current_dir(repo_path)
+            .output()
+            .unwrap();
+
+        assert_eq!(
+            String::from_utf8_lossy(&output.stdout).trim(),
+            "Ganache System"
+        );
     }
 
     #[test]
-    fn test_commit_changes_no_changes() {
-        // Test committing when no changes
-        // Would require setting up a temp git repo
-        assert!(true); // Placeholder
+    fn test_commit_changes_flow() {
+        let temp_dir = TempDir::new().unwrap();
+        let repo_path = temp_dir.path();
+
+        // Init
+        GitService::init_repo_at(repo_path).unwrap();
+
+        // Create a file
+        fs::write(repo_path.join("test.conf"), "some config").unwrap();
+
+        // Commit
+        GitService::commit_changes_at(repo_path, "admin", "update", "test.conf").unwrap();
+
+        // Verify commit log
+        let output = Command::new("git")
+            .args(["log", "--oneline"])
+            .current_dir(repo_path)
+            .output()
+            .unwrap();
+
+        let log = String::from_utf8_lossy(&output.stdout);
+        assert!(log.contains("config: update test.conf by admin"));
+    }
+
+    #[test]
+    fn test_commit_no_changes_is_safe() {
+        let temp_dir = TempDir::new().unwrap();
+        let repo_path = temp_dir.path();
+        GitService::init_repo_at(repo_path).unwrap();
+
+        // Commit without changes should succeed (noop)
+        let result = GitService::commit_changes_at(repo_path, "admin", "noop", "nothing");
+        assert!(result.is_ok());
     }
 }

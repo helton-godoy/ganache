@@ -181,9 +181,9 @@ Completion note: "Refactoring GitService for testability and implementing real t
 
 ### Action Items
 
-1. [ ] **Implement Auth Context:** Update `main.rs` handlers to extract the actual username from the request credentials (or at least provide a valid mechanism beyond hardcoded "system" if auth is not yet available, but the task claims it is done). If Auth is technically blocked by another dependency, UNCHECK the task and clearly document the dependency.
-2. [ ] **Update File List:** Add all modified/created files to the story.
-3. [ ] **Commit Files:** Ensure all new modules are staged and committed.
+1. [x] **Implement Auth Context:** Update `main.rs` handlers to extract the actual username from the request credentials (or at least provide a valid mechanism beyond hardcoded "system" if auth is not yet available, but the task claims it is done). If Auth is technically blocked by another dependency, UNCHECK the task and clearly document the dependency.
+2. [x] **Update File List:** Add all modified/created files to the story.
+3. [x] **Commit Files:** Ensure all new modules are staged and committed.
 
 ### Validation Status
 

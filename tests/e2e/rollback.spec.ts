@@ -11,6 +11,14 @@ import { expect, test } from '@playwright/test';
  * - Validating visual feedback
  * - Verifying audit trail commit creation
  */
+
+// Centralized timeout constants for better maintainability
+// TODO: Consider moving to shared test config
+const TIMEOUTS = {
+    UI_ELEMENT: 10_000,        // Standard UI element visibility
+    ASYNC_OPERATION: 30_000,   // Long-running async operations (rollback, API calls)
+    NETWORK_REQUEST: 5_000,    // Network requests
+};
 test.describe('Configuration Rollback', () => {
     test.beforeEach(async ({ page }) => {
         // Navigate to the history page where rollback UI is located
@@ -25,7 +33,7 @@ test.describe('Configuration Rollback', () => {
         const rollbackButtons = page.locator('button:has-text("Rollback to this Point")');
 
         // Should have at least one rollback button
-        await expect(rollbackButtons.first()).toBeVisible({ timeout: 10000 });
+        await expect(rollbackButtons.first()).toBeVisible({ timeout: TIMEOUTS.UI_ELEMENT });
     });
 
     test('should open confirmation modal when rollback is clicked', async ({ page }) => {
@@ -88,7 +96,7 @@ test.describe('Configuration Rollback', () => {
         const commitCards = page.locator('.relative.group');
 
         // Wait for cards to load
-        await expect(commitCards.first()).toBeVisible({ timeout: 10000 });
+        await expect(commitCards.first()).toBeVisible({ timeout: TIMEOUTS.UI_ELEMENT });
         const initialCount = await commitCards.count();
 
         // Click rollback button
@@ -104,7 +112,7 @@ test.describe('Configuration Rollback', () => {
         await confirmButton.click();
 
         // Wait for success feedback and modal close
-        await expect(page.locator('text=Confirm Configuration Rollback')).not.toBeVisible({ timeout: 30000 });
+        await expect(page.locator('text=Confirm Configuration Rollback')).not.toBeVisible({ timeout: TIMEOUTS.ASYNC_OPERATION });
 
         // Wait for UI to refresh and show the new commit
         await page.waitForTimeout(2000);
@@ -115,7 +123,7 @@ test.describe('Configuration Rollback', () => {
 
         // Verify a new commit was created (audit trail)
         const newCards = page.locator('.relative.group');
-        await expect(newCards.first()).toBeVisible({ timeout: 10000 });
+        await expect(newCards.first()).toBeVisible({ timeout: TIMEOUTS.UI_ELEMENT });
         const newCount = await newCards.count();
 
         // Should have at least the same number of commits (rollback creates new commit)
@@ -142,7 +150,7 @@ test.describe('Configuration Rollback', () => {
 
         // One of these should happen: either we see "Rolling back..." or modal disappears quickly
         // We just verify no error occurs during this phase
-        await expect(modalGone).not.toBeVisible({ timeout: 30000 });
+        await expect(modalGone).not.toBeVisible({ timeout: TIMEOUTS.ASYNC_OPERATION });
     });
 
     test('should display rollback commit in timeline with audit message', async ({ page }) => {
@@ -158,7 +166,7 @@ test.describe('Configuration Rollback', () => {
         await confirmButton.click();
 
         // Wait for modal to close
-        await expect(page.locator('text=Confirm Configuration Rollback')).not.toBeVisible({ timeout: 30000 });
+        await expect(page.locator('text=Confirm Configuration Rollback')).not.toBeVisible({ timeout: TIMEOUTS.ASYNC_OPERATION });
 
         // Refresh the page to ensure we see the latest commits
         await page.reload();
@@ -166,12 +174,15 @@ test.describe('Configuration Rollback', () => {
 
         // Look for the rollback commit message
         // According to the backend, it should contain "Rollback to"
-        await expect(page.locator('text=/.*Rollback.*/i').first()).toBeVisible({ timeout: 10000 });
+        await expect(page.locator('text=/.*Rollback.*/i').first()).toBeVisible({ timeout: TIMEOUTS.UI_ELEMENT });
     });
 
     test('should handle rollback errors gracefully', async ({ page }) => {
-        // This test would require setting up a scenario where rollback fails
-        // For now, we'll just verify the error handling structure exists
+        // TODO: Implement proper error testing with API mocking
+        // Current limitation: Without a way to trigger backend errors in test env,
+        // this test mainly verifies the UI doesn't crash
+        // Future improvement: Use page.route() to intercept /api/v1/config/rollback
+        // and return error response to validate error toast display
 
         // Click rollback button
         const rollbackButton = page.locator('button:has-text("Rollback to this Point")').first();

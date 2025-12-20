@@ -554,11 +554,22 @@ async fn rollback_config(
     user: AuthenticatedUser,
     Json(payload): Json<RollbackRequest>,
 ) -> Result<Json<RollbackResponse>, (StatusCode, String)> {
-    match ganache_lib::GitService::rollback_config(
-        &payload.commit_id,
-        &user.username,
-        &payload.reason,
-    ) {
+    // Validate reason field
+    let reason = payload.reason.trim();
+    if reason.is_empty() {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            "Rollback reason is required and cannot be empty".to_string(),
+        ));
+    }
+    if reason.len() > 1000 {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            "Rollback reason is too long (max 1000 characters)".to_string(),
+        ));
+    }
+
+    match ganache_lib::GitService::rollback_config(&payload.commit_id, &user.username, reason) {
         Ok(rollback_commit_id) => {
             let message = format!(
                 "Configuration rolled back to commit {} by {}. Rollback commit: {}",

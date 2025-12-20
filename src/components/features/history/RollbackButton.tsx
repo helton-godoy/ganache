@@ -121,7 +121,7 @@ export function RollbackButton({ commit, onSuccess }: RollbackButtonProps) {
                         <ul className="text-xs text-slate-300 space-y-1 list-disc list-inside">
                             <li>This will restore all configuration files to their state at the selected commit</li>
                             <li>The current configuration will be preserved in a new "rollback commit"</li>
-                            <li>System services may be restarted based on the changes detected</li>
+                            <li>You may need to manually restart affected services after rollback</li>
                         </ul>
                     </div>
 

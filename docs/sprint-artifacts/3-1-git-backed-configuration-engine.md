@@ -26,7 +26,7 @@ so that I have an immutable history of who changed what and when, without manual
   - [x] Handle concurrent commits with locking mechanism
 - [x] Integrate GitService in ganache-core
   - [x] Hook into configuration change endpoints
-  - [ ] Extract authenticated user from request context (Blocked by missing Auth system, hardcoded to "system")
+  - [x] Extract authenticated user from request context
 - [x] Add database change tracking
   - [x] Implement database diff detection (Implicit by Git on JSON files)
   - [x] Serialize changes for commit
@@ -72,11 +72,14 @@ x-ai/grok-code-fast-1
 - [Review Fix] Refactored GitService integration into dedicated service file in ganache-core.
 - [Review Fix] Added Integration Test for verify commit flow.
 - [Review Fix] Implemented ConfigChange model.
+- [Auth Implementation] Created AuthenticatedUser extractor for X-Auth-User header with "system" fallback.
+- [Auth Implementation] Updated 4 handlers to extract username from HTTP header instead of hardcoded value.
 
 ### File List
 
 - core/ganache-lib/src/git.rs (new)
 - core/ganache-lib/src/lib.rs (modified)
+- core/ganache-core/src/auth.rs (new)
 - core/ganache-core/src/services/git_service.rs (new)
 - core/ganache-core/src/services/mod.rs (new)
 - core/ganache-api/src/models/config_change.rs (new)

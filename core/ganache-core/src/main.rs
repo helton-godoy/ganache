@@ -7,7 +7,9 @@ use ganache_api::{
 use ganache_lib::{
     BootService, ClusterService, ConfigDb, HardwareService, MemoryService, ZpoolService,
 };
+mod auth;
 mod services;
+use auth::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
 use services::{git_history_service::GitHistoryService, git_service::GitServiceIntegration};
 use std::net::SocketAddr;
@@ -175,7 +177,10 @@ async fn get_system_resources() -> Json<SystemResources> {
 }
 
 #[utoipa::path(post, path = "/api/v1/cluster/configure", request_body = ClusterConfig, responses((status = 200, description = "Cluster Configuration Started", body = ClusterStatus)))]
-async fn configure_cluster(Json(mut payload): Json<ClusterConfig>) -> Json<ClusterStatus> {
+async fn configure_cluster(
+    user: AuthenticatedUser,
+    Json(mut payload): Json<ClusterConfig>,
+) -> Json<ClusterStatus> {
     if std::env::var("GANACHE_DEV_MODE").is_ok() {
         info!("Enabling DEV MODE overrides via GANACHE_DEV_MODE environment variable");
         payload.dev_mode = true;
@@ -186,7 +191,7 @@ async fn configure_cluster(Json(mut payload): Json<ClusterConfig>) -> Json<Clust
     if let Err(e) = ConfigDb::save_and_commit(
         "cluster.json",
         &payload,
-        "system", // TODO: Extract from auth context when available
+        &user.username,
         "update",
         "cluster configuration",
     ) {
@@ -233,12 +238,15 @@ async fn get_drbd_devices() -> Json<Vec<ganache_api::StorageDevice>> {
 }
 
 #[utoipa::path(post, path = "/api/v1/storage/create-pool", request_body = PoolConfig, responses((status = 200, description = "Pool Created", body = PoolInfo)))]
-async fn create_pool(Json(payload): Json<ganache_api::PoolConfig>) -> Json<ganache_api::PoolInfo> {
+async fn create_pool(
+    user: AuthenticatedUser,
+    Json(payload): Json<ganache_api::PoolConfig>,
+) -> Json<ganache_api::PoolInfo> {
     let pool = ZpoolService::create_pool(payload.clone()).await.unwrap();
     if let Err(e) = ConfigDb::save_and_commit(
         &format!("pool_{}.json", pool.name),
         &payload,
-        "system", // TODO: Extract from auth context when available
+        &user.username,
         "create",
         &format!("pool {}", pool.name),
     ) {
@@ -399,6 +407,7 @@ async fn list_datasets(
 
 #[utoipa::path(post, path = "/api/v1/storage/datasets", request_body = DatasetConfig, responses((status = 200, description = "Dataset created", body = DatasetInfo)))]
 async fn create_dataset(
+    user: AuthenticatedUser,
     Json(payload): Json<DatasetConfig>,
 ) -> Result<Json<DatasetInfo>, (StatusCode, String)> {
     match ZpoolService::create_dataset(payload.clone()).await {
@@ -406,7 +415,7 @@ async fn create_dataset(
             if let Err(e) = ConfigDb::save_and_commit(
                 &format!("dataset_{}.json", ds.name),
                 &payload,
-                "system", // TODO: Extract from auth context when available
+                &user.username,
                 "create",
                 &format!("dataset {}", ds.name),
             ) {
@@ -426,13 +435,16 @@ async fn create_dataset(
 }
 
 #[utoipa::path(post, path = "/api/v1/storage/datasets/delete", request_body = DeleteDatasetPayload, responses((status = 200, description = "Dataset destroyed", body = String)))]
-async fn destroy_dataset(Json(payload): Json<DeleteDatasetPayload>) -> Json<String> {
+async fn destroy_dataset(
+    user: AuthenticatedUser,
+    Json(payload): Json<DeleteDatasetPayload>,
+) -> Json<String> {
     ZpoolService::destroy_dataset(&payload.pool, &payload.name)
         .await
         .unwrap();
     if let Err(e) = ConfigDb::delete_and_commit(
         &format!("dataset_{}.json", payload.name),
-        "system", // TODO: Extract from auth context when available
+        &user.username,
         "delete",
         &format!("dataset {}/{}", payload.pool, payload.name),
     ) {

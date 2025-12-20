@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
+pub mod models;
+pub use models::config_change::ConfigChange;
+
 #[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]
 pub struct HardwareInfo {
     /// True if a supported RAID controller is detected (e.g., PERC 6/i)

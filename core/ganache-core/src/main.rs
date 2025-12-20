@@ -4,9 +4,11 @@ use ganache_api::{
     DatasetInfo, HardwareInfo, PoolConfig, PoolInfo, StorageDevice, SystemResources,
 };
 use ganache_lib::{
-    BootService, ClusterService, ConfigDb, GitService, HardwareService, MemoryService, ZpoolService,
+    BootService, ClusterService, ConfigDb, HardwareService, MemoryService, ZpoolService,
 };
+mod services;
 use serde::{Deserialize, Serialize};
+use services::git_service::GitServiceIntegration;
 use std::net::SocketAddr;
 use tower_http::cors::CorsLayer;
 use tracing::{info, warn};
@@ -39,9 +41,7 @@ async fn main() {
     tracing_subscriber::fmt::init();
 
     // Initialize git repository for configuration versioning
-    if let Err(e) = GitService::init_repo() {
-        warn!("Failed to initialize git repository: {}", e);
-    }
+    GitServiceIntegration::init();
 
     #[derive(OpenApi)]
     #[openapi(
@@ -175,7 +175,7 @@ async fn configure_cluster(Json(mut payload): Json<ClusterConfig>) -> Json<Clust
     if let Err(e) = ConfigDb::save_and_commit(
         "cluster.json",
         &payload,
-        "system",
+        "system", // TODO: Extract from auth context when available
         "update",
         "cluster configuration",
     ) {
@@ -211,13 +211,7 @@ async fn get_boot_environments() -> Json<Vec<ganache_api::BootEnvironment>> {
 #[utoipa::path(post, path = "/api/v1/system/boot-environments/activate", request_body = BootEnvironmentActivation, responses((status = 200, description = "Boot Environment Activated", body = String)))]
 async fn activate_boot_environment(Json(payload): Json<BootEnvironmentActivation>) -> Json<String> {
     let result = BootService::activate_boot_environment(&payload.name).unwrap();
-    if let Err(e) = GitService::commit_changes(
-        "system",
-        "activate",
-        &format!("boot environment {}", payload.name),
-    ) {
-        warn!("Failed to commit boot environment activation: {}", e);
-    }
+    GitServiceIntegration::commit_system("activate", &format!("boot environment {}", payload.name));
     Json(result)
 }
 
@@ -233,7 +227,7 @@ async fn create_pool(Json(payload): Json<ganache_api::PoolConfig>) -> Json<ganac
     if let Err(e) = ConfigDb::save_and_commit(
         &format!("pool_{}.json", pool.name),
         &payload,
-        "system",
+        "system", // TODO: Extract from auth context when available
         "create",
         &format!("pool {}", pool.name),
     ) {
@@ -263,11 +257,7 @@ async fn promote_node() -> Result<Json<String>, (StatusCode, String)> {
     info!("Manual promotion trigger received");
     match ClusterService::promote_peer().await {
         Ok(_) => {
-            if let Err(e) =
-                GitService::commit_changes("system", "promote", "manual failover trigger")
-            {
-                warn!("Failed to commit system promotion: {}", e);
-            }
+            GitServiceIntegration::commit_system("promote", "manual failover trigger");
             Ok(Json("Node promoted successfully".to_string()))
         }
         Err(e) => {
@@ -379,7 +369,7 @@ async fn create_dataset(
             if let Err(e) = ConfigDb::save_and_commit(
                 &format!("dataset_{}.json", ds.name),
                 &payload,
-                "system",
+                "system", // TODO: Extract from auth context when available
                 "create",
                 &format!("dataset {}", ds.name),
             ) {
@@ -405,7 +395,7 @@ async fn destroy_dataset(Json(payload): Json<DeleteDatasetPayload>) -> Json<Stri
         .unwrap();
     if let Err(e) = ConfigDb::delete_and_commit(
         &format!("dataset_{}.json", payload.name),
-        "system",
+        "system", // TODO: Extract from auth context when available
         "delete",
         &format!("dataset {}/{}", payload.pool, payload.name),
     ) {

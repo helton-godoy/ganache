@@ -22,3 +22,88 @@ if [[ ! "$COMMIT_MSG" =~ $PATTERN ]]; then
 	echo "----------------------------------------------------------------"
 	exit 1
 fi
+
+# Extração do tipo da mensagem
+COMMIT_TYPE=$(echo "$COMMIT_MSG" | sed -n 's/^\([a-zA-Z]*\).*/\1/p')
+
+# Classificação das mudanças do commit
+COMMIT_CHANGES=$(git show --name-status HEAD 2>/dev/null)
+if [ -z "$COMMIT_CHANGES" ]; then
+    # Se não conseguir obter mudanças, pular validação
+    exit 0
+fi
+
+# Lógica simplificada de classificação baseada em git-classify.sh
+HAS_FEAT=false
+HAS_FIX=false
+HAS_DOCS=false
+HAS_CHORE=false
+HAS_TEST=false
+HAS_CI=false
+HAS_STYLE=false
+HAS_GOV=false
+
+while IFS= read -r line; do
+    FILE=$(echo "$line" | awk '{print $2}')
+    if [[ "$FILE" == *"src/"* ]] || [[ "$FILE" == *"core/"* ]]; then
+        HAS_FEAT=true
+    elif [[ "$FILE" == *"tests/"* ]] || [[ "$FILE" == *".spec.ts" ]]; then
+        HAS_TEST=true
+    elif [[ "$FILE" == *"docs/"* ]] || [[ "$FILE" == *".md" ]]; then
+        HAS_DOCS=true
+    elif [[ "$FILE" == *".github/"* ]]; then
+        HAS_CI=true
+    elif [[ "$FILE" == *".bmad/"* ]] || [[ "$FILE" == *".agent/"* ]]; then
+        HAS_GOV=true
+    elif [[ "$FILE" == *".css" ]] || [[ "$FILE" == *".scss" ]]; then
+        HAS_STYLE=true
+    else
+        HAS_CHORE=true
+    fi
+done <<< "$COMMIT_CHANGES"
+
+# Validação de consistência
+case "$COMMIT_TYPE" in
+    feat)
+        if [ "$HAS_FEAT" = false ]; then
+            echo "❌ [CONSISTÊNCIA] Tipo 'feat' esperado para mudanças em código fonte (src/, core/)."
+            exit 1
+        fi
+        ;;
+    fix)
+        if [ "$HAS_FEAT" = false ] && [ "$HAS_FIX" = false ]; then
+            echo "❌ [CONSISTÊNCIA] Tipo 'fix' esperado para correções em código."
+            exit 1
+        fi
+        ;;
+    docs)
+        if [ "$HAS_DOCS" = false ]; then
+            echo "❌ [CONSISTÊNCIA] Tipo 'docs' esperado para mudanças em documentação."
+            exit 1
+        fi
+        ;;
+    test)
+        if [ "$HAS_TEST" = false ]; then
+            echo "❌ [CONSISTÊNCIA] Tipo 'test' esperado para mudanças em testes."
+            exit 1
+        fi
+        ;;
+    ci)
+        if [ "$HAS_CI" = false ]; then
+            echo "❌ [CONSISTÊNCIA] Tipo 'ci' esperado para mudanças em CI/CD."
+            exit 1
+        fi
+        ;;
+    style)
+        if [ "$HAS_STYLE" = false ]; then
+            echo "❌ [CONSISTÊNCIA] Tipo 'style' esperado para mudanças em estilos."
+            exit 1
+        fi
+        ;;
+    chore)
+        # Chore é genérico, permitir
+        ;;
+    *)
+        # Outros tipos permitidos
+        ;;
+esac

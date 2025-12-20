@@ -13,4 +13,23 @@ if [[ ! "$CURRENT_BRANCH" =~ $PATTERN ]]; then
 	exit 1
 fi
 
+# Logging de classificações para auditoria
+echo "📊 [AUDITORIA] Registrando classificações de commits..."
+LOG_DIR=".bmad/logs"
+mkdir -p "$LOG_DIR"
+LOG_FILE="$LOG_DIR/push-classifications.log"
+
+# Para cada commit sendo pushado, classificar e logar
+while read local_ref local_sha remote_ref remote_sha; do
+    if [ "$local_sha" != "0000000000000000000000000000000000000000" ]; then
+        COMMIT_CHANGES=$(git show --name-status "$local_sha" 2>/dev/null)
+        # Lógica simplificada de contagem
+        FEAT_COUNT=$(echo "$COMMIT_CHANGES" | grep -c "src/\|core/")
+        TEST_COUNT=$(echo "$COMMIT_CHANGES" | grep -c "tests/")
+        DOCS_COUNT=$(echo "$COMMIT_CHANGES" | grep -c "docs/")
+        echo "$(date): $local_sha - FEAT:$FEAT_COUNT, TEST:$TEST_COUNT, DOCS:$DOCS_COUNT" >> "$LOG_FILE"
+    fi
+done
+
+echo "✅ [PUSH] Branch '$CURRENT_BRANCH' validada e auditada."
 exit 0

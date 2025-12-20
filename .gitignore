@@ -42,3 +42,6 @@ yarn-error.log*
 next-env.d.ts
 core/target/
 test-output*.log
+
+.gemini/
+gha-creds-*.json

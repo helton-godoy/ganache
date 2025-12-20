@@ -57,14 +57,25 @@ fi
 # 4. Qualidade Frontend (React/TS) - Só roda se houver arquivos .ts/tsx modificados
 # ----------------------------------------------------------------
 if echo "$STAGED_FILES" | grep -qE "\.(ts|tsx|js|jsx)$"; then
-    echo "⚛️  [4/4] Verificando Frontend (React)..."
-    
+    echo "⚛️  [4/5] Verificando Frontend (React)..."
+
     # Executa Type Check (rápido)
     if ! npm run type-check 2>/dev/null; then
         echo "❌ [REACT] Erros de tipagem TypeScript detectados."
         exit 1
     fi
 fi
+
+# 5. Classificação Semântica de Mudanças - Garante Atomicidade
+# ----------------------------------------------------------------
+# echo "📊 [5/5] Classificando Mudanças Semanticamente..."
+# if [ -f "scripts/git-classify.sh" ]; then
+#     ./scripts/git-classify.sh --hook --strict
+#     if [ $? -ne 0 ]; then
+#         echo "❌ [CLASSIFICAÇÃO] Commit não atômico ou categoria inválida."
+#         exit 1
+#     fi
+# fi
 
 echo "✅ [APROVADO] Commit liberado com sucesso."
 exit 0

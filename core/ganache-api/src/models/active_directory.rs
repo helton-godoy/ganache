@@ -58,3 +58,85 @@ pub struct AdStatus {
     /// AD service status: "active", "inactive", "error"
     pub service_status: String,
 }
+
+// ===== ACL Models (Story 4.2) =====
+
+/// Type of AD principal (user or group)
+///
+/// # Purpose
+/// Distinguishes between user and group principals in ACL management
+///
+/// @ref Story-4.2 - ACL principal type enum
+#[derive(Serialize, Deserialize, ToSchema, Clone, Debug, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum AdPrincipalType {
+    /// AD user account
+    User,
+    /// AD group
+    Group,
+}
+
+/// Active Directory user or group principal
+///
+/// # Purpose
+/// Represents an AD principal (user or group) for ACL assignment
+///
+/// @ref Story-4.2 - ACL principal model
+#[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]
+pub struct AdPrincipal {
+    /// Principal name (e.g., "john.doe" or "Finance-Group")
+    pub name: String,
+    /// Principal type (user or group)
+    pub principal_type: AdPrincipalType,
+    /// Full distinguished name (DN) from LDAP
+    pub distinguished_name: String,
+    /// Security Identifier (SID) for the principal
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sid: Option<String>,
+}
+
+/// Request to search/list AD users and groups
+///
+/// # Purpose
+/// Provides filtering and pagination for AD principal searches
+///
+/// @ref Story-4.2 - ACL search request model
+#[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]
+pub struct AdSearchRequest {
+    /// Search query (filters by name, case-insensitive substring match)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub query: Option<String>,
+    /// Filter by principal type (user, group, or both if None)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub principal_type: Option<AdPrincipalType>,
+    /// Page number (0-indexed, default: 0)
+    #[serde(default)]
+    pub page: u32,
+    /// Page size (default: 50, max: 1000)
+    #[serde(default = "default_page_size")]
+    pub page_size: u32,
+}
+
+fn default_page_size() -> u32 {
+    50
+}
+
+/// Response containing paginated AD principals
+///
+/// # Purpose
+/// Returns search results with pagination metadata
+///
+/// @ref Story-4.2 - ACL search response model
+#[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]
+pub struct AdSearchResponse {
+    /// List of matching principals
+    pub principals: Vec<AdPrincipal>,
+    /// Current page number (0-indexed)
+    pub page: u32,
+    /// Number of items per page
+    pub page_size: u32,
+    /// Total number of matching principals
+    pub total_count: u32,
+    /// Whether there are more pages available
+    pub has_more: bool,
+}

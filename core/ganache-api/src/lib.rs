@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
 pub mod models;
+pub use models::active_directory::{AdJoinRequest, AdJoinResponse, AdStatus};
 pub use models::config_change::ConfigChange;
 pub use models::rollback::{RollbackRequest, RollbackResponse};
 

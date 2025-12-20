@@ -1,12 +1,12 @@
 use axum::{http::StatusCode, routing::get, Json, Router};
 use ganache_api::{
     models::git_commit::{GitCommit, GitDiff},
-    BootEnvironment, BootEnvironmentActivation, ClusterConfig, ClusterStatus, DatasetConfig,
-    DatasetInfo, HardwareInfo, PoolConfig, PoolInfo, RollbackRequest, RollbackResponse,
-    StorageDevice, SystemResources,
+    AdJoinRequest, AdJoinResponse, AdStatus, BootEnvironment, BootEnvironmentActivation,
+    ClusterConfig, ClusterStatus, DatasetConfig, DatasetInfo, HardwareInfo, PoolConfig, PoolInfo,
+    RollbackRequest, RollbackResponse, StorageDevice, SystemResources,
 };
 use ganache_lib::{
-    BootService, ClusterService, ConfigDb, HardwareService, MemoryService, ZpoolService,
+    AdService, BootService, ClusterService, ConfigDb, HardwareService, MemoryService, ZpoolService,
 };
 mod auth;
 mod services;
@@ -69,7 +69,10 @@ async fn main() {
             heartbeat,
             get_config_history,
             get_commit_diff,
-            rollback_config
+            rollback_config,
+            join_ad_domain,
+            get_ad_status,
+            leave_ad_domain
         ),
         components(schemas(
             ganache_api::HardwareInfo,
@@ -90,6 +93,9 @@ async fn main() {
             ganache_api::models::git_commit::GitFileDiff,
             ganache_api::RollbackRequest,
             ganache_api::RollbackResponse,
+            ganache_api::AdJoinRequest,
+            ganache_api::AdJoinResponse,
+            ganache_api::AdStatus,
             SystemLog,
             DiskInfo
         ))
@@ -163,6 +169,9 @@ async fn main() {
             "/api/v1/config/rollback",
             axum::routing::post(rollback_config),
         )
+        .route("/api/v1/ad/join", axum::routing::post(join_ad_domain))
+        .route("/api/v1/ad/status", get(get_ad_status))
+        .route("/api/v1/ad/leave", axum::routing::post(leave_ad_domain))
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .layer(CorsLayer::permissive());
 
@@ -596,6 +605,128 @@ async fn rollback_config(
             } else {
                 Err((StatusCode::INTERNAL_SERVER_ERROR, msg))
             }
+        }
+    }
+}
+
+/// Join Active Directory domain
+///
+/// # Purpose
+/// Joins the Ganache appliance to an Active Directory domain using the provided credentials
+///
+/// # Arguments
+/// * `user` - Authenticated user making the request (extracted from X-Auth-User header)
+/// * `payload` - AD join request containing domain name, credentials, and DNS settings
+///
+/// # Returns
+/// JSON response with join status or error message
+///
+/// @ref Story-4.1 - API endpoint for AD domain join
+#[utoipa::path(
+    post,
+    path = "/api/v1/ad/join",
+    request_body = AdJoinRequest,
+    responses(
+        (status = 200, description = "Successfully joined domain", body = AdJoinResponse),
+        (status = 400, description = "Invalid request parameters"),
+        (status = 500, description = "Failed to join domain")
+    )
+)]
+async fn join_ad_domain(
+    user: AuthenticatedUser,
+    Json(payload): Json<AdJoinRequest>,
+) -> Result<Json<AdJoinResponse>, (StatusCode, String)> {
+    info!(
+        "AD join request for domain: {} by user: {}",
+        payload.domain_name, user.username
+    );
+
+    match AdService::join_domain(&payload) {
+        Ok(response) => {
+            // Persist AD configuration to Git
+            if let Err(e) = ConfigDb::save_and_commit(
+                "ad_config.json",
+                &payload,
+                &user.username,
+                "join",
+                &format!("Active Directory domain {}", payload.domain_name),
+            ) {
+                warn!("Failed to persist AD configuration: {}", e);
+            }
+
+            info!("Successfully joined domain: {}", payload.domain_name);
+            Ok(Json(response))
+        }
+        Err(e) => {
+            warn!("Failed to join AD domain: {}", e);
+            Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
+        }
+    }
+}
+
+/// Get Active Directory status
+///
+/// # Purpose
+/// Returns current AD join status including domain name and service state
+///
+/// @ref Story-4.1 - Query AD join status
+#[utoipa::path(
+    get,
+    path = "/api/v1/ad/status",
+    responses(
+        (status = 200, description = "AD status retrieved successfully", body = AdStatus)
+    )
+)]
+async fn get_ad_status() -> Json<AdStatus> {
+    let status = AdService::get_status().unwrap_or(AdStatus {
+        is_joined: false,
+        domain_name: None,
+        last_sync: None,
+        service_status: "inactive".to_string(),
+    });
+    Json(status)
+}
+
+/// Leave Active Directory domain
+///
+/// # Purpose
+/// Removes the Ganache appliance from the current AD domain
+///
+/// # Arguments
+/// * `user` - Authenticated user making the request
+///
+/// @ref Story-4.1 - Leave AD domain functionality
+#[utoipa::path(
+    post,
+    path = "/api/v1/ad/leave",
+    responses(
+        (status = 200, description = "Successfully left domain", body = AdJoinResponse),
+        (status = 500, description = "Failed to leave domain")
+    )
+)]
+async fn leave_ad_domain(
+    user: AuthenticatedUser,
+) -> Result<Json<AdJoinResponse>, (StatusCode, String)> {
+    info!("AD leave request by user: {}", user.username);
+
+    match AdService::leave_domain() {
+        Ok(response) => {
+            // Remove AD configuration from Git
+            if let Err(e) = ConfigDb::delete_and_commit(
+                "ad_config.json",
+                &user.username,
+                "leave",
+                "Active Directory domain",
+            ) {
+                warn!("Failed to delete AD configuration: {}", e);
+            }
+
+            info!("Successfully left AD domain");
+            Ok(Json(response))
+        }
+        Err(e) => {
+            warn!("Failed to leave AD domain: {}", e);
+            Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
         }
     }
 }

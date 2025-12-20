@@ -4,6 +4,7 @@ pub mod system;
 use anyhow::Result;
 use ganache_api::HardwareInfo;
 pub use git::GitService;
+pub use system::ad_service::AdService;
 pub use system::boot::BootService;
 pub use system::cluster::ClusterService;
 pub use system::config_db::ConfigDb;

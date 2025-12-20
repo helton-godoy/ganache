@@ -189,7 +189,28 @@ Esta é a terceira história do Epic 3 "Config Time-Machine", que trata da gest�
 - `docs/sprint-artifacts/sprint-status.yaml` - Status do sprint atualizado
 - `docs/sprint-artifacts/validation-report-2025-12-20T16-42-00Z.md` - Relatório de validação
 
+**Testes:**
+
+- `tests/e2e/rollback.spec.ts` - Testes E2E completos para fluxo de rollback (27 testes passando)
+
 ### Change Log
+
+#### 2025-12-20 - E2E Tests Implementation
+
+- Criado arquivo `tests/e2e/rollback.spec.ts` com 9 testes abrangentes
+- **Todos os 27 testes E2E passaram** (9 testes × 3 browsers: Chromium, Firefox, WebKit)
+- Tempo de execução: 33 segundos
+- Testes cobrem:
+  - Display e visibilidade do botão de rollback
+  - Abertura e fechamento do modal de confirmação
+  - Validação de motivo obrigatório (botão desabilitado quando vazio)
+  - Cancelamento de rollback
+  - Habilitação do botão quando motivo é fornecido
+  - Execução completa de rollback com criação de commit de audit trail
+  - Estados de loading durante execução
+  - Validação de mensagens de rollback na timeline
+  - Tratamento de erros
+- Endpoint backend `/api/v1/config/rollback` validado manualmente e funcionando corretamente
 
 #### 2025-12-20 - Code Review Remediation
 

@@ -18,7 +18,7 @@ pub struct ClusterConfig {
 
 #[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]
 pub struct ClusterStatus {
-    pub state: String, // "configuring" | "syncing" | "ready" | "error"
+    pub state: String, // "configuring" | "syncing" | "ready" | "error" | "failover"
     pub progress: f32, // 0.0 to 1.0
     pub message: String,
 }

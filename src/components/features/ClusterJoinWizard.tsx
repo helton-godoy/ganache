@@ -1,17 +1,32 @@
 "use client";
 
+import { useConfigureCluster, useGetClusterStatus } from "@/api/generated/default/default";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useConfigureCluster, useGetClusterStatus } from "@/api/generated/default/default";
 import { ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { TwinViewTopology } from "./TwinViewTopology";
 
 export function ClusterJoinWizard() {
     const [step, setStep] = useState(1);
     const [peerIp, setPeerIp] = useState("");
+
+    // Always fetch status to check if already configured
+    const { data: axiosResponse } = useGetClusterStatus({
+        query: {
+            refetchInterval: 2000,
+        }
+    });
+
+    const status = axiosResponse?.data;
+
+    useEffect(() => {
+        if (status?.state && ["syncing", "ready", "failover"].includes(status.state)) {
+            if (step !== 3) setStep(3);
+        }
+    }, [status?.state, step]);
 
     const joinMutation = useConfigureCluster({
         mutation: {
@@ -28,15 +43,6 @@ export function ClusterJoinWizard() {
             }
         }
     });
-
-    const { data: axiosResponse } = useGetClusterStatus({
-        query: {
-            refetchInterval: step === 3 ? 2000 : false,
-            enabled: step === 3,
-        }
-    });
-
-    const status = axiosResponse?.data;
 
     const handleJoin = () => {
         if (!peerIp) {

@@ -74,6 +74,27 @@ impl ZpoolService {
         })
     }
 
+    /// Importa um pool ZFS existente (Real)
+    pub async fn import_pool(pool_name: &str) -> Result<()> {
+        use std::process::Command;
+        println!("Executing 'zpool import -f {}'", pool_name);
+
+        let output = Command::new("zpool")
+            .args(&["import", "-f", pool_name])
+            .output()
+            .map_err(|e| anyhow::anyhow!("Failed to execute zpool command: {}", e))?;
+
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            // In CI/Dev environment without ZFS, we might want to log warning instead of failing
+            // But for "Real Implementation" we should error.
+            // However, to keep tests passing in this env, maybe we check if zpool exists?
+            // No, the instruction is "Fix real implementation".
+            anyhow::bail!("zpool import failed: {}", stderr);
+        }
+        Ok(())
+    }
+
     /// Lista os pools ZFS existentes
     pub async fn list_pools() -> Result<Vec<PoolInfo>> {
         // Mocking existing pools

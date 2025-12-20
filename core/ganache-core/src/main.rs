@@ -42,6 +42,7 @@ async fn main() {
             get_hardware_info,
             configure_cluster,
             get_cluster_status,
+            simulate_failure,
             get_system_resources,
             get_boot_environments,
             activate_boot_environment,
@@ -101,6 +102,10 @@ async fn main() {
         )
         .route("/api/v1/cluster/status", get(get_cluster_status))
         .route(
+            "/api/v1/cluster/simulate-failure",
+            axum::routing::post(simulate_failure),
+        )
+        .route(
             "/api/v1/system/boot-environments",
             get(get_boot_environments),
         )
@@ -155,6 +160,12 @@ async fn configure_cluster(Json(payload): Json<ClusterConfig>) -> Json<ClusterSt
 #[utoipa::path(get, path = "/api/v1/cluster/status", responses((status = 200, description = "Cluster Status successfully retrieved", body = ClusterStatus)))]
 async fn get_cluster_status() -> Json<ClusterStatus> {
     let status = ClusterService::get_status().await.unwrap();
+    Json(status)
+}
+
+#[utoipa::path(post, path = "/api/v1/cluster/simulate-failure", responses((status = 200, description = "Failure Simulated", body = ClusterStatus)))]
+async fn simulate_failure() -> Json<ClusterStatus> {
+    let status = ClusterService::simulate_failure().await.unwrap();
     Json(status)
 }
 

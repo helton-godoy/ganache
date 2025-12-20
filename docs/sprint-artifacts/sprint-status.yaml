@@ -63,7 +63,10 @@ development_status:
       name: "Dataset Management"
       status: "done"
       scrum_master_notes: "Verified by Dev Agent. All tests passed."
-  2-5-automated-failover-panic-logic: backlog
+    - id: "2.5"
+      name: "Automated Failover"
+      status: "done"
+      scrum_master_notes: "Adv. Review: FIXED mock in zfs.rs & cluster.rs. Auto-verified."
   epic-2-retrospective: optional
 
   # Epic 3: Config Time-Machine

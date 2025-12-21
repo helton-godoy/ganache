@@ -3,13 +3,14 @@ use ganache_api::{
     models::acl::{GetAclResponse, SetAclRequest, SetAclResponse},
     models::active_directory::{AdPrincipalType, AdSearchRequest, AdSearchResponse},
     models::git_commit::{GitCommit, GitDiff},
+    models::security::{EventFilter, SecurityAlert, SecurityEvent, SecurityMetrics},
     AdJoinRequest, AdJoinResponse, AdStatus, BootEnvironment, BootEnvironmentActivation,
     ClusterConfig, ClusterStatus, DatasetConfig, DatasetInfo, HardwareInfo, PoolConfig, PoolInfo,
     RollbackRequest, RollbackResponse, StorageDevice, SystemResources,
 };
 use ganache_lib::{
     AclService, AdService, BootService, ClusterService, ConfigDb, HardwareService, MemoryService,
-    ZpoolService,
+    SecurityEventService, SecurityMetricsService, ZpoolService,
 };
 mod auth;
 mod services;
@@ -50,6 +51,21 @@ async fn main() {
     // Initialize git repository for configuration versioning
     GitServiceIntegration::init();
 
+    // Initialize security event service and start event collection
+    if let Err(e) = SecurityEventService::init() {
+        warn!("Failed to initialize SecurityEventService: {}", e);
+    }
+    
+    // Periodic event collection (every 5 seconds)
+    tokio::spawn(async {
+        loop {
+            tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+            if let Err(e) = SecurityEventService::collect_system_events().await {
+                tracing::warn!("Failed to collect security events: {}", e);
+            }
+        }
+    });
+
     #[derive(OpenApi)]
     #[openapi(
         paths(
@@ -78,7 +94,10 @@ async fn main() {
             leave_ad_domain,
             search_ad_principals,
             get_acl,
-            set_acl
+            set_acl,
+            get_security_events,
+            get_security_metrics,
+            get_security_alerts
         ),
         components(schemas(
             ganache_api::HardwareInfo,
@@ -115,6 +134,13 @@ async fn main() {
             ganache_api::models::acl::AceInheritFlags,
             ganache_api::models::acl::AcePrincipal,
             ganache_api::models::acl::AceType,
+            ganache_api::models::security::SecurityEvent,
+            ganache_api::models::security::SecurityMetrics,
+            ganache_api::models::security::SecurityAlert,
+            ganache_api::models::security::SuspiciousIp,
+            ganache_api::models::security::EventFilter,
+            ganache_api::models::security::SecurityEventType,
+            ganache_api::models::security::SeverityLevel,
             SystemLog,
             DiskInfo
         ))
@@ -193,6 +219,9 @@ async fn main() {
         .route("/api/v1/ad/leave", axum::routing::post(leave_ad_domain))
         .route("/api/v1/acl/principals", get(search_ad_principals))
         .route("/api/v1/acl/{path}", get(get_acl).post(set_acl))
+        .route("/api/v1/security/events", get(get_security_events))
+        .route("/api/v1/security/metrics", get(get_security_metrics))
+        .route("/api/v1/security/alerts", get(get_security_alerts))
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .layer(CorsLayer::permissive());
 
@@ -899,5 +928,98 @@ async fn set_acl(
                 Err((StatusCode::INTERNAL_SERVER_ERROR, msg))
             }
         }
+    }
+}
+/// Get security events with filtering and pagination
+///
+/// # Purpose
+/// Returns security events from the in-memory cache with optional filters
+///
+/// @ref Story-5.4 - Security events endpoint
+#[utoipa::path(
+    get,
+    path = "/api/v1/security/events",
+    params(
+        ("event_type" = Option<String>, Query, description = "Filter by event type"),
+        ("user" = Option<String>, Query, description = "Filter by username"),
+        ("source_ip" = Option<String>, Query, description = "Filter by source IP"),
+        ("severity" = Option<String>, Query, description = "Filter by severity level"),
+        ("date_from" = Option<String>, Query, description = "Filter from date (ISO 8601)"),
+        ("date_to" = Option<String>, Query, description = "Filter to date (ISO 8601)"),
+        ("limit" = Option<u32>, Query, description = "Maximum results (default: 100, max: 1000)"),
+        ("offset" = Option<u32>, Query, description = "Pagination offset")
+    ),
+    responses(
+        (status = 200, description = "List of security events", body = Vec<SecurityEvent>),
+        (status = 400, description = "Invalid filter parameters")
+    )
+)]
+async fn get_security_events(
+    _user: AuthenticatedUser,
+    axum::extract::Query(params): axum::extract::Query<std::collections::HashMap<String, String>>,
+) -> Result<Json<Vec<SecurityEvent>>, (StatusCode, String)> {
+    // Parse query parameters into EventFilter
+    let filter = EventFilter {
+        event_type: None, // TODO: Parse from params
+        user: params.get("user").cloned(),
+        source_ip: params.get("source_ip").cloned(),
+        severity: None, // TODO: Parse from params
+        date_from: params.get("date_from").cloned(),
+        date_to: params.get("date_to").cloned(),
+        limit: params
+            .get("limit")
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(100)
+            .min(1000),
+        offset: params.get("offset").and_then(|s| s.parse().ok()).unwrap_or(0),
+    };
+
+    match SecurityEventService::get_events(&filter) {
+        Ok(events) => Ok(Json(events)),
+        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
+    }
+}
+
+/// Get aggregated security metrics
+///
+/// # Purpose
+/// Returns real-time security metrics including events/min, active users, suspicious IPs
+///
+/// @ref Story-5.4 - Security metrics endpoint
+#[utoipa::path(
+    get,
+    path = "/api/v1/security/metrics",
+    responses(
+        (status = 200, description = "Security metrics", body = SecurityMetrics)
+    )
+)]
+async fn get_security_metrics(
+    _user: AuthenticatedUser,
+) -> Result<Json<SecurityMetrics>, (StatusCode, String)> {
+    match SecurityMetricsService::calculate_metrics() {
+        Ok(metrics) => Ok(Json(metrics)),
+        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
+    }
+}
+
+/// Get active security alerts
+///
+/// # Purpose
+/// Returns list of active security alerts generated by the system
+///
+/// @ref Story-5.4 - Security alerts endpoint
+#[utoipa::path(
+    get,
+    path = "/api/v1/security/alerts",
+    responses(
+        (status = 200, description = "List of active security alerts", body = Vec<SecurityAlert>)
+    )
+)]
+async fn get_security_alerts(
+    _user: AuthenticatedUser,
+) -> Result<Json<Vec<SecurityAlert>>, (StatusCode, String)> {
+    match SecurityMetricsService::generate_alerts() {
+        Ok(alerts) => Ok(Json(alerts)),
+        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string( ))),
     }
 }

@@ -1,5 +1,5 @@
-use crate::models::security::{SecurityEvent, SecurityEventType, SeverityLevel, EventFilter};
-use anyhow::{Context, Result};
+use ganache_api::models::security::{SecurityEvent, SecurityEventType, SeverityLevel, EventFilter};
+use anyhow::Result;
 use chrono::Utc;
 use serde_json::json;
 use std::sync::{Arc, RwLock};

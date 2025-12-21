@@ -5,6 +5,7 @@ pub mod cluster;
 pub mod config_db;
 pub mod memory;
 pub mod security_event_service;
+pub mod security_metrics;
 pub mod zfs;
 pub use acl_service::AclService;
 pub use ad_service::AdService;

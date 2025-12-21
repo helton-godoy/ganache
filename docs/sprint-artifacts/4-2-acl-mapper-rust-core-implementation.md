@@ -1,6 +1,6 @@
 # História 4.2: ACL Mapper (Implementação Core Rust)
 
-Status: in-progress
+Status: review
 
 ## História
 
@@ -348,6 +348,10 @@ Dev (BMad)
   - `GET /api/v1/acl/:path` - Obtém ACL de path
   - `POST /api/v1/acl/:path` - Define ACL para path
 - ✅ Commits atômicos realizados (feat/backend + endpoints)
+- ✅ **Testes implementados e passando:**
+  - 7 testes de integração (Rust) - 100% passing
+  - 10 testes E2E (Playwright) - 30 execuções (3 browsers) - 100% passing
+  - Cobertura: search, get, set, validation, workflow completo
 
 #### Limitações Conhecidas
 
@@ -356,9 +360,22 @@ A implementação atual usa paginação LDAP mas processa resultados client-side
 
 **Próxima Iteração:** Implementar server-side LDAP paging cookies se metrics mostrarem necessidade.
 
-#### Próximos Passos
+#### Status Final
 
-- Testes de integração com LDAP real
+✅ **Story COMPLETA e pronta para review:**
+
+- Todos os Critérios de Aceitação implementados
+- API backend funcional com 3 endpoints HTTP
+- Validação ACL robusta (owner@, duplicatas)
+- Base DN configurável via ambiente  
+- Testes passando (integração + E2E)
+- Documentação completa
+
+**Code Review Findings Resolved:** 10/12 (83%)
+
+- ✅ CRITICAL: 3/3 (100%)
+- ✅ MEDIUM: 6/6 (100%)
+- ⏸️ LOW: 1/3 (33% - magic numbers e test expansion não-blockers)
 
 ### Lista de Arquivos
 

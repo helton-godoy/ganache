@@ -80,7 +80,7 @@ development_status:
   # Epic 4: Enterprise Integration
   epic-4: in-progress
   4-1-active-directory-domain-join-rust-middleware: done
-  4-2-acl-mapper-rust-core-implementation: in-progress
+  4-2-acl-mapper-rust-core-implementation: review
   4-3-acl-management-for-shares: backlog
   epic-4-retrospective: optional
 

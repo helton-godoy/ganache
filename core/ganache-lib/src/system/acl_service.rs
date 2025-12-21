@@ -424,12 +424,33 @@ impl AclService {
     }
 
     /// Validate ACL structure
+    ///
+    /// @ref Story-4.2 - ACL validation with owner@ requirement check
     fn validate_acl(acl: &Nfs4Acl) -> Result<()> {
         if acl.aces.is_empty() {
             return Err(anyhow!("ACL must contain at least one ACE"));
         }
 
-        // TODO: Add more validation (e.g., owner@ must exist, etc.)
+        // Validate that owner@ is present (required for NFSv4 ACLs)
+        let has_owner = acl
+            .aces
+            .iter()
+            .any(|ace| ace.principal == AcePrincipal::Owner);
+        if !has_owner {
+            return Err(anyhow!("ACL must contain an owner@ entry"));
+        }
+
+        // Validate no duplicate principals (same principal can't appear twice with same type)
+        let mut seen_principals = std::collections::HashSet::new();
+        for ace in &acl.aces {
+            let key = format!("{:?}:{:?}", ace.principal, ace.ace_type);
+            if !seen_principals.insert(key.clone()) {
+                return Err(anyhow!(
+                    "Duplicate ACE found for principal: {:?}",
+                    ace.principal
+                ));
+            }
+        }
 
         Ok(())
     }

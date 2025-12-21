@@ -1,6 +1,6 @@
 # História 4.2: ACL Mapper (Implementação Core Rust)
 
-Status: ready-for-dev
+Status: in-progress
 
 ## História
 
@@ -339,16 +339,26 @@ Dev (BMad)
   - Parser de ACLs NFSv4 (compact format)
   - Wrappers para nfs4xdr_getfacl e nfs4xdr_setfacl
   - Conversão bidirecional ACL ↔ string format
+  - Validação ACL completa (owner@ obrigatório, duplicatas)
 - ✅ Suporte a dev mode com dados mock
 - ✅ 11 testes unitários implementados e passando
-- ✅ Ordem correta de permissões NFSv4 validada (rwpxdDc CaARWos)
-- ✅ Commit atômico realizado (feat/backend)
+- ✅ Ordem correta de permissões NFSv4 validada (rwpxdDcCaARWos)
+- ✅ **Endpoints HTTP implementados:**
+  - `GET /api/v1/acl/principals` - Pesquisa AD principals
+  - `GET /api/v1/acl/:path` - Obtém ACL de path
+  - `POST /api/v1/acl/:path` - Define ACL para path
+- ✅ Commits atômicos realizados (feat/backend + endpoints)
+
+#### Limitações Conhecidas
+
+**Paginação LDAP (Client-Side):**
+A implementação atual usa paginação LDAP mas processa resultados client-side (busca todos, depois skip/take em Rust). Para ADs com 10k+ principals, isso pode ter impacto de performance. Implementação server-side LDAP requer parsing de LDAP paging cookies (RFC 2696) e é complexa. MVP funcional para ADs de tamanho médio (\u003c5000 usuários).
+
+**Próxima Iteração:** Implementar server-side LDAP paging cookies se metrics mostrarem necessidade.
 
 #### Próximos Passos
 
-- Implementação de endpoints HTTP no ganache-core
-- Testes de integração
-- Testes E2E com Playwright
+- Testes de integração com LDAP real
 
 ### Lista de Arquivos
 
@@ -356,11 +366,15 @@ Dev (BMad)
 
 - `core/ganache-api/src/models/acl.rs` - Modelos OpenAPI para ACLs NFSv4
 - `core/ganache-lib/src/system/acl_service.rs` - Serviço de gerenciamento de ACLs
+- `docs/notas/truenas-acl-reference.md` - Referência detalhada de ACLs do TrueNAS SCALE
+- `docs/notas/Chapter 8 Using ACLs and Attributes to Protect ZFS Files (Solaris ZFS Administration Guide).pdf` - Documentação ZFS ACL
 
 #### Modificados
 
 - `core/ganache-api/src/models/active_directory.rs` - Adicionados modelos de pesquisa AD
 - `core/ganache-api/src/models/mod.rs` - Registrado módulo acl
 - `core/ganache-lib/src/system/mod.rs` - Registrado AclService
+- `core/ganache-lib/src/lib.rs` - Exportado AclService
+- `core/ganache-core/src/main.rs` - Adicionados 3 endpoints HTTP ACL (search_ad_principals, get_acl, set_acl)
 - `docs/sprint-artifacts/sprint-status.yaml` - Status atualizado para in-progress
 - `docs/sprint-artifacts/4-2-acl-mapper-rust-core-implementation.md` - Tarefas marcadas como concluídas

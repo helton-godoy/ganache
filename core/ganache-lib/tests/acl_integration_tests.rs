@@ -87,7 +87,7 @@ fn test_set_acl_in_dev_mode() {
         }],
     };
 
-    let result = AclService::set_acl("/test/path", &acl);
+    let result = AclService::set_acl("/test/path", &acl, false);
     assert!(result.is_ok(), "Set ACL should succeed in dev mode");
 
     let response = result.unwrap();
@@ -111,7 +111,7 @@ fn test_acl_validation_requires_owner() {
         }],
     };
 
-    let result = AclService::set_acl("/test/path", &acl);
+    let result = AclService::set_acl("/test/path", &acl, false);
     assert!(result.is_err(), "Should fail validation without owner@");
     assert!(result.unwrap_err().to_string().contains("owner@ entry"));
 }
@@ -125,7 +125,7 @@ fn test_acl_validation_rejects_empty() {
         aces: vec![],
     };
 
-    let result = AclService::set_acl("/test/path", &acl);
+    let result = AclService::set_acl("/test/path", &acl, false);
     assert!(result.is_err(), "Should fail validation with empty ACL");
     assert!(result.unwrap_err().to_string().contains("at least one ACE"));
 }

@@ -1,10 +1,7 @@
 use axum::{http::StatusCode, routing::get, Json, Router};
 use ganache_api::{
-    models::acl::{
-        AceInheritFlags, AcePrincipal, AceType, GetAclResponse, Nfs4Ace, Nfs4Acl, Nfs4Permissions,
-        SetAclResponse,
-    },
-    models::active_directory::{AdPrincipal, AdPrincipalType, AdSearchRequest, AdSearchResponse},
+    models::acl::{GetAclResponse, SetAclRequest, SetAclResponse},
+    models::active_directory::{AdPrincipalType, AdSearchRequest, AdSearchResponse},
     models::git_commit::{GitCommit, GitDiff},
     AdJoinRequest, AdJoinResponse, AdStatus, BootEnvironment, BootEnvironmentActivation,
     ClusterConfig, ClusterStatus, DatasetConfig, DatasetInfo, HardwareInfo, PoolConfig, PoolInfo,
@@ -110,6 +107,7 @@ async fn main() {
             ganache_api::models::active_directory::AdPrincipal,
             ganache_api::models::active_directory::AdPrincipalType,
             ganache_api::models::acl::GetAclResponse,
+            ganache_api::models::acl::SetAclRequest,
             ganache_api::models::acl::SetAclResponse,
             ganache_api::models::acl::Nfs4Acl,
             ganache_api::models::acl::Nfs4Ace,
@@ -194,7 +192,7 @@ async fn main() {
         .route("/api/v1/ad/status", get(get_ad_status))
         .route("/api/v1/ad/leave", axum::routing::post(leave_ad_domain))
         .route("/api/v1/acl/principals", get(search_ad_principals))
-        .route("/api/v1/acl/:path", get(get_acl).post(set_acl))
+        .route("/api/v1/acl/{path}", get(get_acl).post(set_acl))
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .layer(CorsLayer::permissive());
 
@@ -847,13 +845,14 @@ async fn get_acl(
 /// Set ACL for a filesystem path
 ///
 /// @ref Story-4.2 - ACL modification endpoint
+/// @ref Story-4.3 - Added recursive support
 #[utoipa::path(
     post,
     path = "/api/v1/acl/{path}",
     params(
         ("path" = String, Path, description = "Filesystem path (URL-encoded)")
     ),
-    request_body = Nfs4Acl,
+    request_body = SetAclRequest,
     responses(
         (status = 200, description = "ACL set successfully", body = SetAclResponse),
         (status = 400, description = "Invalid ACL data"),
@@ -864,19 +863,25 @@ async fn get_acl(
 async fn set_acl(
     user: AuthenticatedUser,
     axum::extract::Path(path): axum::extract::Path<String>,
-    Json(payload): Json<Nfs4Acl>,
+    Json(payload): Json<ganache_api::models::acl::SetAclRequest>,
 ) -> Result<Json<SetAclResponse>, (StatusCode, String)> {
-    info!("Setting ACL for path: {} by user: {}", path, user.username);
+    info!(
+        "Setting ACL for path: {} by user: {} (recursive: {})",
+        path, user.username, payload.recursive
+    );
 
-    match AclService::set_acl(&path, &payload) {
+    // Ensure path in payload matches path parameter or just use parameter
+    // We'll use the path parameter as the source of truth for the target
+
+    match AclService::set_acl(&path, &payload.acl, payload.recursive) {
         Ok(response) => {
             let acl_file = format!("acl_{}.json", path.replace("/", "_"));
             if let Err(e) = ConfigDb::save_and_commit(
                 &acl_file,
-                &payload,
+                &payload.acl, // Save the ACL content
                 &user.username,
                 "update",
-                &format!("ACL for {}", path),
+                &format!("ACL for {} (recursive: {})", path, payload.recursive),
             ) {
                 warn!("Failed to persist ACL configuration: {}", e);
             }

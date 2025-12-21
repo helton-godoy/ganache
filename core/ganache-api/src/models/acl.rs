@@ -184,6 +184,9 @@ pub struct SetAclRequest {
     pub path: String,
     /// Complete ACL to apply
     pub acl: Nfs4Acl,
+    /// Apply recursively to all children
+    #[serde(default)]
+    pub recursive: bool,
 }
 
 /// Response after setting ACL

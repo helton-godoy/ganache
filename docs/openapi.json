@@ -122,7 +122,7 @@
       "post": {
         "tags": [],
         "summary": "Set ACL for a filesystem path",
-        "description": "@ref Story-4.2 - ACL modification endpoint",
+        "description": "@ref Story-4.2 - ACL modification endpoint\n@ref Story-4.3 - Added recursive support",
         "operationId": "set_acl",
         "parameters": [
           {
@@ -139,7 +139,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Nfs4Acl"
+                "$ref": "#/components/schemas/SetAclRequest"
               }
             }
           },
@@ -1650,6 +1650,28 @@
           "success": {
             "type": "boolean",
             "description": "Success status"
+          }
+        }
+      },
+      "SetAclRequest": {
+        "type": "object",
+        "description": "Request to set/modify ACL\n\n# Purpose\nApplies new ACL to a filesystem path\n\n@ref Story-4.2 - ACL set request",
+        "required": [
+          "path",
+          "acl"
+        ],
+        "properties": {
+          "acl": {
+            "$ref": "#/components/schemas/Nfs4Acl",
+            "description": "Complete ACL to apply"
+          },
+          "path": {
+            "type": "string",
+            "description": "Path to modify (relative to dataset root)"
+          },
+          "recursive": {
+            "type": "boolean",
+            "description": "Apply recursively to all children"
           }
         }
       },

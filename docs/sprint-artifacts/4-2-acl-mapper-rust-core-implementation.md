@@ -1,6 +1,6 @@
 # História 4.2: ACL Mapper (Implementação Core Rust)
 
-Status: review
+Status: done
 
 ## História
 

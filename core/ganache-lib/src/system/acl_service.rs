@@ -132,9 +132,9 @@ impl AclService {
     /// # Errors
     /// Returns error if validation fails or nfs4xdr_setfacl fails
     ///
-    /// @ref Story-4.2 - Implements ACL modification
-    pub fn set_acl(path: &str, acl: &Nfs4Acl) -> Result<SetAclResponse> {
-        tracing::info!("Setting ACL for path: {}", path);
+    /// @ref Story-4.3 - Implements recursive ACL modification
+    pub fn set_acl(path: &str, acl: &Nfs4Acl, recursive: bool) -> Result<SetAclResponse> {
+        tracing::info!("Setting ACL for path: {} (recursive: {})", path, recursive);
 
         // Validate ACL
         Self::validate_acl(acl)?;
@@ -143,7 +143,7 @@ impl AclService {
         if std::env::var("GANACHE_DEV_MODE").is_ok() {
             return Ok(SetAclResponse {
                 success: true,
-                message: format!("DEV MODE: ACL set for {}", path),
+                message: format!("DEV MODE: ACL set for {} (recursive: {})", path, recursive),
             });
         }
 
@@ -151,10 +151,13 @@ impl AclService {
         let acl_spec = Self::acl_to_spec(acl)?;
 
         // Execute nfs4xdr_setfacl
-        let output = Command::new("nfs4xdr_setfacl")
-            .arg("-s")
-            .arg(&acl_spec)
-            .arg(path)
+        let mut command = Command::new("nfs4xdr_setfacl");
+        if recursive {
+            command.arg("-R");
+        }
+        command.arg("-s").arg(&acl_spec).arg(path);
+
+        let output = command
             .output()
             .context("Failed to execute nfs4xdr_setfacl")?;
 
@@ -750,5 +753,37 @@ mod tests {
         let response = AclService::get_acl("/test/path", "compact").unwrap();
         assert_eq!(response.acl.path, "/test/path");
         assert!(!response.acl.aces.is_empty());
+    }
+    #[test]
+    fn test_set_acl_recursive_flag() {
+        // This test validates that we can call set_acl with recursive=true
+        // In a real environment, we'd mock Command, but here we just ensure it compiles
+        // and doesn't panic in dev mode mock path
+        std::env::set_var("GANACHE_DEV_MODE", "true");
+
+        let acl = Nfs4Acl {
+            path: "/test/path".to_string(),
+            aces: vec![Nfs4Ace {
+                index: Some(0),
+                principal: AcePrincipal::Owner,
+                permissions: Nfs4Permissions {
+                    read_data: true,
+                    write_data: true,
+                    ..Default::default()
+                },
+                inherit_flags: Default::default(),
+                ace_type: AceType::Allow,
+            }],
+        };
+
+        let result = AclService::set_acl("/test/path", &acl, true);
+        assert!(result.is_ok());
+        let response = result.unwrap();
+        assert!(response.message.contains("recursive: true"));
+
+        let result_non_rec = AclService::set_acl("/test/path", &acl, false);
+        assert!(result_non_rec.is_ok());
+        let response_non_rec = result_non_rec.unwrap();
+        assert!(response_non_rec.message.contains("recursive: false"));
     }
 }

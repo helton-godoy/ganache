@@ -31,6 +31,10 @@ import type {
 } from 'axios';
 
 import type {
+  AdJoinRequest,
+  AdJoinResponse,
+  AdSearchResponse,
+  AdStatus,
   BootEnvironment,
   BootEnvironmentActivation,
   ClusterConfig,
@@ -39,6 +43,8 @@ import type {
   DatasetInfo,
   DeleteDatasetPayload,
   DiskInfo,
+  GetAclParams,
+  GetAclResponse,
   GetConfigHistoryParams,
   GitCommit,
   GitDiff,
@@ -48,11 +54,504 @@ import type {
   PoolInfo,
   RollbackRequest,
   RollbackResponse,
+  SearchAdPrincipalsParams,
+  SetAclRequest,
+  SetAclResponse,
   StorageDevice,
   SystemLog,
   SystemResources
 } from '.././model';
 
+
+
+
+
+/**
+ * @ref Story-4.2 - Searchable AD principal listing endpoint
+ * @summary Search Active Directory for users and groups
+ */
+export const searchAdPrincipals = (
+    params?: SearchAdPrincipalsParams, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<AdSearchResponse>> => {
+    
+    
+    return axios.get(
+      `http://localhost:3005/api/v1/acl/principals`,{
+    ...options,
+        params: {...params, ...options?.params},}
+    );
+  }
+
+
+
+
+export const getSearchAdPrincipalsQueryKey = (params?: SearchAdPrincipalsParams,) => {
+    return [
+    `http://localhost:3005/api/v1/acl/principals`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getSearchAdPrincipalsQueryOptions = <TData = Awaited<ReturnType<typeof searchAdPrincipals>>, TError = AxiosError<void>>(params?: SearchAdPrincipalsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof searchAdPrincipals>>, TError, TData>>, axios?: AxiosRequestConfig}
+) => {
+
+const {query: queryOptions, axios: axiosOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getSearchAdPrincipalsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof searchAdPrincipals>>> = ({ signal }) => searchAdPrincipals(params, { signal, ...axiosOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof searchAdPrincipals>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type SearchAdPrincipalsQueryResult = NonNullable<Awaited<ReturnType<typeof searchAdPrincipals>>>
+export type SearchAdPrincipalsQueryError = AxiosError<void>
+
+
+export function useSearchAdPrincipals<TData = Awaited<ReturnType<typeof searchAdPrincipals>>, TError = AxiosError<void>>(
+ params: undefined |  SearchAdPrincipalsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof searchAdPrincipals>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof searchAdPrincipals>>,
+          TError,
+          Awaited<ReturnType<typeof searchAdPrincipals>>
+        > , 'initialData'
+      >, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSearchAdPrincipals<TData = Awaited<ReturnType<typeof searchAdPrincipals>>, TError = AxiosError<void>>(
+ params?: SearchAdPrincipalsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof searchAdPrincipals>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof searchAdPrincipals>>,
+          TError,
+          Awaited<ReturnType<typeof searchAdPrincipals>>
+        > , 'initialData'
+      >, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSearchAdPrincipals<TData = Awaited<ReturnType<typeof searchAdPrincipals>>, TError = AxiosError<void>>(
+ params?: SearchAdPrincipalsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof searchAdPrincipals>>, TError, TData>>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Search Active Directory for users and groups
+ */
+
+export function useSearchAdPrincipals<TData = Awaited<ReturnType<typeof searchAdPrincipals>>, TError = AxiosError<void>>(
+ params?: SearchAdPrincipalsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof searchAdPrincipals>>, TError, TData>>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getSearchAdPrincipalsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @ref Story-4.2 - ACL retrieval endpoint
+ * @summary Get ACL for a filesystem path
+ */
+export const getAcl = (
+    path: string,
+    params?: GetAclParams, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<GetAclResponse>> => {
+    
+    
+    return axios.get(
+      `http://localhost:3005/api/v1/acl/${path}`,{
+    ...options,
+        params: {...params, ...options?.params},}
+    );
+  }
+
+
+
+
+export const getGetAclQueryKey = (path?: string,
+    params?: GetAclParams,) => {
+    return [
+    `http://localhost:3005/api/v1/acl/${path}`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getGetAclQueryOptions = <TData = Awaited<ReturnType<typeof getAcl>>, TError = AxiosError<void>>(path: string,
+    params?: GetAclParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAcl>>, TError, TData>>, axios?: AxiosRequestConfig}
+) => {
+
+const {query: queryOptions, axios: axiosOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAclQueryKey(path,params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAcl>>> = ({ signal }) => getAcl(path,params, { signal, ...axiosOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(path), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAcl>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetAclQueryResult = NonNullable<Awaited<ReturnType<typeof getAcl>>>
+export type GetAclQueryError = AxiosError<void>
+
+
+export function useGetAcl<TData = Awaited<ReturnType<typeof getAcl>>, TError = AxiosError<void>>(
+ path: string,
+    params: undefined |  GetAclParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAcl>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAcl>>,
+          TError,
+          Awaited<ReturnType<typeof getAcl>>
+        > , 'initialData'
+      >, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAcl<TData = Awaited<ReturnType<typeof getAcl>>, TError = AxiosError<void>>(
+ path: string,
+    params?: GetAclParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAcl>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAcl>>,
+          TError,
+          Awaited<ReturnType<typeof getAcl>>
+        > , 'initialData'
+      >, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAcl<TData = Awaited<ReturnType<typeof getAcl>>, TError = AxiosError<void>>(
+ path: string,
+    params?: GetAclParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAcl>>, TError, TData>>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get ACL for a filesystem path
+ */
+
+export function useGetAcl<TData = Awaited<ReturnType<typeof getAcl>>, TError = AxiosError<void>>(
+ path: string,
+    params?: GetAclParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAcl>>, TError, TData>>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetAclQueryOptions(path,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @ref Story-4.2 - ACL modification endpoint
+@ref Story-4.3 - Added recursive support
+ * @summary Set ACL for a filesystem path
+ */
+export const setAcl = (
+    path: string,
+    setAclRequest: SetAclRequest, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<SetAclResponse>> => {
+    
+    
+    return axios.post(
+      `http://localhost:3005/api/v1/acl/${path}`,
+      setAclRequest,options
+    );
+  }
+
+
+
+export const getSetAclMutationOptions = <TError = AxiosError<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setAcl>>, TError,{path: string;data: SetAclRequest}, TContext>, axios?: AxiosRequestConfig}
+): UseMutationOptions<Awaited<ReturnType<typeof setAcl>>, TError,{path: string;data: SetAclRequest}, TContext> => {
+
+const mutationKey = ['setAcl'];
+const {mutation: mutationOptions, axios: axiosOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, axios: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setAcl>>, {path: string;data: SetAclRequest}> = (props) => {
+          const {path,data} = props ?? {};
+
+          return  setAcl(path,data,axiosOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SetAclMutationResult = NonNullable<Awaited<ReturnType<typeof setAcl>>>
+    export type SetAclMutationBody = SetAclRequest
+    export type SetAclMutationError = AxiosError<void>
+
+    /**
+ * @summary Set ACL for a filesystem path
+ */
+export const useSetAcl = <TError = AxiosError<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setAcl>>, TError,{path: string;data: SetAclRequest}, TContext>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof setAcl>>,
+        TError,
+        {path: string;data: SetAclRequest},
+        TContext
+      > => {
+
+      const mutationOptions = getSetAclMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
+ * # Purpose
+Joins the Ganache appliance to an Active Directory domain using the provided credentials
+
+# Arguments
+* `user` - Authenticated user making the request (extracted from X-Auth-User header)
+* `payload` - AD join request containing domain name, credentials, and DNS settings
+
+# Returns
+JSON response with join status or error message
+
+@ref Story-4.1 - API endpoint for AD domain join
+ * @summary Join Active Directory domain
+ */
+export const joinAdDomain = (
+    adJoinRequest: AdJoinRequest, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<AdJoinResponse>> => {
+    
+    
+    return axios.post(
+      `http://localhost:3005/api/v1/ad/join`,
+      adJoinRequest,options
+    );
+  }
+
+
+
+export const getJoinAdDomainMutationOptions = <TError = AxiosError<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof joinAdDomain>>, TError,{data: AdJoinRequest}, TContext>, axios?: AxiosRequestConfig}
+): UseMutationOptions<Awaited<ReturnType<typeof joinAdDomain>>, TError,{data: AdJoinRequest}, TContext> => {
+
+const mutationKey = ['joinAdDomain'];
+const {mutation: mutationOptions, axios: axiosOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, axios: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof joinAdDomain>>, {data: AdJoinRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  joinAdDomain(data,axiosOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type JoinAdDomainMutationResult = NonNullable<Awaited<ReturnType<typeof joinAdDomain>>>
+    export type JoinAdDomainMutationBody = AdJoinRequest
+    export type JoinAdDomainMutationError = AxiosError<void>
+
+    /**
+ * @summary Join Active Directory domain
+ */
+export const useJoinAdDomain = <TError = AxiosError<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof joinAdDomain>>, TError,{data: AdJoinRequest}, TContext>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof joinAdDomain>>,
+        TError,
+        {data: AdJoinRequest},
+        TContext
+      > => {
+
+      const mutationOptions = getJoinAdDomainMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
+ * # Purpose
+Removes the Ganache appliance from the current AD domain
+
+# Arguments
+* `user` - Authenticated user making the request
+
+@ref Story-4.1 - Leave AD domain functionality
+ * @summary Leave Active Directory domain
+ */
+export const leaveAdDomain = (
+     options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<AdJoinResponse>> => {
+    
+    
+    return axios.post(
+      `http://localhost:3005/api/v1/ad/leave`,undefined,options
+    );
+  }
+
+
+
+export const getLeaveAdDomainMutationOptions = <TError = AxiosError<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof leaveAdDomain>>, TError,void, TContext>, axios?: AxiosRequestConfig}
+): UseMutationOptions<Awaited<ReturnType<typeof leaveAdDomain>>, TError,void, TContext> => {
+
+const mutationKey = ['leaveAdDomain'];
+const {mutation: mutationOptions, axios: axiosOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, axios: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof leaveAdDomain>>, void> = () => {
+          
+
+          return  leaveAdDomain(axiosOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type LeaveAdDomainMutationResult = NonNullable<Awaited<ReturnType<typeof leaveAdDomain>>>
+    
+    export type LeaveAdDomainMutationError = AxiosError<void>
+
+    /**
+ * @summary Leave Active Directory domain
+ */
+export const useLeaveAdDomain = <TError = AxiosError<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof leaveAdDomain>>, TError,void, TContext>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof leaveAdDomain>>,
+        TError,
+        void,
+        TContext
+      > => {
+
+      const mutationOptions = getLeaveAdDomainMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
+ * # Purpose
+Returns current AD join status including domain name and service state
+
+@ref Story-4.1 - Query AD join status
+ * @summary Get Active Directory status
+ */
+export const getAdStatus = (
+     options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<AdStatus>> => {
+    
+    
+    return axios.get(
+      `http://localhost:3005/api/v1/ad/status`,options
+    );
+  }
+
+
+
+
+export const getGetAdStatusQueryKey = () => {
+    return [
+    `http://localhost:3005/api/v1/ad/status`
+    ] as const;
+    }
+
+    
+export const getGetAdStatusQueryOptions = <TData = Awaited<ReturnType<typeof getAdStatus>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAdStatus>>, TError, TData>>, axios?: AxiosRequestConfig}
+) => {
+
+const {query: queryOptions, axios: axiosOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdStatusQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdStatus>>> = ({ signal }) => getAdStatus({ signal, ...axiosOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdStatus>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetAdStatusQueryResult = NonNullable<Awaited<ReturnType<typeof getAdStatus>>>
+export type GetAdStatusQueryError = AxiosError<unknown>
+
+
+export function useGetAdStatus<TData = Awaited<ReturnType<typeof getAdStatus>>, TError = AxiosError<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAdStatus>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAdStatus>>,
+          TError,
+          Awaited<ReturnType<typeof getAdStatus>>
+        > , 'initialData'
+      >, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAdStatus<TData = Awaited<ReturnType<typeof getAdStatus>>, TError = AxiosError<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAdStatus>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAdStatus>>,
+          TError,
+          Awaited<ReturnType<typeof getAdStatus>>
+        > , 'initialData'
+      >, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAdStatus<TData = Awaited<ReturnType<typeof getAdStatus>>, TError = AxiosError<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAdStatus>>, TError, TData>>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Active Directory status
+ */
+
+export function useGetAdStatus<TData = Awaited<ReturnType<typeof getAdStatus>>, TError = AxiosError<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAdStatus>>, TError, TData>>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetAdStatusQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
 
 
 

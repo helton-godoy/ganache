@@ -14,6 +14,7 @@ use ganache_lib::{
 };
 mod auth;
 mod services;
+mod websocket_security;
 use auth::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
 use services::{git_history_service::GitHistoryService, git_service::GitServiceIntegration};
@@ -97,7 +98,8 @@ async fn main() {
             set_acl,
             get_security_events,
             get_security_metrics,
-            get_security_alerts
+            get_security_alerts,
+            websocket_security::ws_security_events
         ),
         components(schemas(
             ganache_api::HardwareInfo,
@@ -222,6 +224,7 @@ async fn main() {
         .route("/api/v1/security/events", get(get_security_events))
         .route("/api/v1/security/metrics", get(get_security_metrics))
         .route("/api/v1/security/alerts", get(get_security_alerts))
+        .route("/api/v1/security/events/ws", get(websocket_security::ws_security_events))
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .layer(CorsLayer::permissive());
 

@@ -1,12 +1,18 @@
 use axum::{http::StatusCode, routing::get, Json, Router};
 use ganache_api::{
+    models::acl::{
+        AceInheritFlags, AcePrincipal, AceType, GetAclResponse, Nfs4Ace, Nfs4Acl, Nfs4Permissions,
+        SetAclResponse,
+    },
+    models::active_directory::{AdPrincipal, AdPrincipalType, AdSearchRequest, AdSearchResponse},
     models::git_commit::{GitCommit, GitDiff},
     AdJoinRequest, AdJoinResponse, AdStatus, BootEnvironment, BootEnvironmentActivation,
     ClusterConfig, ClusterStatus, DatasetConfig, DatasetInfo, HardwareInfo, PoolConfig, PoolInfo,
     RollbackRequest, RollbackResponse, StorageDevice, SystemResources,
 };
 use ganache_lib::{
-    AdService, BootService, ClusterService, ConfigDb, HardwareService, MemoryService, ZpoolService,
+    AclService, AdService, BootService, ClusterService, ConfigDb, HardwareService, MemoryService,
+    ZpoolService,
 };
 mod auth;
 mod services;
@@ -72,7 +78,10 @@ async fn main() {
             rollback_config,
             join_ad_domain,
             get_ad_status,
-            leave_ad_domain
+            leave_ad_domain,
+            search_ad_principals,
+            get_acl,
+            set_acl
         ),
         components(schemas(
             ganache_api::HardwareInfo,
@@ -96,6 +105,18 @@ async fn main() {
             ganache_api::AdJoinRequest,
             ganache_api::AdJoinResponse,
             ganache_api::AdStatus,
+            ganache_api::models::active_directory::AdSearchRequest,
+            ganache_api::models::active_directory::AdSearchResponse,
+            ganache_api::models::active_directory::AdPrincipal,
+            ganache_api::models::active_directory::AdPrincipalType,
+            ganache_api::models::acl::GetAclResponse,
+            ganache_api::models::acl::SetAclResponse,
+            ganache_api::models::acl::Nfs4Acl,
+            ganache_api::models::acl::Nfs4Ace,
+            ganache_api::models::acl::Nfs4Permissions,
+            ganache_api::models::acl::AceInheritFlags,
+            ganache_api::models::acl::AcePrincipal,
+            ganache_api::models::acl::AceType,
             SystemLog,
             DiskInfo
         ))
@@ -172,6 +193,8 @@ async fn main() {
         .route("/api/v1/ad/join", axum::routing::post(join_ad_domain))
         .route("/api/v1/ad/status", get(get_ad_status))
         .route("/api/v1/ad/leave", axum::routing::post(leave_ad_domain))
+        .route("/api/v1/acl/principals", get(search_ad_principals))
+        .route("/api/v1/acl/:path", get(get_acl).post(set_acl))
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .layer(CorsLayer::permissive());
 
@@ -727,6 +750,149 @@ async fn leave_ad_domain(
         Err(e) => {
             warn!("Failed to leave AD domain: {}", e);
             Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
+        }
+    }
+}
+
+/// Search Active Directory for users and groups
+///
+/// @ref Story-4.2 - Searchable AD principal listing endpoint
+#[utoipa::path(
+    get,
+    path = "/api/v1/acl/principals",
+    params(
+        ("query" = Option<String>, Query, description = "Search query"),
+        ("principal_type" = Option<String>, Query, description = "Filter: 'user' or 'group'"),
+        ("page" = Option<u32>, Query, description = "Page number (default: 0)"),
+        ("page_size" = Option<u32>, Query, description = "Page size (default: 50, max: 1000)")
+    ),
+    responses(
+        (status = 200, description = "List of AD principals", body = AdSearchResponse),
+        (status = 500, description = "Failed to query AD")
+    )
+)]
+async fn search_ad_principals(
+    axum::extract::Query(params): axum::extract::Query<std::collections::HashMap<String, String>>,
+) -> Result<Json<AdSearchResponse>, (StatusCode, String)> {
+    let query = params.get("query").map(|s| s.clone());
+    let principal_type =
+        params
+            .get("principal_type")
+            .and_then(|s| match s.to_lowercase().as_str() {
+                "user" => Some(AdPrincipalType::User),
+                "group" => Some(AdPrincipalType::Group),
+                _ => None,
+            });
+    let page = params.get("page").and_then(|s| s.parse().ok()).unwrap_or(0);
+    let page_size = params
+        .get("page_size")
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(50);
+
+    let request = AdSearchRequest {
+        query,
+        principal_type,
+        page,
+        page_size,
+    };
+
+    match AclService::search_principals(&request) {
+        Ok(response) => Ok(Json(response)),
+        Err(e) => {
+            warn!("Failed to search AD principals: {}", e);
+            Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
+        }
+    }
+}
+
+/// Get ACL for a filesystem path
+///
+/// @ref Story-4.2 - ACL retrieval endpoint
+#[utoipa::path(
+    get,
+    path = "/api/v1/acl/{path}",
+    params(
+        ("path" = String, Path, description = "Filesystem path (URL-encoded)"),
+        ("format" = Option<String>, Query, description = "Output format: 'compact' or 'verbose' (default: compact)")
+    ),
+    responses(
+        (status = 200, description = "ACL retrieved successfully", body = GetAclResponse),
+        (status = 404, description = "Path not found"),
+        (status = 500, description = "Failed to get ACL")
+    )
+)]
+async fn get_acl(
+    axum::extract::Path(path): axum::extract::Path<String>,
+    axum::extract::Query(params): axum::extract::Query<std::collections::HashMap<String, String>>,
+) -> Result<Json<GetAclResponse>, (StatusCode, String)> {
+    let format = params
+        .get("format")
+        .map(|s| s.as_str())
+        .unwrap_or("compact");
+
+    match AclService::get_acl(&path, format) {
+        Ok(response) => Ok(Json(response)),
+        Err(e) => {
+            let msg = e.to_string();
+            if msg.contains("No such file") || msg.contains("does not exist") {
+                Err((StatusCode::NOT_FOUND, format!("Path not found: {}", path)))
+            } else {
+                warn!("Failed to get ACL for {}: {}", path, e);
+                Err((StatusCode::INTERNAL_SERVER_ERROR, msg))
+            }
+        }
+    }
+}
+
+/// Set ACL for a filesystem path
+///
+/// @ref Story-4.2 - ACL modification endpoint
+#[utoipa::path(
+    post,
+    path = "/api/v1/acl/{path}",
+    params(
+        ("path" = String, Path, description = "Filesystem path (URL-encoded)")
+    ),
+    request_body = Nfs4Acl,
+    responses(
+        (status = 200, description = "ACL set successfully", body = SetAclResponse),
+        (status = 400, description = "Invalid ACL data"),
+        (status = 404, description = "Path not found"),
+        (status = 500, description = "Failed to set ACL")
+    )
+)]
+async fn set_acl(
+    user: AuthenticatedUser,
+    axum::extract::Path(path): axum::extract::Path<String>,
+    Json(payload): Json<Nfs4Acl>,
+) -> Result<Json<SetAclResponse>, (StatusCode, String)> {
+    info!("Setting ACL for path: {} by user: {}", path, user.username);
+
+    match AclService::set_acl(&path, &payload) {
+        Ok(response) => {
+            let acl_file = format!("acl_{}.json", path.replace("/", "_"));
+            if let Err(e) = ConfigDb::save_and_commit(
+                &acl_file,
+                &payload,
+                &user.username,
+                "update",
+                &format!("ACL for {}", path),
+            ) {
+                warn!("Failed to persist ACL configuration: {}", e);
+            }
+
+            Ok(Json(response))
+        }
+        Err(e) => {
+            let msg = e.to_string();
+            if msg.contains("Invalid") || msg.contains("validation") {
+                Err((StatusCode::BAD_REQUEST, msg))
+            } else if msg.contains("No such file") || msg.contains("does not exist") {
+                Err((StatusCode::NOT_FOUND, format!("Path not found: {}", path)))
+            } else {
+                warn!("Failed to set ACL for {}: {}", path, e);
+                Err((StatusCode::INTERNAL_SERVER_ERROR, msg))
+            }
         }
     }
 }

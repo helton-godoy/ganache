@@ -219,13 +219,17 @@ impl AclService {
         // LDAP paging OID: 1.2.840.113556.1.4.319
         let offset = page * page_size;
 
+        // Get Base DN from environment or use empty (auto-detect from AD)
+        // In production, set LDAP_BASE_DN environment variable (e.g., "DC=corp,DC=example,DC=com")
+        let base_dn = std::env::var("LDAP_BASE_DN").unwrap_or_default();
+
         let output = Command::new("ldapsearch")
             .args(&[
                 "-LLL", // LDIF output without comments
                 "-E",
                 &format!("pr={}/noprompt", page_size), // Paging control (page size)
                 "-b",
-                "", // Base DN (will be filled from config)
+                &base_dn, // Base DN from environment
                 filter,
                 "cn",
                 "distinguishedName",

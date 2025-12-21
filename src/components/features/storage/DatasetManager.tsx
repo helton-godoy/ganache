@@ -5,9 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Trash2 } from "lucide-react";
+import { Loader2, Shield, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { AclEditor } from "../acl/AclEditor";
 import { CreateDatasetDialog } from "./CreateDatasetDialog";
 
 interface DatasetManagerProps {
@@ -22,6 +23,9 @@ export function DatasetManager({ poolName }: DatasetManagerProps) {
     // Delete Confirmation State
     const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
     const [confirmText, setConfirmText] = useState("");
+
+    // ACL Management State
+    const [aclDataset, setAclDataset] = useState<{ name: string; mountpoint: string } | null>(null);
 
     const handleDelete = () => {
         if (!deleteTarget) return;
@@ -82,17 +86,28 @@ export function DatasetManager({ poolName }: DatasetManagerProps) {
                                     <TableCell>{ds.available}</TableCell>
                                     <TableCell>{ds.compression}</TableCell>
                                     <TableCell className="text-right">
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                            onClick={() => {
-                                                setDeleteTarget(ds.name);
-                                                setConfirmText("");
-                                            }}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
+                                        <div className="flex items-center justify-end gap-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="h-8"
+                                                onClick={() => setAclDataset({ name: ds.name, mountpoint: ds.mountpoint })}
+                                            >
+                                                <Shield className="mr-1 h-3.5 w-3.5" />
+                                                Permissions
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                                onClick={() => {
+                                                    setDeleteTarget(ds.name);
+                                                    setConfirmText("");
+                                                }}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -131,6 +146,25 @@ export function DatasetManager({ poolName }: DatasetManagerProps) {
                             Delete Permanently
                         </Button>
                     </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* ACL Management Dialog */}
+            <Dialog open={!!aclDataset} onOpenChange={(open) => !open && setAclDataset(null)}>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>Manage Permissions</DialogTitle>
+                        <DialogDescription>
+                            Configure NFSv4 ACLs for dataset <strong>{aclDataset?.name}</strong>
+                            <br />
+                            Mountpoint: <code className="text-xs">{aclDataset?.mountpoint}</code>
+                        </DialogDescription>
+                    </DialogHeader>
+                    {aclDataset && (
+                        <div className="py-4">
+                            <AclEditor path={aclDataset.mountpoint} />
+                        </div>
+                    )}
                 </DialogContent>
             </Dialog>
         </Card>

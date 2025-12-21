@@ -1,58 +1,135 @@
 import { expect, test } from '@playwright/test';
 
-test.describe('ACL Management', () => {
-    // Use a mock path or reliable fixture
+test.describe('ACL Management - Real Integration Tests', () => {
     const TEST_PATH = 'tank1/test-dataset';
 
     test.beforeEach(async ({ page }) => {
-        // Since we don't have a full navigation structure yet for directly clicking into shares
-        // we assume we can navigate to a URL or that the AclEditor is mounted on a test page
-        // For this test, assuming the app has a route /acl-test/:path or similar, OR we mock the component.
-        // Given the difficulty of navigation in a prototype, we might just visit the dashboard and assume we can reach it.
-        // BUT, since we just created the component and haven't mounted it anywhere, we can't test it E2E yet!
-
-        // CRITICAL: We need to mount this component somewhere or have a page that uses it.
-        // I should check 'src/app' to see where to add a route for this, or if I should just test the API.
-        // The instructions say "Implement UI".
-        // I will assume for now we are testing the component in isolation via 'component testing' if configured,
-        // OR I need to add a temporary route.
-
-        // I'll add a temporary test page in src/app/test-acl/page.tsx provided Next.js App Router is used.
-        // Checking src/app structure...
+        // Navigate to ACL test page
         await page.goto('/test-acl');
+
+        // Wait for initial ACL load from backend
+        await page.waitForLoadState('networkidle');
     });
 
-    test('should load ACL editor and display ACEs', async ({ page }) => {
+    test('should load ACL editor and display initial ACEs from backend', async ({ page }) => {
+        // Verify page loaded
         await expect(page.getByText('Access Control List (ACL)')).toBeVisible();
-
-        // Verify initial load (assuming dev mode returns some mock data or empty)
-        // In dev mode, get_acl returns valid mock data if I recall correctly or just success.
-        // Let's just check for the Add Entry button
         await expect(page.getByText('Add Entry')).toBeVisible();
 
+        // Verify mock data from backend is displayed (dev mode returns owner@, group@, everyone@)
+        await expect(page.getByText('OWNER@')).toBeVisible();
+        await expect(page.getByText('GROUP@')).toBeVisible();
+        await expect(page.getByText('EVERYONE@')).toBeVisible();
+
+        // Verify table structure
+        await expect(page.getByRole('table')).toBeVisible();
+        await expect(page.getByText('Principal')).toBeVisible();
+        await expect(page.getByText('Permissions')).toBeVisible();
+    });
+
+    test('should add a new ACE and save to backend', async ({ page }) => {
         // Add an ACE
         await page.getByText('Add Entry').click();
         await expect(page.getByText('Edit Access Control Entry')).toBeVisible();
 
-        // Select type User
-        // Note: shadcn select puts the content in a portal, so we need to be careful with selectors
-        // This is tricky in E2E without proper test ids.
-        // For now we just verify the dialog opened.
+        // Dialog defaults to special identity "owner", change it to "everyone"
+        // (Shadcn Select requires clicking trigger then item)
+        const identitySelect = page.locator('label:has-text("Identity")').locator('..').getByRole('combobox');
+        await identitySelect.click();
+        await page.getByRole('option', { name: 'Everyone (everyone@)' }).click();
 
+        // Set type to Allow (should be default)
+        // Apply the ACE
         await page.getByRole('button', { name: 'Apply' }).click();
 
-        // Should see the new entry in the table (it defaults to everyone@ allow)
-        await expect(page.getByText('EVERYONE@', { exact: true })).toBeVisible();
+        // Verify ACE was added to the table
+        const aceRows = page.getByRole('table').getByRole('row');
+        await expect(aceRows).toHaveCount(5); // Header + 3 initial + 1 new
 
-        // Test Recursive Save
-        await page.getByLabel('Apply Recursively').check();
+        // Verify "Save Changes" button is enabled (isDirty = true)
+        await expect(page.getByRole('button', { name: 'Save Changes' })).toBeEnabled();
+
+        // Save changes (non-recursive)
         await page.getByRole('button', { name: 'Save Changes' }).click();
 
-        // Should see confirmation dialog
+        // Wait for API call to complete and verify success toast
+        await expect(page.getByText('ACL saved successfully')).toBeVisible({ timeout: 5000 });
+
+        // Verify "Save Changes" button is disabled again (isDirty = false)
+        await expect(page.getByRole('button', { name: 'Save Changes' })).toBeDisabled();
+    });
+
+    test('should apply ACL recursively with confirmation', async ({ page }) => {
+        // Enable recursive checkbox
+        await page.getByLabel('Apply Recursively').check();
+
+        // Make a change to enable save button
+        await page.getByText('Add Entry').click();
+        await page.getByRole('button', { name: 'Apply' }).click();
+
+        // Click Save Changes
+        await page.getByRole('button', { name: 'Save Changes' }).click();
+
+        // Should see recursive confirmation dialog
         await expect(page.getByText('Apply Permissions Recursively?')).toBeVisible();
+        await expect(page.getByText('This will apply ACL changes to all files and subdirectories')).toBeVisible();
+
+        // Confirm recursive application
         await page.getByRole('button', { name: 'Apply Recursively' }).click();
 
-        // Should see success toast (if sonner is working)
-        // await expect(page.getByText('ACL saved successfully')).toBeVisible();
+        // Verify success
+        await expect(page.getByText('ACL saved successfully')).toBeVisible({ timeout: 5000 });
+    });
+
+    test('should edit existing ACE and validate changes', async ({ page }) => {
+        // Click edit on first ACE (owner@)
+        const firstEditButton = page.getByRole('table').getByRole('row').nth(1).getByRole('button').first();
+        await firstEditButton.click();
+
+        // Verify edit dialog opened with existing ACE data
+        await expect(page.getByText('Edit Access Control Entry')).toBeVisible();
+
+        // Modify permissions - disable write
+        await page.getByText('Write Data').locator('..').getByRole('checkbox').uncheck();
+
+        // Apply changes
+        await page.getByRole('button', { name: 'Apply' }).click();
+
+        // Verify save button enabled
+        await expect(page.getByRole('button', { name: 'Save Changes' })).toBeEnabled();
+    });
+
+    test('should delete ACE and reflect changes', async ({ page }) => {
+        // Count initial rows
+        const initialRows = await page.getByRole('table').getByRole('row').count();
+
+        // Delete last ACE (everyone@)
+        const lastDeleteButton = page.getByRole('table').getByRole('row').last().getByRole('button', { name: '' }).last();
+        await lastDeleteButton.click();
+
+        // Verify row count decreased
+        const newRows = await page.getByRole('table').getByRole('row').count();
+        expect(newRows).toBe(initialRows - 1);
+
+        // Verify save button enabled
+        await expect(page.getByRole('button', { name: 'Save Changes' })).toBeEnabled();
+    });
+
+    test('should reset ACL to backend state', async ({ page }) => {
+        // Make a change
+        await page.getByText('Add Entry').click();
+        await page.getByRole('button', { name: 'Apply' }).click();
+
+        // Verify save button enabled
+        await expect(page.getByRole('button', { name: 'Save Changes' })).toBeEnabled();
+
+        // Click Reset
+        await page.getByRole('button', { name: 'Reset' }).click();
+
+        // Wait for refetch
+        await page.waitForLoadState('networkidle');
+
+        // Verify save button disabled (changes reverted)
+        await expect(page.getByRole('button', { name: 'Save Changes' })).toBeDisabled();
     });
 });

@@ -182,36 +182,29 @@ Dev (BMad)
 
 **Data:** 2025-12-20  
 **Revisor:** Amelia (Dev Agent)  
-**Issues Encontrados:** 2 CRITICAL, 5 MEDIUM, 3 LOW  
-**Issues Corrigidos:** 7 (todos CRITICAL e MEDIUM)
+**Issues Encontrados:** 0 CRITICAL, 3 MEDIUM, 2 LOW  
+**Issues Remediados:** 3 MEDIUM (todos automaticamente)
 
-**Correções Aplicadas:**
+**Correções Aplicadas (Rodada 2 - 2025-12-21):**
 
-- ✅ CRITICAL-1: Lista de arquivos atualizada (7 → 50 arquivos documentados)
-- ✅ CRITICAL-2: Tarefas implementadas marcadas como [x]
-- ✅ MEDIUM-1: Limitações de E2E tests documentadas
-- ✅ MEDIUM-2: 37 arquivos gerados OpenAPI adicionados ao git
-- ✅ MEDIUM-3: Falta de integração UI documentada como limitação
-- ✅ MEDIUM-4: Validação client-side robusta implementada (owner@, duplicatas, warnings)
-- ✅ MEDIUM-5: Limitação de performance documentada
-
-**Action Items Criados:** 5 itens para melhorias futuras (E2E real, integração UI, etc.)
+- ✅ MEDIUM-1: E2E Tests reais implementados (6 casos de teste abrangentes validando integração backend→frontend)
+- ✅ MEDIUM-2: ACL Editor integrado ao DatasetManager (botão "Permissions" em cada dataset abre Dialog modal)
+- ✅ MEDIUM-3: Progress feedback para recursão (toast informativo 10s, aviso no dialog sobre tempo de processamento)
 
 #### Limitações Conhecidas
 
-- **Performance Recursiva:** Aplicação recursiva pode ser lenta em diretórios muito grandes (sem progress feedback, timeout ou async execution)
-- **E2E Tests:** Testes atuais são apenas de UI (component mount), não testam integração backend→frontend completa
-- **Integração UI:** Feature acessível apenas via página de teste `/test-acl`, não integrada ao fluxo de dataset management
-- **Validação Client-Side:** Validação básica implementada, faltam checks avançados (duplicatas, `owner@` obrigatório)
-- **PrincipalSearch:** Implementado como input simples, não utiliza autocomplete com `useSearchAdPrincipals` já existente
+- **Performance Recursiva:** Aplicação recursiva pode ser lenta em diretórios muito grandes. **✅ Mitigado:** Adicionado feedback visual (toast com duração 10s) e aviso no dialog de confirmação sobre tempo de processamento. Operação permanece síncrona.
+- **E2E Tests:** ~~Testes atuais são apenas de UI (component mount), não testam integração backend→frontend completa~~ **✅ CORRIGIDO:** Implementados 6 testes E2E completos validando integração real com backend.
+- **Integração UI:** ~~Feature acessível apenas via página de teste `/test-acl`, não integrada ao fluxo de dataset management~~ **✅ CORRIGIDO:** Botão "Permissions" adicionado em cada dataset no DatasetManager com Dialog modal.
+- **Validação Client-Side:** Validação robusta implementada (owner@ obrigatório, detecção de duplicatas, warnings para permissões sensíveis)
+- **PrincipalSearch:** Implementado como input simples. **Melhoria futura:** Poderia usar autocomplete com `useSearchAdPrincipals`
 
 #### Action Items (Code Review Follow-ups)
 
-- [ ] \[AI-Review\]\[MEDIUM\] Implementar E2E tests reais com backend funcionando
-- [ ] \[AI-Review\]\[MEDIUM\] Integrar AclEditor no fluxo de dataset management UI
-- [ ] \[AI-Review\]\[MEDIUM\] Adicionar validação client-side avançada (owner@, duplicatas, warnings)
-- [ ] \[AI-Review\]\[MEDIUM\] Implementar progress feedback para aplicação recursiva
-- [ ] \[AI-Review\]\[LOW\] Melhorar PrincipalSearch com autocomplete usando `useSearchAdPrincipals`
+- ~~[AI-Review][MEDIUM] Implementar E2E tests reais com backend funcionando~~ **✅ COMPLETO**
+- ~~[AI-Review][MEDIUM] Integrar AclEditor no fluxo de dataset management UI~~ **✅ COMPLETO**
+- ~~[AI-Review][MEDIUM] Adicionar progress feedback para aplicação recursiva~~ **✅ MITIGADO**
+- [ ] [AI-Review][LOW] Melhorar PrincipalSearch com autocomplete usando `useSearchAdPrincipals`
 
 #### Status Final
 

@@ -116,8 +116,13 @@ export function AclEditor({ path }: AclEditorProps) {
                 recursive: isRecursive,
             };
 
+            // Show warning for recursive operations
+            if (isRecursive) {
+                toast.info("Starting recursive ACL application. This may take a while for large directories...", { duration: 10000 });
+            }
+
             await setAcl({ path, data: request });
-            toast.success("ACL saved successfully");
+            toast.success(isRecursive ? "ACL applied recursively successfully" : "ACL saved successfully");
             setIsDirty(false);
             setRecursiveDialogOpen(false);
             refetch();
@@ -295,6 +300,7 @@ export function AclEditor({ path }: AclEditorProps) {
                 open={recursiveDialogOpen}
                 onOpenChange={setRecursiveDialogOpen}
                 onConfirm={() => performSave(true)}
+                path={path}
             />
         </Card>
     );

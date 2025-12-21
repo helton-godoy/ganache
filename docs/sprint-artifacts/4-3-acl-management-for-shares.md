@@ -1,6 +1,6 @@
 # História 4.3: ACL Management for Shares
 
-Status: review
+Status: done
 
 ## História
 
@@ -208,9 +208,12 @@ Dev (BMad)
 
 #### Status Final
 
-- Implementação core completa (UI + Backend recursivo)
-- 16 testes unitários e integração passando
-- Limitações documentadas para correção futura
+- ✅ Implementação core completa (UI + Backend recursivo)
+- ✅ 16 testes unitários e integração passando
+- ✅ 6 testes E2E abrangentes validando integração completa
+- ✅ Integração com DatasetManager UI (botão Permissions em cada dataset)
+- ✅ Progress feedback para operações recursivas
+- ✅ Todos MEDIUM issues do code review remediados
 
 ### Lista de Arquivos
 

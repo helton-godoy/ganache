@@ -9,6 +9,165 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/api/v1/acl/principals": {
+      "get": {
+        "tags": [],
+        "summary": "Search Active Directory for users and groups",
+        "description": "@ref Story-4.2 - Searchable AD principal listing endpoint",
+        "operationId": "search_ad_principals",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "description": "Search query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "principal_type",
+            "in": "query",
+            "description": "Filter: 'user' or 'group'",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (default: 0)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "description": "Page size (default: 50, max: 1000)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of AD principals",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdSearchResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to query AD"
+          }
+        }
+      }
+    },
+    "/api/v1/acl/{path}": {
+      "get": {
+        "tags": [],
+        "summary": "Get ACL for a filesystem path",
+        "description": "@ref Story-4.2 - ACL retrieval endpoint",
+        "operationId": "get_acl",
+        "parameters": [
+          {
+            "name": "path",
+            "in": "path",
+            "description": "Filesystem path (URL-encoded)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "description": "Output format: 'compact' or 'verbose' (default: compact)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ACL retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAclResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Path not found"
+          },
+          "500": {
+            "description": "Failed to get ACL"
+          }
+        }
+      },
+      "post": {
+        "tags": [],
+        "summary": "Set ACL for a filesystem path",
+        "description": "@ref Story-4.2 - ACL modification endpoint",
+        "operationId": "set_acl",
+        "parameters": [
+          {
+            "name": "path",
+            "in": "path",
+            "description": "Filesystem path (URL-encoded)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Nfs4Acl"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "ACL set successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetAclResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ACL data"
+          },
+          "404": {
+            "description": "Path not found"
+          },
+          "500": {
+            "description": "Failed to set ACL"
+          }
+        }
+      }
+    },
     "/api/v1/ad/join": {
       "post": {
         "tags": [],
@@ -625,6 +784,111 @@
   },
   "components": {
     "schemas": {
+      "AceInheritFlags": {
+        "type": "object",
+        "description": "ACE inheritance flags\n\n# Purpose\nControls how ACEs are inherited by child files and directories\n\n@ref Story-4.2 - ACL inheritance spec",
+        "required": [
+          "file_inherit",
+          "dir_inherit",
+          "inherit_only",
+          "no_propagate",
+          "successful_access",
+          "failed_access",
+          "inherited"
+        ],
+        "properties": {
+          "dir_inherit": {
+            "type": "boolean",
+            "description": "Inherit to directories (d)"
+          },
+          "failed_access": {
+            "type": "boolean",
+            "description": "Audit failed access - CIFS only (F)"
+          },
+          "file_inherit": {
+            "type": "boolean",
+            "description": "Inherit to files (f)"
+          },
+          "inherit_only": {
+            "type": "boolean",
+            "description": "Apply only to future objects, not this directory (i)"
+          },
+          "inherited": {
+            "type": "boolean",
+            "description": "Indicates ACE was inherited (I)"
+          },
+          "no_propagate": {
+            "type": "boolean",
+            "description": "Inherit only to first level (n)"
+          },
+          "successful_access": {
+            "type": "boolean",
+            "description": "Audit successful access - CIFS only (S)"
+          }
+        }
+      },
+      "AcePrincipal": {
+        "oneOf": [
+          {
+            "type": "string",
+            "description": "File/directory owner (owner@)",
+            "enum": [
+              "owner"
+            ]
+          },
+          {
+            "type": "string",
+            "description": "Owning group (group@)",
+            "enum": [
+              "group"
+            ]
+          },
+          {
+            "type": "string",
+            "description": "Everyone else (everyone@)",
+            "enum": [
+              "everyone"
+            ]
+          },
+          {
+            "type": "object",
+            "description": "Specific user by name or UID (user:name)",
+            "required": [
+              "user"
+            ],
+            "properties": {
+              "user": {
+                "type": "string",
+                "description": "Specific user by name or UID (user:name)"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Specific group by name or GID (group:name)",
+            "required": [
+              "named_group"
+            ],
+            "properties": {
+              "named_group": {
+                "type": "string",
+                "description": "Specific group by name or GID (group:name)"
+              }
+            }
+          }
+        ],
+        "description": "ACE Principal (who receives the permission)\n\n# Purpose\nRepresents the principal (user/group) that an ACE applies to\n\n@ref Story-4.2 - ACE principal enum"
+      },
+      "AceType": {
+        "type": "string",
+        "description": "Type of Access Control Entry (ACE)\n\n# Purpose\nDefines the action type for an ACE (allow, deny, audit)\n\n@ref Story-4.2 - ACE type enum",
+        "enum": [
+          "allow",
+          "deny",
+          "audit",
+          "alarm"
+        ]
+      },
       "AdJoinRequest": {
         "type": "object",
         "description": "Request payload for joining an Active Directory domain\n\n# Purpose\nContains all necessary information to join a Ganache appliance to an AD domain\n\n@ref Story-4.1 - Active Directory domain join request model",
@@ -682,6 +946,122 @@
           "success": {
             "type": "boolean",
             "description": "Success status of the join operation"
+          }
+        }
+      },
+      "AdPrincipal": {
+        "type": "object",
+        "description": "Active Directory user or group principal\n\n# Purpose\nRepresents an AD principal (user or group) for ACL assignment\n\n@ref Story-4.2 - ACL principal model",
+        "required": [
+          "name",
+          "principal_type",
+          "distinguished_name"
+        ],
+        "properties": {
+          "distinguished_name": {
+            "type": "string",
+            "description": "Full distinguished name (DN) from LDAP"
+          },
+          "name": {
+            "type": "string",
+            "description": "Principal name (e.g., \"john.doe\" or \"Finance-Group\")"
+          },
+          "principal_type": {
+            "$ref": "#/components/schemas/AdPrincipalType",
+            "description": "Principal type (user or group)"
+          },
+          "sid": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Security Identifier (SID) for the principal"
+          }
+        }
+      },
+      "AdPrincipalType": {
+        "type": "string",
+        "description": "Type of AD principal (user or group)\n\n# Purpose\nDistinguishes between user and group principals in ACL management\n\n@ref Story-4.2 - ACL principal type enum",
+        "enum": [
+          "user",
+          "group"
+        ]
+      },
+      "AdSearchRequest": {
+        "type": "object",
+        "description": "Request to search/list AD users and groups\n\n# Purpose\nProvides filtering and pagination for AD principal searches\n\n@ref Story-4.2 - ACL search request model",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Page number (0-indexed, default: 0)",
+            "minimum": 0
+          },
+          "page_size": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Page size (default: 50, max: 1000)",
+            "minimum": 0
+          },
+          "principal_type": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AdPrincipalType",
+                "description": "Filter by principal type (user, group, or both if None)"
+              }
+            ]
+          },
+          "query": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Search query (filters by name, case-insensitive substring match)"
+          }
+        }
+      },
+      "AdSearchResponse": {
+        "type": "object",
+        "description": "Response containing paginated AD principals\n\n# Purpose\nReturns search results with pagination metadata\n\n@ref Story-4.2 - ACL search response model",
+        "required": [
+          "principals",
+          "page",
+          "page_size",
+          "total_count",
+          "has_more"
+        ],
+        "properties": {
+          "has_more": {
+            "type": "boolean",
+            "description": "Whether there are more pages available"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Current page number (0-indexed)",
+            "minimum": 0
+          },
+          "page_size": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of items per page",
+            "minimum": 0
+          },
+          "principals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdPrincipal"
+            },
+            "description": "List of matching principals"
+          },
+          "total_count": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Total number of matching principals",
+            "minimum": 0
           }
         }
       },
@@ -913,6 +1293,26 @@
           }
         }
       },
+      "GetAclResponse": {
+        "type": "object",
+        "description": "Response containing ACL information\n\n# Purpose\nReturns parsed ACL data in structured format\n\n@ref Story-4.2 - ACL get response",
+        "required": [
+          "acl"
+        ],
+        "properties": {
+          "acl": {
+            "$ref": "#/components/schemas/Nfs4Acl",
+            "description": "Structured ACL data"
+          },
+          "raw_output": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Raw output from nfs4xdr_getfacl (for debugging)"
+          }
+        }
+      },
       "GitCommit": {
         "type": "object",
         "description": "GitCommit represents a single commit in the configuration repository\n\n# Purpose\nProvides commit metadata for the configuration timeline UI\n\n@ref Story-3.2 - Implements GitCommit model for configuration audit timeline",
@@ -1020,6 +1420,142 @@
           }
         }
       },
+      "Nfs4Ace": {
+        "type": "object",
+        "description": "Single Access Control Entry (ACE)\n\n# Purpose\nRepresents one permission rule in an NFSv4 ACL\n\n@ref Story-4.2 - NFSv4 ACE implementation",
+        "required": [
+          "principal",
+          "permissions",
+          "inherit_flags",
+          "ace_type"
+        ],
+        "properties": {
+          "ace_type": {
+            "$ref": "#/components/schemas/AceType",
+            "description": "Type of ACE (allow/deny/audit)"
+          },
+          "index": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "description": "Index in the ACL list (optional, for parsing verbose format)",
+            "minimum": 0
+          },
+          "inherit_flags": {
+            "$ref": "#/components/schemas/AceInheritFlags",
+            "description": "Inheritance flags"
+          },
+          "permissions": {
+            "$ref": "#/components/schemas/Nfs4Permissions",
+            "description": "Permissions granted or denied"
+          },
+          "principal": {
+            "$ref": "#/components/schemas/AcePrincipal",
+            "description": "Principal this ACE applies to"
+          }
+        }
+      },
+      "Nfs4Acl": {
+        "type": "object",
+        "description": "Complete ACL for a file or directory\n\n# Purpose\nRepresents the full ACL (list of ACEs) for a filesystem object\n\n@ref Story-4.2 - NFSv4 ACL container",
+        "required": [
+          "path",
+          "aces"
+        ],
+        "properties": {
+          "aces": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Nfs4Ace"
+            },
+            "description": "Ordered list of ACEs"
+          },
+          "path": {
+            "type": "string",
+            "description": "Path to the file/directory"
+          }
+        }
+      },
+      "Nfs4Permissions": {
+        "type": "object",
+        "description": "NFSv4 ACL permissions bitflags\n\n# Purpose\nRepresents the 14 standard NFSv4 permissions as a compact bitmask\n\n@ref Story-4.2 - NFSv4 permissions spec",
+        "required": [
+          "read_data",
+          "write_data",
+          "append_data",
+          "execute",
+          "delete",
+          "delete_child",
+          "read_acl",
+          "write_acl",
+          "read_attributes",
+          "write_attributes",
+          "read_named_attrs",
+          "write_named_attrs",
+          "write_owner",
+          "synchronize"
+        ],
+        "properties": {
+          "append_data": {
+            "type": "boolean",
+            "description": "Append to file or create subdirectories (p)"
+          },
+          "delete": {
+            "type": "boolean",
+            "description": "Delete file (d)"
+          },
+          "delete_child": {
+            "type": "boolean",
+            "description": "Delete child files in directory (D)"
+          },
+          "execute": {
+            "type": "boolean",
+            "description": "Execute file or traverse directory (x)"
+          },
+          "read_acl": {
+            "type": "boolean",
+            "description": "Read ACL (c)"
+          },
+          "read_attributes": {
+            "type": "boolean",
+            "description": "Read basic attributes (a)"
+          },
+          "read_data": {
+            "type": "boolean",
+            "description": "Read file data or list directory contents (r)"
+          },
+          "read_named_attrs": {
+            "type": "boolean",
+            "description": "Read extended attributes (R)"
+          },
+          "synchronize": {
+            "type": "boolean",
+            "description": "Synchronize access (s) - placeholder"
+          },
+          "write_acl": {
+            "type": "boolean",
+            "description": "Write/modify ACL (C)"
+          },
+          "write_attributes": {
+            "type": "boolean",
+            "description": "Write/modify attributes (A)"
+          },
+          "write_data": {
+            "type": "boolean",
+            "description": "Write file data or create files in directory (w)"
+          },
+          "write_named_attrs": {
+            "type": "boolean",
+            "description": "Write extended attributes (W)"
+          },
+          "write_owner": {
+            "type": "boolean",
+            "description": "Change ownership (o)"
+          }
+        }
+      },
       "PoolConfig": {
         "type": "object",
         "required": [
@@ -1110,6 +1646,24 @@
           "rollback_commit_id": {
             "type": "string",
             "description": "Rollback commit ID"
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Success status"
+          }
+        }
+      },
+      "SetAclResponse": {
+        "type": "object",
+        "description": "Response after setting ACL\n\n# Purpose\nConfirms ACL modification success\n\n@ref Story-4.2 - ACL set response",
+        "required": [
+          "success",
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Status message"
           },
           "success": {
             "type": "boolean",

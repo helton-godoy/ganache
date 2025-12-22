@@ -27,20 +27,20 @@ O projeto GANACHE está atualmente **100% compliant** com os requisitos do ecosi
 
 ### **Core Components Status**
 
-| Component | Status | Health | Notes |
-|-----------|--------|--------|-------|
-| **Next.js App Router** | ✅ Active | 🟢 Stable | `src/app` correctly structured |
-| **tRPC API** | ✅ Active | 🟢 Stable | Routers in `src/server/api` |
-| **TypeScript** | ✅ Active | 🟢 Strict | `tsconfig.json` valid |
-| **Linting** | ✅ Active | 🟢 Passing | ESLint configured |
+| Component              | Status    | Health      | Notes                          |
+|------------------------|-----------|-------------|--------------------------------|
+| **Next.js App Router** | ✅ Active | 🟢 Stable   | `src/app` correctly structured |
+| **tRPC API**           | ✅ Active | 🟢 Stable   | Routers in `src/server/api`    |
+| **TypeScript**         | ✅ Active | 🟢 Strict   | `tsconfig.json` valid          |
+| **Linting**            | ✅ Active | 🟢 Passing  | ESLint configured              |
 
 ### **Documentation Compliance**
 
-| Requirement | Status | Evidence | Priority |
-|-------------|--------|----------|----------|
-| **requires_api_scan** | ✅ Completo | tRPC Routers defined | Alta |
-| **requires_data_models** | ✅ Completo | Zod Schemas (tRPC) | Alta |
-| **requires_deployment_config** | ✅ Completo | package.json + next.config | Alta |
+| Requirement                    | Status      | Evidence                   | Priority |
+|--------------------------------|-------------|----------------------------|----------|
+| **requires_api_scan**          | ✅ Completo | tRPC Routers defined       | Alta     |
+| **requires_data_models**       | ✅ Completo | Zod Schemas (tRPC)         | Alta     |
+| **requires_deployment_config** | ✅ Completo | package.json + next.config | Alta     |
 
 ### **Key File Patterns Validados**
 

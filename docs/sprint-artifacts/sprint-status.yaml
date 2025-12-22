@@ -85,11 +85,11 @@ development_status:
   epic-4-retrospective: completed
 
   # Epic 5: Compliance Shield
-  epic-5: backlog
+  epic-5: in-progress
   5-1-deep-ssh-audit-logging: backlog
   5-2-visual-audit-manager: backlog
   5-3-break-glass-emergency-admin: backlog
   5-4-real-time-security-monitoring-dashboard:
     name: "Real-time Security Monitoring Dashboard"
-    status: review
+    status: done
   epic-5-retrospective: optional

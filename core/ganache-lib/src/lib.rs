@@ -10,6 +10,8 @@ pub use system::boot::BootService;
 pub use system::cluster::ClusterService;
 pub use system::config_db::ConfigDb;
 pub use system::memory::MemoryService;
+pub use system::security_event_service::SecurityEventService;
+pub use system::security_metrics::SecurityMetricsService;
 pub use system::zfs::ZpoolService;
 
 pub struct HardwareService;

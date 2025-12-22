@@ -1,7 +1,9 @@
-use ganache_api::models::security::{SecurityEvent, SecurityEventType, SeverityLevel, SecurityMetrics, SecurityAlert, SuspiciousIp};
 use crate::system::security_event_service::SecurityEventService;
 use anyhow::Result;
 use chrono::Utc;
+use ganache_api::models::security::{
+    SecurityAlert, SecurityEvent, SecurityEventType, SecurityMetrics, SeverityLevel, SuspiciousIp,
+};
 use std::collections::HashMap;
 use uuid::Uuid;
 
@@ -67,7 +69,7 @@ impl SecurityMetricsService {
     /// @ref Story-5.4 - Active users tracking
     fn get_active_users(minutes: u32) -> Result<Vec<String>> {
         let events = SecurityEventService::get_recent_events(minutes)?;
-        
+
         let mut users = std::collections::HashSet::new();
         for event in events {
             users.insert(event.user);
@@ -90,15 +92,19 @@ impl SecurityMetricsService {
     /// @ref Story-5.4 - Suspicious IP detection
     pub fn detect_suspicious_ips() -> Result<Vec<SuspiciousIp>> {
         let events = SecurityEventService::get_recent_events(10)?;
-        
+
         let mut ip_failures: HashMap<String, Vec<String>> = HashMap::new();
 
         // Contar falhas por IP
         for event in events {
-            if event.event_type == SecurityEventType::SshLogin && 
-               event.severity != SeverityLevel::Info {
+            if event.event_type == SecurityEventType::SshLogin
+                && event.severity != SeverityLevel::Info
+            {
                 if let Some(ip) = event.source_ip {
-                    ip_failures.entry(ip).or_insert_with(Vec::new).push(event.timestamp);
+                    ip_failures
+                        .entry(ip)
+                        .or_insert_with(Vec::new)
+                        .push(event.timestamp);
                 }
             }
         }
@@ -158,16 +164,30 @@ impl SecurityMetricsService {
         for event in recent_events {
             if event.event_type == SecurityEventType::SshCommand {
                 let action_lower = event.action.to_lowercase();
-                if action_lower.contains("rm -rf") || 
-                   action_lower.contains("chmod 777") ||
-                   action_lower.contains("mkfs") {
+
+                // Padrões de comandos perigosos (Regex simplificado ou lista de palavras-chave)
+                let dangerous_patterns = [
+                    "rm -rf /",
+                    "chmod 777",
+                    "mkfs.",
+                    "dd if=",
+                    "> /dev/sda",
+                    "passwd -d",
+                    "userdel",
+                    "chown -r",
+                ];
+
+                if dangerous_patterns
+                    .iter()
+                    .any(|pattern| action_lower.contains(pattern))
+                {
                     alerts.push(SecurityAlert {
                         id: Uuid::new_v4().to_string(),
                         created_at: Utc::now().to_rfc3339(),
                         severity: SeverityLevel::Warning,
-                        title: "Suspicious command executed".to_string(),
+                        title: "Sensitive command detected".to_string(),
                         description: format!(
-                            "User {} executed potentially dangerous command: {}",
+                            "User {} executed a highly sensitive or dangerous command: {}",
                             event.user, event.action
                         ),
                         related_events: vec![event.id],
@@ -185,7 +205,8 @@ impl SecurityMetricsService {
     /// @ref Story-5.4 - Critical alert counting
     fn count_critical_alerts() -> Result<u32> {
         let alerts = Self::generate_alerts()?;
-        let critical_count = alerts.iter()
+        let critical_count = alerts
+            .iter()
             .filter(|a| a.severity == SeverityLevel::Critical && !a.acknowledged)
             .count() as u32;
         Ok(critical_count)
@@ -196,11 +217,11 @@ impl SecurityMetricsService {
     /// @ref Story-5.4 - Failed login tracking
     fn count_failed_logins(minutes: u32) -> Result<u32> {
         let events = SecurityEventService::get_recent_events(minutes)?;
-        
-        let failed_count = events.iter()
+
+        let failed_count = events
+            .iter()
             .filter(|e| {
-                e.event_type == SecurityEventType::SshLogin && 
-                e.severity != SeverityLevel::Info
+                e.event_type == SecurityEventType::SshLogin && e.severity != SeverityLevel::Info
             })
             .count() as u32;
 
@@ -221,7 +242,11 @@ mod tests {
                 id: Uuid::new_v4().to_string(),
                 timestamp: Utc::now().to_rfc3339(),
                 event_type: SecurityEventType::SshLogin,
-                severity: if i % 2 == 0 { SeverityLevel::Info } else { SeverityLevel::Warning },
+                severity: if i % 2 == 0 {
+                    SeverityLevel::Info
+                } else {
+                    SeverityLevel::Warning
+                },
                 user: format!("user{}", i % 3),
                 source_ip: Some(format!("192.168.1.{}", i)),
                 action: "login".to_string(),

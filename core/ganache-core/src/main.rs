@@ -3,7 +3,10 @@ use ganache_api::{
     models::acl::{GetAclResponse, SetAclRequest, SetAclResponse},
     models::active_directory::{AdPrincipalType, AdSearchRequest, AdSearchResponse},
     models::git_commit::{GitCommit, GitDiff},
-    models::security::{EventFilter, SecurityAlert, SecurityEvent, SecurityMetrics},
+    models::security::{
+        EventFilter, SecurityAlert, SecurityEvent, SecurityEventType, SecurityMetrics,
+        SeverityLevel,
+    },
     AdJoinRequest, AdJoinResponse, AdStatus, BootEnvironment, BootEnvironmentActivation,
     ClusterConfig, ClusterStatus, DatasetConfig, DatasetInfo, HardwareInfo, PoolConfig, PoolInfo,
     RollbackRequest, RollbackResponse, StorageDevice, SystemResources,
@@ -56,7 +59,7 @@ async fn main() {
     if let Err(e) = SecurityEventService::init() {
         warn!("Failed to initialize SecurityEventService: {}", e);
     }
-    
+
     // Periodic event collection (every 5 seconds)
     tokio::spawn(async {
         loop {
@@ -224,7 +227,10 @@ async fn main() {
         .route("/api/v1/security/events", get(get_security_events))
         .route("/api/v1/security/metrics", get(get_security_metrics))
         .route("/api/v1/security/alerts", get(get_security_alerts))
-        .route("/api/v1/security/events/ws", get(websocket_security::ws_security_events))
+        .route(
+            "/api/v1/security/events/ws",
+            get(websocket_security::ws_security_events),
+        )
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .layer(CorsLayer::permissive());
 
@@ -958,15 +964,35 @@ async fn set_acl(
     )
 )]
 async fn get_security_events(
-    _user: AuthenticatedUser,
+    user: AuthenticatedUser,
     axum::extract::Query(params): axum::extract::Query<std::collections::HashMap<String, String>>,
 ) -> Result<Json<Vec<SecurityEvent>>, (StatusCode, String)> {
+    tracing::info!("Access to security events by user: {}", user.username);
     // Parse query parameters into EventFilter
+    let event_type = params.get("event_type").and_then(|s| match s.as_str() {
+        "ssh_login" => Some(SecurityEventType::SshLogin),
+        "ssh_command" => Some(SecurityEventType::SshCommand),
+        "file_access" => Some(SecurityEventType::FileAccess),
+        "config_change" => Some(SecurityEventType::ConfigChange),
+        "break_glass_access" => Some(SecurityEventType::BreakGlassAccess),
+        "permission_change" => Some(SecurityEventType::PermissionChange),
+        _ => None,
+    });
+
+    let severity = params
+        .get("severity")
+        .and_then(|s| match s.to_lowercase().as_str() {
+            "info" => Some(SeverityLevel::Info),
+            "warning" => Some(SeverityLevel::Warning),
+            "critical" => Some(SeverityLevel::Critical),
+            _ => None,
+        });
+
     let filter = EventFilter {
-        event_type: None, // TODO: Parse from params
+        event_type,
         user: params.get("user").cloned(),
         source_ip: params.get("source_ip").cloned(),
-        severity: None, // TODO: Parse from params
+        severity,
         date_from: params.get("date_from").cloned(),
         date_to: params.get("date_to").cloned(),
         limit: params
@@ -974,7 +1000,10 @@ async fn get_security_events(
             .and_then(|s| s.parse().ok())
             .unwrap_or(100)
             .min(1000),
-        offset: params.get("offset").and_then(|s| s.parse().ok()).unwrap_or(0),
+        offset: params
+            .get("offset")
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(0),
     };
 
     match SecurityEventService::get_events(&filter) {
@@ -997,8 +1026,9 @@ async fn get_security_events(
     )
 )]
 async fn get_security_metrics(
-    _user: AuthenticatedUser,
+    user: AuthenticatedUser,
 ) -> Result<Json<SecurityMetrics>, (StatusCode, String)> {
+    tracing::info!("Access to security metrics by user: {}", user.username);
     match SecurityMetricsService::calculate_metrics() {
         Ok(metrics) => Ok(Json(metrics)),
         Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
@@ -1019,10 +1049,11 @@ async fn get_security_metrics(
     )
 )]
 async fn get_security_alerts(
-    _user: AuthenticatedUser,
+    user: AuthenticatedUser,
 ) -> Result<Json<Vec<SecurityAlert>>, (StatusCode, String)> {
+    tracing::info!("Access to security alerts by user: {}", user.username);
     match SecurityMetricsService::generate_alerts() {
         Ok(alerts) => Ok(Json(alerts)),
-        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string( ))),
+        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
     }
 }

@@ -73,6 +73,7 @@ As ferramentas abaixo garantem que a documentação e o código estejam sempre s
 - **Visão:** [PRD (Requirements)](./docs/analysis/prd.md)
 - **Arquitetura:** [Architecture SSoT](./docs/architecture.md)
 - **Backlog:** [Epics & Stories](./docs/epics.md)
+- **Diagramas:** [Diagramas Mermaid](./docs/diagrams/)
 - **Status da Sprint:** [Sprint Status](./docs/sprint-artifacts/sprint-status.yaml)
 - **Orquestração:** [Workflow Status](./docs/bmm-workflow-status.yaml)
 

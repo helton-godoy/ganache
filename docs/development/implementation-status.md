@@ -78,17 +78,17 @@ docs/
 
 ### ✅ Status de Aprovação (28/41 verificações - 68%)
 
-| Categoria | Status | Progresso |
-|-----------|--------|-----------|
-| **Estrutura de Diretórios** | ✅ 9/11 (82%) | 90% Completo |
-| **Documentos Obrigatórios** | ✅ 7/11 (64%) | 75% Completo |
-| **Scripts de Automação** | ✅ 3/3 (100%) | 100% Completo |
-| **Meta-informações** | ✅ 1/3 (33%) | 33% Completo |
-| **Nomenclatura BMAD** | ✅ 3/5 (60%) | 80% Completo |
-| **Templates BMAD** | ✅ 3/3 (100%) | 100% Completo |
-| **Navegação Cruzada** | ✅ 1/1 (100%) | 100% Completo |
-| **Classificação Web+Backend** | ✅ 2/3 (67%) | 67% Completo |
-| **CI/CD BMAD** | ✅ 2/2 (100%) | 100% Completo |
+| Categoria                     | Status        | Progresso     |
+|-------------------------------|---------------|---------------|
+| **Estrutura de Diretórios**   | ✅ 9/11 (82%) | 90% Completo  |
+| **Documentos Obrigatórios**   | ✅ 7/11 (64%) | 75% Completo  |
+| **Scripts de Automação**      | ✅ 3/3 (100%) | 100% Completo |
+| **Meta-informações**          | ✅ 1/3 (33%)  | 33% Completo  |
+| **Nomenclatura BMAD**         | ✅ 3/5 (60%)  | 80% Completo  |
+| **Templates BMAD**            | ✅ 3/3 (100%) | 100% Completo |
+| **Navegação Cruzada**         | ✅ 1/1 (100%) | 100% Completo |
+| **Classificação Web+Backend** | ✅ 2/3 (67%)  | 67% Completo  |
+| **CI/CD BMAD**                | ✅ 2/2 (100%) | 100% Completo |
 
 ### ⚠️ Pontos Pendentes (13/41 verificações - 32%)
 

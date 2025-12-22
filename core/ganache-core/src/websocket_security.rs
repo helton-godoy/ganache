@@ -7,28 +7,13 @@
 use axum::extract::ws::{Message, WebSocket, WebSocketUpgrade};
 use axum::response::IntoResponse;
 use futures::{sink::SinkExt, stream::StreamExt};
-use tokio::sync::broadcast;
-use once_cell::sync::Lazy;
-use serde_json;
 use ganache_api::models::security::SecurityEvent;
+use serde_json;
 
-/// Global broadcast channel for security events
-static EVENT_BROADCASTER: Lazy<broadcast::Sender<String>> = Lazy::new(|| {
-    let (tx, _) = broadcast::channel(100);
-tx
-});
+use ganache_lib::SecurityEventService;
 
-/// Broadcast a security event to all connected WebSocket clients
-///
-/// # Purpose
-/// Sends event JSON to all subscribed WebSocket connections
-///
-/// @ref Story-5.4 - Event broadcasting
-pub fn broadcast_event(event: &SecurityEvent) {
-    if let Ok(json) = serde_json::to_string(event) {
-        let _ = EVENT_BROADCASTER.send(json);
-    }
-}
+/// O broadcast_event não é mais necessário aqui pois o SecurityEventService cuida disso
+/// ao adicionar um evento.
 
 /// WebSocket upgrade handler
 ///
@@ -59,17 +44,15 @@ pub async fn ws_security_events(
 /// @ref Story-5.4 - WebSocket connection handler
 async fn handle_socket(socket: WebSocket) {
     let (mut sender, mut receiver) = socket.split();
-    let mut rx = EVENT_BROADCASTER.subscribe();
+    let mut rx = SecurityEventService::subscribe();
 
     // Spawn task to send events to client
     let mut send_task = tokio::spawn(async move {
-        while let Ok(event_json) = rx.recv().await {
-            if sender
-                .send(Message::Text(event_json.into()))
-                .await
-                .is_err()
-            {
-                break;
+        while let Ok(event) = rx.recv().await {
+            if let Ok(event_json) = serde_json::to_string(&event) {
+                if sender.send(Message::Text(event_json.into())).await.is_err() {
+                    break;
+                }
             }
         }
     });
@@ -79,7 +62,7 @@ async fn handle_socket(socket: WebSocket) {
         while let Some(Ok(msg)) = receiver.next().await {
             match msg {
                 Message::Close(_) => break,
-                Message::Ping(data) => {
+                Message::Ping(_data) => {
                     // Echo back pong
                     tracing::debug!("Received ping, sending pong");
                 }

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wireframe Menu - Ganache</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .logo-badge {
+            background: var(--primary);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 8px 12px;
+            width: 300px;
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            outline: none;
+            width: 100%;
+            color: var(--text);
+        }
+
+        .icon-btn {
+            background: #f1f5f9;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .icon-btn:hover {
+            background: #e2e8f0;
+        }
+
+        /* Main Navigation */
+        .main-nav {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+
+        .nav-list {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .nav-item {
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #f8fafc;
+            border-color: #e2e8f0;
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 16px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .card-title {
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-online { background: #dcfce7; color: #166534; }
+        .status-warning { background: #fef3c7; color: #92400e; }
+        .status-error { background: #fee2e2; color: #991b1b; }
+
+        /* Status Cards */
+        .status-grid {
+            grid-column: span-4;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .status-item {
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+
+        .status-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .status-label {
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        /* Alerts */
+        .alerts {
+            grid-column: span-8;
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            background: #fffbeb;
+            border-left: 4px solid var(--warning);
+            margin-bottom: 8px;
+        }
+
+        .alert-item.error {
+            background: #fef2f2;
+            border-left-color: var(--danger);
+        }
+
+        /* Metrics */
+        .metrics {
+            grid-column: span-6;
+        }
+
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .metric-item:last-child {
+            border-bottom: none;
+        }
+
+        .progress-bar {
+            width: 100px;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 60%;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            grid-column: span-12;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            border-color: var(--primary);
+            background: #eff6ff;
+        }
+
+        .action-icon {
+            width: 32px;
+            height: 32px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .action-label {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .status-grid {
+                grid-column: span-12;
+            }
+
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Principal -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-badge">GANACHE</div>
+                <span>Enterprise NAS</span>
+            </div>
+            
+            <div class="search-box">
+                <span>🔍</span>
+                <input type="text" placeholder="Buscar funcionalidades...">
+            </div>
+
+            <div class="header-actions">
+                <button class="icon-btn">
+                    ⚙️ Configurações
+                </button>
+                <button class="icon-btn">
+                    ❓ Ajuda
+                </button>
+            </div>
+        </header>
+
+        <!-- Menu de Navegação Principal -->
+        <nav class="main-nav">
+            <div class="nav-list">
+                <div class="nav-item active">🏠 Dashboard</div>
+                <div class="nav-item">⚙️ Setup</div>
+                <div class="nav-item">🔗 Cluster</div>
+                <div class="nav-item">🛡️ Security</div>
+                <div class="nav-item">📊 History</div>
+                <div class="nav-item">🔧 Recovery</div>
+            </div>
+        </nav>
+
+        <!-- Dashboard Principal -->
+        <div class="dashboard-grid">
+            <!-- Status Geral -->
+            <div class="card status-grid">
+                <div class="status-item">
+                    <div>
+                        <div class="status-value">98%</div>
+                        <div class="status-label">System Health</div>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <div>
+                        <div class="status-value">2</div>
+                        <div class="status-label">Active Nodes</div>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <div>
+                        <div class="status-value">12TB</div>
+                        <div class="status-label">Storage Used</div>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <div>
+                        <div class="status-value">99.9%</div>
+                        <div class="status-label">Uptime</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alertas -->
+            <div class="card alerts">
+                <div class="card-header">
+                    <span class="card-title">Alertas de Sistema</span>
+                    <span class="status-indicator status-warning">3 Ativos</span>
+                </div>
+                
+                <div class="alert-item">
+                    <span>⚠️</span>
+                    <div>
+                        <div><strong>Pool ZFS com 85% de uso</strong></div>
+                        <div style="font-size: 12px; color: var(--muted);">Recomenda-se expansão do storage</div>
+                    </div>
+                </div>
+
+                <div class="alert-item error">
+                    <span>🚨</span>
+                    <div>
+                        <div><strong>Conexão DRBD instável</strong></div>
+                        <div style="font-size: 12px; color: var(--muted);">Verificar configuração de rede</div>
+                    </div>
+                </div>
+
+                <div class="alert-item">
+                    <span>ℹ️</span>
+                    <div>
+                        <div><strong>Backup agendado para hoje</strong></div>
+                        <div style="font-size: 12px; color: var(--muted);">Iniciará às 02:00</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Métricas de Performance -->
+            <div class="card metrics">
+                <div class="card-header">
+                    <span class="card-title">Métricas de Performance</span>
+                    <span class="status-indicator status-online">Em tempo real</span>
+                </div>
+                
+                <div class="metric-item">
+                    <div>
+                        <div><strong>CPU</strong></div>
+                        <div style="font-size: 12px; color: var(--muted);">Processamento</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div>45%</div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 45%"></div></div>
+                    </div>
+                </div>
+
+                <div class="metric-item">
+                    <div>
+                        <div><strong>Memória</strong></div>
+                        <div style="font-size: 12px; color: var(--muted);">Utilização</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div>68%</div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 68%"></div></div>
+                    </div>
+                </div>
+
+                <div class="metric-item">
+                    <div>
+                        <div><strong>Rede</strong></div>
+                        <div style="font-size: 12px; color: var(--muted);">Throughput</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div>2.1 GB/s</div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 75%"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ações Rápidas -->
+            <div class="card quick-actions">
+                <div class="action-btn">
+                    <div class="action-icon">🛠️</div>
+                    <div class="action-label">Setup Wizard</div>
+                </div>
+                <div class="action-btn">
+                    <div class="action-icon">⏪</div>
+                    <div class="action-label">Rollback</div>
+                </div>
+                <div class="action-btn">
+                    <div class="action-icon">💾</div>
+                    <div class="action-label">Backup</div>
+                </div>
+                <div class="action-btn">
+                    <div class="action-icon">📊</div>
+                    <div class="action-label">Monitor</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

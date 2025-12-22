@@ -1,6 +1,6 @@
-use ganache_api::models::security::{SecurityEvent, SecurityEventType, SeverityLevel, EventFilter};
 use anyhow::Result;
 use chrono::Utc;
+use ganache_api::models::security::{EventFilter, SecurityEvent, SecurityEventType, SeverityLevel};
 use serde_json::json;
 use std::sync::{Arc, RwLock};
 use uuid::Uuid;
@@ -13,6 +13,13 @@ use uuid::Uuid;
 /// @ref Story-5.4 - In-memory event cache for 24h retention
 static EVENT_CACHE: once_cell::sync::Lazy<Arc<RwLock<Vec<SecurityEvent>>>> =
     once_cell::sync::Lazy::new(|| Arc::new(RwLock::new(Vec::new())));
+
+/// Broadcaster para eventos em tempo real
+static EVENT_BROADCASTER: once_cell::sync::Lazy<tokio::sync::broadcast::Sender<SecurityEvent>> =
+    once_cell::sync::Lazy::new(|| {
+        let (tx, _) = tokio::sync::broadcast::channel(1024);
+        tx
+    });
 
 /// Serviço de coleta e gerenciamento de eventos de segurança
 ///
@@ -32,7 +39,7 @@ impl SecurityEventService {
     /// @ref Story-5.4 - Service initialization
     pub fn init() -> Result<()> {
         tracing::info!("Initializing Security Event Service");
-        
+
         // Thread de limpeza automática (executa a cada 1 hora)
         std::thread::spawn(|| {
             loop {
@@ -42,7 +49,7 @@ impl SecurityEventService {
                 }
             }
         });
-        
+
         Ok(())
     }
 
@@ -59,15 +66,23 @@ impl SecurityEventService {
         let mut cache = EVENT_CACHE
             .write()
             .map_err(|e| anyhow::anyhow!("Failed to acquire write lock: {}", e))?;
-        
+
         tracing::debug!(
             event_type = ?event.event_type,
             user = %event.user,
             "Adding security event"
         );
-        
+
+        // Broadcast do evento ANTES do push (ou depois, não importa muito)
+        let _ = EVENT_BROADCASTER.send(event.clone());
+
         cache.push(event);
         Ok(())
+    }
+
+    /// Retorna um receiver para o canal de broadcast
+    pub fn subscribe() -> tokio::sync::broadcast::Receiver<SecurityEvent> {
+        EVENT_BROADCASTER.subscribe()
     }
 
     /// Busca eventos com filtros aplicados
@@ -146,7 +161,7 @@ impl SecurityEventService {
         // Aplicar paginação
         let start = filter.offset as usize;
         let end = (start + filter.limit as usize).min(events.len());
-        
+
         if start >= events.len() {
             return Ok(Vec::new());
         }
@@ -199,32 +214,62 @@ impl SecurityEventService {
     ///
     /// @ref Story-5.4 - SSH log parsing
     async fn collect_ssh_events() -> Result<usize> {
-        // TODO: Implementar parsing de journalctl
-        // Por enquanto, usar stub com eventos simulados
-        
-        // STUB: Gerar 1-3 eventos SSH aleatórios para teste
-        let count = rand::random::<u8>() % 3;
-        
-        for _ in 0..count {
-            let event = SecurityEvent {
-                id: Uuid::new_v4().to_string(),
-                timestamp: Utc::now().to_rfc3339(),
-                event_type: SecurityEventType::SshLogin,
-                severity: SeverityLevel::Info,
-                user: "admin".to_string(),
-                source_ip: Some("192.168.1.100".to_string()),
-                action: "SSH login successful".to_string(),
-                resource: Some("/ssh".to_string()),
-                details: json!({
-                    "method": "publickey",
-                    "session_id": Uuid::new_v4().to_string()
-                }),
-            };
-            
-            Self::add_event(event)?;
+        let mut collected = 0;
+
+        // Executar journalctl para buscar falhas de login SSH nos últimos 10 segundos
+        let output = std::process::Command::new("journalctl")
+            .args(&["-u", "ssh", "--since", "10 seconds ago", "--no-pager"])
+            .output();
+
+        if let Ok(output) = output {
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            for line in stdout.lines() {
+                if line.contains("Failed password")
+                    || line.contains("Accepted password")
+                    || line.contains("Accepted publickey")
+                {
+                    let is_failure = line.contains("Failed password");
+                    let user = line
+                        .split("for ")
+                        .nth(1)
+                        .and_then(|s| s.split_whitespace().next())
+                        .unwrap_or("unknown");
+                    let ip = line
+                        .split("from ")
+                        .nth(1)
+                        .and_then(|s| s.split_whitespace().next())
+                        .unwrap_or("unknown");
+
+                    let event = SecurityEvent {
+                        id: Uuid::new_v4().to_string(),
+                        timestamp: Utc::now().to_rfc3339(),
+                        event_type: SecurityEventType::SshLogin,
+                        severity: if is_failure {
+                            SeverityLevel::Warning
+                        } else {
+                            SeverityLevel::Info
+                        },
+                        user: user.to_string(),
+                        source_ip: Some(ip.to_string()),
+                        action: if is_failure {
+                            "Failed SSH login attempt".to_string()
+                        } else {
+                            "Successful SSH login".to_string()
+                        },
+                        resource: Some("/ssh".to_string()),
+                        details: json!({
+                            "raw_log": line,
+                            "is_failure": is_failure
+                        }),
+                    };
+
+                    Self::add_event(event)?;
+                    collected += 1;
+                }
+            }
         }
 
-        Ok(count as usize)
+        Ok(collected)
     }
 
     /// Coleta eventos de configuração do Git
@@ -333,6 +378,8 @@ mod tests {
         };
 
         let results = SecurityEventService::get_events(&filter).unwrap();
-        assert!(results.iter().all(|e| e.event_type == SecurityEventType::ConfigChange));
+        assert!(results
+            .iter()
+            .all(|e| e.event_type == SecurityEventType::ConfigChange));
     }
 }

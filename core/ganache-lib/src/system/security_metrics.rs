@@ -130,7 +130,7 @@ impl SecurityMetricsService {
 
         for new_alert in active_alerts {
             // Se já existe, atualiza mas mantém status acknowledged
-            if let Some(existing) = cache.iter_mut().find(|a| a.id == new_alert.id) {
+            if let Some(_existing) = cache.iter_mut().find(|a| a.id == new_alert.id) {
                 // Preserva o status de acknowledged e timestamp de criação original
                 // Só atualiza contadores ou descrição se necessário
             } else {

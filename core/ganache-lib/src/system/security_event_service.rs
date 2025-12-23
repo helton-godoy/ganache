@@ -3,7 +3,7 @@ use chrono::Utc;
 use ganache_api::models::security::{EventFilter, SecurityEvent, SecurityEventType, SeverityLevel};
 use serde_json::json;
 use std::sync::{Arc, RwLock};
-use uuid::Uuid;
+// use uuid::Uuid;
 
 /// Cache global de eventos de segurança
 ///
@@ -13,6 +13,17 @@ use uuid::Uuid;
 /// @ref Story-5.4 - In-memory event cache for 24h retention
 static EVENT_CACHE: once_cell::sync::Lazy<Arc<RwLock<Vec<SecurityEvent>>>> =
     once_cell::sync::Lazy::new(|| Arc::new(RwLock::new(Vec::new())));
+
+/// Cursor de tempo para evitar perda de logs
+static LAST_TTY_CHECK: once_cell::sync::Lazy<Arc<RwLock<chrono::DateTime<Utc>>>> =
+    once_cell::sync::Lazy::new(|| {
+        Arc::new(RwLock::new(Utc::now() - chrono::Duration::seconds(60)))
+    });
+
+static LAST_SSH_CHECK: once_cell::sync::Lazy<Arc<RwLock<chrono::DateTime<Utc>>>> =
+    once_cell::sync::Lazy::new(|| {
+        Arc::new(RwLock::new(Utc::now() - chrono::Duration::seconds(60)))
+    });
 
 /// Broadcaster para eventos em tempo real
 static EVENT_BROADCASTER: once_cell::sync::Lazy<tokio::sync::broadcast::Sender<SecurityEvent>> =
@@ -188,7 +199,64 @@ impl SecurityEventService {
         Self::get_events(&filter)
     }
 
-    /// Coleta eventos do sistema (SSH logs, Git commits)
+    /// Decodifica dados hexadecimal de logs TTY
+    pub fn decode_tty_data(hex_data: &str) -> Result<String> {
+        let clean_hex = hex_data.replace(' ', "");
+        let bytes = hex::decode(clean_hex)?;
+        let mut decoded = String::from_utf8(bytes)?;
+
+        // Remover caracteres de controle (como \r ou \n) e limpar o comando
+        decoded = decoded.replace('\r', "").replace('\n', "");
+        Ok(decoded)
+    }
+
+    /// Processa uma linha de log TTY e converte em SecurityEvent
+    pub fn parse_tty_log(line: &str, default_user: &str) -> Option<SecurityEvent> {
+        if !line.contains("type=TTY") {
+            return None;
+        }
+
+        // Extrair campos (ex: terminal=pts/1 res=1 data=...)
+        let terminal = line
+            .split("terminal=")
+            .nth(1)
+            .and_then(|s| s.split_whitespace().next());
+        let data = line
+            .split("data=")
+            .nth(1)
+            .and_then(|s| s.split_whitespace().next());
+
+        if let Some(hex_data) = data {
+            if let Ok(command) = Self::decode_tty_data(hex_data) {
+                if command.is_empty() {
+                    return None;
+                }
+
+                let event_id =
+                    uuid::Uuid::new_v5(&uuid::Uuid::NAMESPACE_OID, line.as_bytes()).to_string();
+
+                return Some(SecurityEvent {
+                    id: event_id,
+                    timestamp: Utc::now().to_rfc3339(),
+                    event_type: SecurityEventType::SshCommand,
+                    severity: SeverityLevel::Info,
+                    user: default_user.to_string(), // O audit log nem sempre traz o usuário de forma fácil
+                    source_ip: None,
+                    action: command.clone(),
+                    resource: terminal.map(|t| format!("/dev/{}", t)),
+                    details: json!({
+                        "raw_log": line,
+                        "command": command,
+                        "terminal": terminal
+                    }),
+                });
+            }
+        }
+
+        None
+    }
+
+    /// Coleta eventos de sistema (SSH logs, Git commits, Audi TTY)
     ///
     /// # Returns
     /// Número de eventos coletados
@@ -206,7 +274,55 @@ impl SecurityEventService {
         // Coletar eventos de configuração via Git
         collected += Self::collect_git_events().await?;
 
+        // Coletar eventos TTY via audit logs (História 5.1)
+        collected += Self::collect_tty_audit_events().await?;
+
         tracing::debug!("Collected {} new security events", collected);
+        Ok(collected)
+    }
+
+    /// Coleta eventos de auditoria TTY
+    async fn collect_tty_audit_events() -> Result<usize> {
+        let mut collected = 0;
+
+        // Calcular janela de tempo baseada na última verificação
+        let last_check = *LAST_TTY_CHECK.read().unwrap();
+        let now = Utc::now();
+
+        // Atualizar cursor IMEDIATAMENTE antes de rodar o comando para evitar gap se o comando demorar
+        // Mas existe risco de perder logs que chegam ENQUANTO o comando roda se usarmos 'now'.
+        // O journalctl aceita --since "YYYY-MM-DD HH:MM:SS".
+
+        let since_arg = last_check.format("%Y-%m-%d %H:%M:%S").to_string();
+
+        // Executar journalctl para buscar mensagens de auditoria TTY
+        let output = std::process::Command::new("journalctl")
+            .args(&["_TRANSPORT=audit", "--since", &since_arg, "--no-pager"])
+            .output();
+
+        // Atualizar o checkpoint apenas se sucesso
+        if output.is_ok() {
+            *LAST_TTY_CHECK.write().unwrap() = now;
+        }
+
+        if let Ok(output) = output {
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            for line in stdout.lines() {
+                // Tentar capturar o usuário do log de auditoria se disponível
+                let user = line
+                    .split("uid=")
+                    .nth(1)
+                    .and_then(|s| s.split_whitespace().next())
+                    .unwrap_or("unknown");
+
+                if let Some(event) = Self::parse_tty_log(line, user) {
+                    if !Self::event_exists(&event.id) {
+                        Self::add_event(event)?;
+                        collected += 1;
+                    }
+                }
+            }
+        }
         Ok(collected)
     }
 
@@ -216,10 +332,19 @@ impl SecurityEventService {
     async fn collect_ssh_events() -> Result<usize> {
         let mut collected = 0;
 
-        // Executar journalctl para buscar falhas de login SSH nos últimos 10 segundos
+        // Calcular janela de tempo ssh
+        let last_check = *LAST_SSH_CHECK.read().unwrap();
+        let now = Utc::now();
+        let since_arg = last_check.format("%Y-%m-%d %H:%M:%S").to_string();
+
+        // Executar journalctl para buscar falhas de login SSH
         let output = std::process::Command::new("journalctl")
-            .args(&["-u", "ssh", "--since", "10 seconds ago", "--no-pager"])
+            .args(&["-u", "ssh", "--since", &since_arg, "--no-pager"])
             .output();
+
+        if output.is_ok() {
+            *LAST_SSH_CHECK.write().unwrap() = now;
+        }
 
         if let Ok(output) = output {
             let stdout = String::from_utf8_lossy(&output.stdout);
@@ -240,15 +365,14 @@ impl SecurityEventService {
                         .and_then(|s| s.split_whitespace().next())
                         .unwrap_or("unknown");
 
-                    let timestamp = Utc::now().to_rfc3339();
-                    let signature = format!("{}:{}:{}:{}", timestamp, user, ip, line);
+                    // Use the log line itself for the deterministic ID to ensure stability across polls.
+                    // journalctl output includes timestamp and PID, making it unique enough.
                     let event_id =
-                        uuid::Uuid::new_v5(&uuid::Uuid::NAMESPACE_OID, signature.as_bytes())
-                            .to_string();
+                        uuid::Uuid::new_v5(&uuid::Uuid::NAMESPACE_OID, line.as_bytes()).to_string();
 
                     let event = SecurityEvent {
                         id: event_id,
-                        timestamp,
+                        timestamp: Utc::now().to_rfc3339(), // Use collection time as model timestamp
                         event_type: SecurityEventType::SshLogin,
                         severity: if is_failure {
                             SeverityLevel::Warning
@@ -306,14 +430,13 @@ impl SecurityEventService {
                     let commit_hash = parts[0];
                     let author = parts[1];
                     let message = parts[2];
-                    let _timestamp = parts[3];
-
-                    // Use commit hash as deterministic ID
+                    // Parse the commit timestamp (format %ai is like 2025-12-23 01:23:45 +0000)
+                    let commit_time = parts[3];
                     let event_id = commit_hash.to_string();
 
                     let event = SecurityEvent {
                         id: event_id,
-                        timestamp: Utc::now().to_rfc3339(),
+                        timestamp: commit_time.to_string(),
                         event_type: SecurityEventType::ConfigChange,
                         severity: SeverityLevel::Info,
                         user: author.to_string(),
@@ -389,6 +512,7 @@ impl SecurityEventService {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use uuid::Uuid;
 
     #[test]
     fn test_add_and_get_events() {

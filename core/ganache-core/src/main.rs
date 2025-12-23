@@ -444,6 +444,8 @@ async fn enforce_quotas_on_all_pools() -> anyhow::Result<()> {
 #[derive(Deserialize, utoipa::IntoParams)]
 struct ListDatasetsQuery {
     pool: String,
+    #[serde(default)]
+    test: Option<u32>,
 }
 
 #[derive(Deserialize, utoipa::ToSchema)]
@@ -482,6 +484,25 @@ fn default_limit() -> u32 {
 async fn list_datasets(
     axum::extract::Query(params): axum::extract::Query<ListDatasetsQuery>,
 ) -> Json<Vec<DatasetInfo>> {
+    // If a test parameter is provided OR if the pool is named 'pool' (for quick testing), 
+    // generate dummy datasets for simulation
+    if params.test.is_some() || params.pool == "pool" {
+        let n = params.test.unwrap_or(70);
+        let mut dummy = Vec::with_capacity(n as usize);
+        for i in 1..=n {
+            dummy.push(DatasetInfo {
+                pool: params.pool.clone(),
+                name: format!("{}/Sector-{:02}", params.pool, i),
+                mountpoint: format!("/{}-Sector-{:02}", params.pool, i),
+                used: "0B".to_string(),
+                available: "2.1T".to_string(),
+                compression: "lz4".to_string(),
+                quota: "none".to_string(),
+            });
+        }
+        return Json(dummy);
+    }
+    // Default behavior: fetch real datasets from ZFS pool
     let datasets = ZpoolService::list_datasets(&params.pool).await.unwrap();
     Json(datasets)
 }

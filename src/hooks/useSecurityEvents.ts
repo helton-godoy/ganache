@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { SecurityEvent, SecurityState } from '../types/security';
 
 const API_BASE = '/api/v1/security';
-const WS_URL = `ws://${window.location.host}/api/v1/security/events/ws`;
 
 export const useSecurityEvents = () => {
     const [state, setState] = useState<SecurityState>({
@@ -49,6 +48,8 @@ export const useSecurityEvents = () => {
     const connectWS = useCallback(() => {
         if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
+        // Construct WS URL client-side to avoid SSR error
+        const WS_URL = `ws://${window.location.host}/api/v1/security/events/ws`;
         const ws = new WebSocket(WS_URL);
         wsRef.current = ws;
 

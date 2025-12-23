@@ -24,6 +24,12 @@ static LAST_SSH_CHECK: once_cell::sync::Lazy<Arc<RwLock<chrono::DateTime<Utc>>>>
         Arc::new(RwLock::new(Utc::now() - chrono::Duration::seconds(60)))
     });
 
+/// Cursor de tempo para logs de acesso a arquivos (Samba)
+static LAST_SAMBA_CHECK: once_cell::sync::Lazy<Arc<RwLock<chrono::DateTime<Utc>>>> =
+    once_cell::sync::Lazy::new(|| {
+        Arc::new(RwLock::new(Utc::now() - chrono::Duration::seconds(60)))
+    });
+
 /// Broadcaster para eventos em tempo real
 static EVENT_BROADCASTER: once_cell::sync::Lazy<tokio::sync::broadcast::Sender<SecurityEvent>> =
     once_cell::sync::Lazy::new(|| {
@@ -297,6 +303,80 @@ impl SecurityEventService {
         None
     }
 
+    /// Processa uma linha de log de auditoria do Samba e converte em SecurityEvent
+    pub fn parse_samba_audit_log(line: &str) -> Option<SecurityEvent> {
+        // Exemplo de log:
+        // smbd_audit: User alice|192.168.1.10|open|ok|/shares/sensitive/doc.pdf
+        if !line.contains("smbd_audit:") {
+            return None;
+        }
+
+        // Tentar extrair partes
+        if let Some(audit_part) = line.split("smbd_audit:").nth(1) {
+            // Use splitn(5) to ensure the file path (5th element) captures any remaining pipes
+            let parts: Vec<&str> = audit_part.trim().splitn(5, '|').collect();
+            if parts.len() >= 5 {
+                let user_raw = parts[0];
+                let ip = parts[1];
+                let action_raw = parts[2];
+                let status = parts[3];
+                let file_path = parts[4];
+
+                // Extrair apenas o nome do usuário se tiver prefixo "User "
+                let user = user_raw.replace("User ", "");
+
+                // Mapear ação para verbo mais legível
+                let action = match action_raw {
+                    "open" => "Open File",
+                    "pread" | "read" => "Read File",
+                    "pwrite" | "write" => "Write File",
+                    "unlink" | "rmdir" => "Delete File",
+                    "mkdir" => "Create Directory",
+                    "rename" => "Rename File",
+                    _ => action_raw,
+                };
+
+                let severity = if status == "fail" {
+                    SeverityLevel::Warning
+                } else if action.contains("Delete") {
+                    SeverityLevel::Warning
+                } else {
+                    SeverityLevel::Info
+                };
+
+                // Determinar SecurityEventType
+                let event_type = if action.contains("Delete")
+                    || action.contains("Write")
+                    || action.contains("Rename")
+                {
+                    SecurityEventType::FileAccess
+                } else {
+                    SecurityEventType::FileAccess
+                };
+
+                let event_id =
+                    uuid::Uuid::new_v5(&uuid::Uuid::NAMESPACE_OID, line.as_bytes()).to_string();
+
+                return Some(SecurityEvent {
+                    id: event_id,
+                    timestamp: Utc::now().to_rfc3339(), // Idealmente extrair do log se possível
+                    event_type,
+                    severity,
+                    user,
+                    source_ip: Some(ip.to_string()),
+                    action: action.to_string(),
+                    resource: Some(file_path.to_string()),
+                    details: json!({
+                        "raw_log": line,
+                        "status": status,
+                        "original_action": action_raw
+                    }),
+                });
+            }
+        }
+        None
+    }
+
     /// Coleta eventos de sistema (SSH logs, Git commits, Audi TTY)
     ///
     /// # Returns
@@ -317,6 +397,9 @@ impl SecurityEventService {
 
         // Coletar eventos TTY via audit logs (História 5.1)
         collected += Self::collect_tty_audit_events().await?;
+
+        // Coletar eventos de acesso a arquivos Samba (História 5.2)
+        collected += Self::collect_file_access_events().await?;
 
         tracing::debug!("Collected {} new security events", collected);
         Ok(collected)
@@ -365,6 +448,38 @@ impl SecurityEventService {
                         event.user = "admin".to_string(); // Default admin user in appliance
                     }
 
+                    if !Self::event_exists(&event.id) {
+                        Self::add_event(event)?;
+                        collected += 1;
+                    }
+                }
+            }
+        }
+        Ok(collected)
+    }
+
+    /// Coleta eventos de acesso a arquivos (Samba full audit)
+    ///
+    /// @ref Story-5.2 - File access event collection
+    async fn collect_file_access_events() -> Result<usize> {
+        let mut collected = 0;
+        let last_check = *LAST_SAMBA_CHECK.read().unwrap();
+        let now = Utc::now();
+        let since_arg = last_check.format("%Y-%m-%d %H:%M:%S").to_string();
+
+        // Executar journalctl buscando logs do smbd (samba)
+        let output = std::process::Command::new("journalctl")
+            .args(&["-u", "smbd", "--since", &since_arg, "--no-pager"])
+            .output();
+
+        if output.is_ok() {
+            *LAST_SAMBA_CHECK.write().unwrap() = now;
+        }
+
+        if let Ok(output) = output {
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            for line in stdout.lines() {
+                if let Some(event) = Self::parse_samba_audit_log(line) {
                     if !Self::event_exists(&event.id) {
                         Self::add_event(event)?;
                         collected += 1;

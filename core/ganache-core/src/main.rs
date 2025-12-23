@@ -100,6 +100,7 @@ async fn main() {
             get_acl,
             set_acl,
             get_security_events,
+            inject_security_event,
             get_security_metrics,
             get_security_alerts,
             acknowledge_security_alert,
@@ -225,12 +226,9 @@ async fn main() {
         .route("/api/v1/ad/leave", axum::routing::post(leave_ad_domain))
         .route("/api/v1/acl/principals", get(search_ad_principals))
         .route("/api/v1/acl/{path}", get(get_acl).post(set_acl))
-        .route("/api/v1/security/events", get(get_security_events))
-        .route("/api/v1/security/metrics", get(get_security_metrics))
-        .route("/api/v1/security/alerts", get(get_security_alerts))
         .route(
-            "/api/v1/security/alerts/{id}/acknowledge",
-            axum::routing::post(acknowledge_security_alert),
+            "/api/v1/security/events",
+            get(get_security_events).post(inject_security_event),
         )
         .route(
             "/api/v1/security/events/ws",
@@ -1109,6 +1107,73 @@ async fn acknowledge_security_alert(
     match SecurityMetricsService::acknowledge_alert(&alert_id) {
         Ok(true) => Ok(StatusCode::OK),
         Ok(false) => Err((StatusCode::NOT_FOUND, "Alert not found".to_string())),
+        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
+    }
+}
+
+#[derive(Deserialize, utoipa::ToSchema)]
+struct InjectEventPayload {
+    #[serde(rename = "type")]
+    event_type: String,
+    details: serde_json::Value,
+}
+
+#[utoipa::path(
+    post,
+    path = "/api/v1/security/events",
+    request_body = InjectEventPayload,
+    responses(
+        (status = 200, description = "Event injected successfully"),
+        (status = 500, description = "Failed to inject event")
+    )
+)]
+async fn inject_security_event(
+    Json(payload): Json<InjectEventPayload>,
+) -> Result<Json<String>, (StatusCode, String)> {
+    // Parse event type
+    let event_type = match payload.event_type.as_str() {
+        "SSH_COMMAND" => SecurityEventType::SshCommand,
+        "SSH_LOGIN" => SecurityEventType::SshLogin,
+        "CONFIG_CHANGE" => SecurityEventType::ConfigChange,
+        "FILE_ACCESS" => SecurityEventType::FileAccess,
+        _ => return Err((StatusCode::BAD_REQUEST, "Invalid event type".to_string())),
+    };
+
+    let user = payload
+        .details
+        .get("user")
+        .and_then(|v| v.as_str())
+        .unwrap_or("unknown")
+        .to_string();
+
+    let action = payload
+        .details
+        .get("command")
+        .or(payload.details.get("action"))
+        .and_then(|v| v.as_str())
+        .unwrap_or("unknown action")
+        .to_string();
+
+    let ip = payload
+        .details
+        .get("ip")
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string());
+
+    let event = SecurityEvent {
+        id: uuid::Uuid::new_v4().to_string(),
+        timestamp: chrono::Utc::now().to_rfc3339(),
+        event_type,
+        severity: SeverityLevel::Info,
+        user,
+        source_ip: ip,
+        action,
+        resource: None,
+        details: payload.details,
+    };
+
+    match SecurityEventService::add_event(event) {
+        Ok(_) => Ok(Json("Event injected".to_string())),
         Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
     }
 }

@@ -215,6 +215,30 @@ impl SecurityEventService {
             return None;
         }
 
+        // Tenta extrair timestamp do formato msg=audit(1734918247.123:456)
+        let timestamp = if let Some(start) = line.find("msg=audit(") {
+            let rest = &line[start + 10..];
+            if let Some(end) = rest.find(':') {
+                let ts_str = &rest[..end];
+                if let Ok(ts_float) = ts_str.parse::<f64>() {
+                    let secs = ts_float as i64;
+                    let nsecs = ((ts_float - secs as f64) * 1_000_000_000.0) as u32;
+                    if let Some(dt) = chrono::DateTime::from_timestamp(secs, nsecs) {
+                        Some(dt.to_rfc3339())
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+        .unwrap_or_else(|| Utc::now().to_rfc3339()); // Fallback para agora se falhar
+
         // Extrair campos (ex: terminal=pts/1 res=1 data=...)
         let terminal = line
             .split("terminal=")
@@ -236,7 +260,7 @@ impl SecurityEventService {
 
                 return Some(SecurityEvent {
                     id: event_id,
-                    timestamp: Utc::now().to_rfc3339(),
+                    timestamp, // Usar timestamp extraído
                     event_type: SecurityEventType::SshCommand,
                     severity: SeverityLevel::Info,
                     user: default_user.to_string(), // O audit log nem sempre traz o usuário de forma fácil

@@ -20,10 +20,10 @@ So that I can quickly respond to compliance requests without grep-ing text files
 
 ## Tasks / Subtasks
 
-- [ ] Implement audit log search API in Rust core
-  - [ ] Add search endpoint in ganache-core for log queries
-  - [ ] Integrate with system audit log storage (journald or file-based)
-  - [ ] Implement filtering by filename, user, date range
+- [x] Implement audit log search API in Rust core
+  - [x] Add search endpoint in ganache-core for log queries
+  - [x] Integrate with system audit log storage (journald or file-based)
+  - [x] Implement filtering by filename, user, date range
 - [ ] Create audit dashboard UI in Next.js
   - [ ] Build search form with filename input and filters
   - [ ] Display results in table format with User, IP, Timestamp
@@ -55,7 +55,8 @@ So that I can quickly respond to compliance requests without grep-ing text files
 
 ### Agent Model Used
 
-bmad-bmm-sm (Scrum Master - Story Creation)
+- bmad-bmm-sm (Scrum Master - Story Creation)
+- Amelia (Dev Agent - Implementation)
 
 ### Debug Log References
 
@@ -66,5 +67,20 @@ bmad-bmm-sm (Scrum Master - Story Creation)
 - ✅ Architecture compliance ensured (daemon-only log access, OpenAPI integration)
 - ✅ Technical requirements aligned with project stack (Rust backend, Next.js frontend)
 - ✅ Acceptance criteria broken down into actionable tasks
+- ✅ **Backend API Implementation Complete** (Task 1):
+  - Added `resource` field to `EventFilter` model for filename/path filtering
+  - Implemented case-insensitive partial matching in `SecurityEventService::get_events()`
+  - Updated OpenAPI endpoint documentation with `resource` query parameter
+  - Created comprehensive unit tests (`audit_search_tests.rs`) with test isolation
+  - All tests passing (3/3 audit search tests, all existing tests green)
+  - Follows red-green-refactor TDD cycle
 
 ### File List
+
+**Backend (Rust):**
+
+- `core/ganache-api/src/models/security.rs` - Added `resource` field to `EventFilter`
+- `core/ganache-lib/src/system/security_event_service.rs` - Implemented filename filtering logic
+- `core/ganache-lib/tests/audit_search_tests.rs` - Unit tests for audit search
+- `core/ganache-lib/src/system/security_metrics.rs` - Fixed test imports
+- `core/ganache-core/src/main.rs` - Updated security events endpoint with resource parameter

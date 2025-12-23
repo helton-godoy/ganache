@@ -1,5 +1,6 @@
 'use client';
 
+
 import { Clock, Download, FileText, MapPin, Search, User } from 'lucide-react';
 import React, { useState } from 'react';
 import { SecurityEvent } from '../../../types/security';
@@ -53,9 +54,53 @@ export const AuditSearch: React.FC<AuditSearchProps> = ({ onSearch, results, isL
         URL.revokeObjectURL(url);
     };
 
-    const handleExportPDF = () => {
-        // Placeholder for PDF export - would use a library like jsPDF
-        alert('PDF export functionality would be implemented here using jsPDF library');
+    const handleExportPDF = async () => {
+        if (results.length === 0) return;
+
+        try {
+            // Dynamic import to avoid SSR issues with jsPDF
+            const { default: jsPDF } = await import('jspdf');
+            const { default: autoTable } = await import('jspdf-autotable');
+
+            const doc = new jsPDF();
+
+            // Add header
+            doc.setFontSize(18);
+            doc.text('Audit Log Report', 14, 20);
+
+            // Add search criteria
+            doc.setFontSize(10);
+            doc.text(`Search Criteria:`, 14, 30);
+            doc.text(`  Filename: ${filename}`, 14, 36);
+            if (user) doc.text(`  User: ${user}`, 14, 42);
+            if (dateFrom) doc.text(`  From: ${new Date(dateFrom).toLocaleString()}`, 14, 48);
+            if (dateTo) doc.text(`  To: ${new Date(dateTo).toLocaleString()}`, 14, 54);
+            doc.text(`  Results: ${results.length} events`, 14, 60);
+
+            // Prepare table data
+            const tableData = results.map(event => [
+                new Date(event.timestamp).toLocaleString(),
+                event.user,
+                event.source_ip || 'N/A',
+                event.action,
+                event.resource || 'N/A'
+            ]);
+
+            // Add table
+            autoTable(doc, {
+                head: [['Timestamp', 'User', 'Client IP', 'Action', 'Resource']],
+                body: tableData,
+                startY: 70,
+                styles: { fontSize: 8 },
+                headStyles: { fillColor: [37, 99, 235] }, // Blue header
+            });
+
+            // Save PDF
+            doc.save(`audit-log-${filename || 'search'}-${new Date().toISOString()}.pdf`);
+        } catch (error) {
+            console.error('PDF generation error:', error);
+            alert(`PDF export failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please install jspdf packages.`);
+        }
     };
 
     return (
@@ -211,8 +256,8 @@ export const AuditSearch: React.FC<AuditSearchProps> = ({ onSearch, results, isL
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${event.action.toLowerCase().includes('delete') ? 'bg-red-100 text-red-800' :
-                                                    event.action.toLowerCase().includes('write') ? 'bg-yellow-100 text-yellow-800' :
-                                                        'bg-green-100 text-green-800'
+                                                event.action.toLowerCase().includes('write') ? 'bg-yellow-100 text-yellow-800' :
+                                                    'bg-green-100 text-green-800'
                                                 }`}>
                                                 {event.action}
                                             </span>

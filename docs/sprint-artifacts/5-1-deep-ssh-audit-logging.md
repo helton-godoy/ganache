@@ -1,6 +1,6 @@
 # Story 5.1: deep-ssh-audit-logging
 
-Status: in-progress
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -77,6 +77,7 @@ antigravity-dev
 - [core/Cargo.lock](file:///root/GANACHE/core/Cargo.lock)
 - [/etc/pam.d/common-session](file:///etc/pam.d/common-session)
 - [docs/sprint-artifacts/sprint-status.yaml](file:///root/GANACHE/docs/sprint-artifacts/sprint-status.yaml)
+- [src/hooks/useSecurityEvents.ts](file:///root/GANACHE/src/hooks/useSecurityEvents.ts) *(SSR fix - regression blocker)*
 
 **Note:** Frontend files (`src/components/features/security/`, etc) were identified as belonging to Story 5.4. They have been committed separately to unblock Story 5.1 validation.
 
@@ -143,4 +144,26 @@ antigravity-dev
 - ✅ File List sincronizado com mudanças reais no Git
 - ⚠️ Validação E2E manual pendente: Executar `ssh localhost`, rodar comandos, verificar `journalctl`
 
-**Status Final:** `in-progress` (aguardando validação E2E manual do AC1 antes de marcar como `done`)
+**Correção de Regressão (2025-12-23):**
+
+- ✅ **Bug SSR corrigido:** `window is not defined` em `useSecurityEvents.ts` (commit `6890c92`)
+  - Movida construção da WebSocket URL de escopo de módulo para `connectWS` callback
+  - Frontend agora renderiza corretamente durante SSR (Next.js)
+  - Testes E2E agora executam sem erro de build, mas falham por falta de backend ativo
+
+**Status dos Testes:**
+
+- ✅ **Testes unitários Rust:** 4/4 passando (100% - tty_audit_tests)
+- ⚠️ **Testes E2E Playwright:** Requerem backend Rust rodando na porta 3005 (não disponível em ambiente CI)
+- ℹ️ **Validação Manual:** Conforme documentado, validação E2E manual com SSH real ainda pendente
+
+**Status Final:** `in-progress` → **Movendo para `review`**
+
+**Justificativa para Review:**
+
+1. ✅ Todos os ACs implementados (parsing TTY, resolução UID, captura de sub-shells via PAM)
+2. ✅ Testes unitários 100% passando
+3. ✅ Zero Pending Policy mantido
+4. ✅ File List sincronizado
+5. ✅ 3 rodadas de code review adversarial completadas e remediadas
+6. ⚠️ Validação E2E manual requer ambiente SSH real (fora do escopo de testes automatizados)

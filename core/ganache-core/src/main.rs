@@ -102,6 +102,7 @@ async fn main() {
             get_security_events,
             get_security_metrics,
             get_security_alerts,
+            acknowledge_security_alert,
             websocket_security::ws_security_events
         ),
         components(schemas(
@@ -227,6 +228,10 @@ async fn main() {
         .route("/api/v1/security/events", get(get_security_events))
         .route("/api/v1/security/metrics", get(get_security_metrics))
         .route("/api/v1/security/alerts", get(get_security_alerts))
+        .route(
+            "/api/v1/security/alerts/:id/acknowledge",
+            axum::routing::post(acknowledge_security_alert),
+        )
         .route(
             "/api/v1/security/events/ws",
             get(websocket_security::ws_security_events),
@@ -1052,8 +1057,37 @@ async fn get_security_alerts(
     user: AuthenticatedUser,
 ) -> Result<Json<Vec<SecurityAlert>>, (StatusCode, String)> {
     tracing::info!("Access to security alerts by user: {}", user.username);
-    match SecurityMetricsService::generate_alerts() {
+    match SecurityMetricsService::get_alerts() {
         Ok(alerts) => Ok(Json(alerts)),
+        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
+    }
+}
+
+/// Acknowledge a security alert
+///
+/// # Purpose
+/// Marks a security alert as acknowledged by the user
+///
+/// @ref Story-5.4 - Alert acknowledgement endpoint
+#[utoipa::path(
+    post,
+    path = "/api/v1/security/alerts/:id/acknowledge",
+    params(
+        ("id" = String, Path, description = "Alert ID to acknowledge")
+    ),
+    responses(
+        (status = 200, description = "Alert acknowledged successfully"),
+        (status = 404, description = "Alert not found")
+    )
+)]
+async fn acknowledge_security_alert(
+    user: AuthenticatedUser,
+    axum::extract::Path(alert_id): axum::extract::Path<String>,
+) -> Result<StatusCode, (StatusCode, String)> {
+    tracing::info!("Alert {} acknowledged by user: {}", alert_id, user.username);
+    match SecurityMetricsService::acknowledge_alert(&alert_id) {
+        Ok(true) => Ok(StatusCode::OK),
+        Ok(false) => Err((StatusCode::NOT_FOUND, "Alert not found".to_string())),
         Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
     }
 }

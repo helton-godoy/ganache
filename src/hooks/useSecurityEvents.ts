@@ -97,12 +97,18 @@ export const useSecurityEvents = () => {
     }, [fetchData, connectWS]);
 
     const acknowledgeAlert = useCallback(async (alertId: string) => {
-        // In a real app, this would be a POST call
-        // For now, update local state
-        setState(prev => ({
-            ...prev,
-            alerts: prev.alerts.map(a => a.id === alertId ? { ...a, acknowledged: true } : a)
-        }));
+        try {
+            await fetch(`${API_BASE}/alerts/${alertId}/acknowledge`, {
+                method: 'POST',
+            });
+            // Update local state to remove acknowledged alert
+            setState(prev => ({
+                ...prev,
+                alerts: prev.alerts.filter(a => a.id !== alertId)
+            }));
+        } catch (error) {
+            console.error('Failed to acknowledge alert:', error);
+        }
     }, []);
 
     return {

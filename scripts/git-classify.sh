@@ -275,11 +275,18 @@ if [ "$VALIDATE" = true ]; then
     VALIDATION_ERRORS=0
     
     # 1. Rust compilation check
+    # 1. Rust compilation check
     if [ ${#FEAT_FILES[@]} -gt 0 ] && ls "${FEAT_FILES[@]}" 2>/dev/null | grep -q "\.rs$"; then
         echo -e "${CYAN}→ Checking Rust compilation...${NC}"
-        if cargo check --quiet 2>&1 | grep -q "error"; then
+        
+        CHECK_CMD="cargo check"
+        if [ ! -f "Cargo.toml" ] && [ -f "core/Cargo.toml" ]; then
+            CHECK_CMD="cd core && cargo check"
+        fi
+
+        if eval "$CHECK_CMD --quiet 2>&1" | grep -q "error"; then
             echo -e "${RED}❌ Rust compilation errors detected${NC}"
-            cargo check 2>&1 | grep "error\|warning" | head -10
+            eval "$CHECK_CMD 2>&1" | grep "error\|warning" | head -10
             VALIDATION_ERRORS=$((VALIDATION_ERRORS + 1))
         else
             echo -e "${GREEN}✓ Rust code compiles${NC}"

@@ -240,9 +240,15 @@ impl SecurityEventService {
                         .and_then(|s| s.split_whitespace().next())
                         .unwrap_or("unknown");
 
+                    let timestamp = Utc::now().to_rfc3339();
+                    let signature = format!("{}:{}:{}:{}", timestamp, user, ip, line);
+                    let event_id =
+                        uuid::Uuid::new_v5(&uuid::Uuid::NAMESPACE_OID, signature.as_bytes())
+                            .to_string();
+
                     let event = SecurityEvent {
-                        id: Uuid::new_v4().to_string(),
-                        timestamp: Utc::now().to_rfc3339(),
+                        id: event_id,
+                        timestamp,
                         event_type: SecurityEventType::SshLogin,
                         severity: if is_failure {
                             SeverityLevel::Warning
@@ -263,12 +269,14 @@ impl SecurityEventService {
                         }),
                     };
 
-                    Self::add_event(event)?;
-                    collected += 1;
+                    // Check if event with this ID already exists in cache
+                    if !Self::event_exists(&event.id) {
+                        Self::add_event(event)?;
+                        collected += 1;
+                    }
                 }
             }
         }
-
         Ok(collected)
     }
 
@@ -276,9 +284,58 @@ impl SecurityEventService {
     ///
     /// @ref Story-5.4 - Git event integration
     async fn collect_git_events() -> Result<usize> {
-        // TODO: Integrar com GitService existente
-        // Por enquanto, stub sem eventos
-        Ok(0)
+        let mut collected = 0;
+        let repo_path = "/etc/ganache";
+
+        // Executar git log para buscar commits nos últimos 10 segundos
+        let output = std::process::Command::new("git")
+            .arg("-C")
+            .arg(repo_path)
+            .args(&[
+                "log",
+                "--since=10 seconds ago",
+                "--pretty=format:%H|%an|%s|%ai",
+            ])
+            .output();
+
+        if let Ok(output) = output {
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            for line in stdout.lines() {
+                let parts: Vec<&str> = line.split('|').collect();
+                if parts.len() >= 4 {
+                    let commit_hash = parts[0];
+                    let author = parts[1];
+                    let message = parts[2];
+                    let _timestamp = parts[3];
+
+                    // Use commit hash as deterministic ID
+                    let event_id = commit_hash.to_string();
+
+                    let event = SecurityEvent {
+                        id: event_id,
+                        timestamp: Utc::now().to_rfc3339(),
+                        event_type: SecurityEventType::ConfigChange,
+                        severity: SeverityLevel::Info,
+                        user: author.to_string(),
+                        source_ip: None,
+                        action: format!("Configuration change: {}", message),
+                        resource: Some("/etc/ganache".to_string()),
+                        details: json!({
+                            "commit_message": message,
+                            "repository": repo_path
+                        }),
+                    };
+
+                    // Check if event with this ID already exists in cache to avoid duplication
+                    if !Self::event_exists(&event.id) {
+                        Self::add_event(event)?;
+                        collected += 1;
+                    }
+                }
+            }
+        }
+
+        Ok(collected)
     }
 
     /// Remove eventos com mais de 24 horas
@@ -317,6 +374,15 @@ impl SecurityEventService {
             .read()
             .map_err(|e| anyhow::anyhow!("Failed to acquire read lock: {}", e))?;
         Ok(cache.len())
+    }
+
+    /// Verifica se um evento já existe no cache
+    pub fn event_exists(id: &str) -> bool {
+        if let Ok(cache) = EVENT_CACHE.read() {
+            cache.iter().any(|e| e.id == id)
+        } else {
+            false
+        }
     }
 }
 

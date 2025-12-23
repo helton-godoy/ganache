@@ -22,9 +22,14 @@ async fn test_event_broadcaster() {
 
     SecurityEventService::add_event(event.clone()).unwrap();
 
-    let received = rx.recv().await.unwrap();
-    assert_eq!(received.user, "test_broadcaster");
-    assert_eq!(received.id, event.id);
+    // Loop to ignore events from other tests running in parallel
+    loop {
+        let received = rx.recv().await.unwrap();
+        if received.user == "test_broadcaster" {
+            assert_eq!(received.id, event.id);
+            break;
+        }
+    }
 }
 
 #[tokio::test]

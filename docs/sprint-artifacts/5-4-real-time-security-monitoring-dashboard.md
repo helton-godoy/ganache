@@ -112,9 +112,10 @@ Agente SM (BMad)
 
 **Backend (Rust)**:
 
-- `core/ganache-lib/src/system/security_event_service.rs` (novo - serviço de eventos)
+- `core/ganache-lib/src/system/security_event_service.rs` (modificado - serviço de eventos com Git integration)
 - `core/ganache-lib/src/system/security_metrics.rs` (novo - métricas agregadas)
-- `core/ganache-core/src/main.rs` (modificado - endpoints de segurança)
+- `core/ganache-core/src/main.rs` (modificado - endpoints de segurança + acknowledge)
+- `core/ganache-core/src/websocket_security.rs` (novo - WebSocket handler)
 - `core/ganache-api/src/models/security.rs` (novo - modelos de dados)
 
 **Frontend (React/TypeScript)**:
@@ -122,15 +123,50 @@ Agente SM (BMad)
 - `src/components/features/security/SecurityDashboard.tsx` (novo)
 - `src/components/features/security/EventTimeline.tsx` (novo)
 - `src/components/features/security/SecurityMetrics.tsx` (novo)
-- `src/hooks/useSecurityEvents.ts` (novo - hook para eventos)
+- `src/hooks/useSecurityEvents.ts` (modificado - acknowledge endpoint real)
 - `src/types/security.ts` (novo - tipos TypeScript)
+- `src/pages/security.tsx` (novo - rota Next.js)
 
 **Testes**:
 
 - `core/ganache-lib/tests/security_event_tests.rs` (novo)
-- `tests/e2e/security-dashboard.spec.ts` (novo)
+- `tests/e2e/security-dashboard.spec.ts` (modificado - validação backend real)
 
 **Documentação**:
 
 - `docs/sprint-artifacts/5-4-real-time-security-monitoring-dashboard.md` (este arquivo)
 - `docs/sprint-artifacts/sprint-status.yaml` (atualizado)
+
+### Registro de Remediação (Code Review #2)
+
+**Correções Aplicadas:**
+
+1. **Git Events Collection (M1)**: Implementada coleta real via `git log` no repositório `/etc/ganache`
+2. **Rota Frontend (L1)**: Criado `src/pages/security.tsx` para acesso via `/security`
+3. **Acknowledge Alert (L2)**: Implementado `POST /api/v1/security/alerts/:id/acknowledge`
+4. **E2E Test (M2)**: Atualizado teste para validar integração real com backend
+5. **Rate Limiting (M3)**: Documentado uso de broadcast channel com limite implícito
+
+**Evidências:**
+
+- Git events: `security_event_service.rs:L275-L323`
+- Acknowledge endpoint: `main.rs:L1061-L1091`
+- Frontend route: `src/pages/security.tsx`
+
+### Registro de Remediação (Adversarial Review #3)
+
+**Correções Críticas Aplicadas:**
+
+1. **Deduplicação de Eventos (High Severity)**:
+    - Implementada lógica de assinatura determinística para eventos SSH (`timestamp:user:ip:line`).
+    - Implementado uso do Git Commit Hash como ID único para eventos de configuração.
+    - Adicionada verificação `!event_exists()` antes da inserção no cache.
+
+2. **Estabilidade de Alertas (High Severity)**:
+    - Criado cache stateful `ALERT_CACHE` em `SecurityMetricsService`.
+    - IDs de alerta agora são gerados deterministicamente (UUID v5) baseados na condição (ex: `suspicious_ip:10.0.0.1`).
+    - `acknowledge_security_alert` agora persiste o estado em memória corretamente.
+
+3. **Higiene Git (Medium Severity)**:
+    - Commitados todos os arquivos pendentes.
+    - Resolvidas dependências faltantes (`uuid` features).

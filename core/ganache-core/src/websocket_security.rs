@@ -7,7 +7,6 @@
 use axum::extract::ws::{Message, WebSocket, WebSocketUpgrade};
 use axum::response::IntoResponse;
 use futures::{sink::SinkExt, stream::StreamExt};
-use ganache_api::models::security::SecurityEvent;
 use serde_json;
 
 use ganache_lib::SecurityEventService;

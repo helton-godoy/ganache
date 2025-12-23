@@ -7,6 +7,7 @@ pub use git::GitService;
 pub use system::acl_service::AclService;
 pub use system::ad_service::AdService;
 pub use system::boot::BootService;
+pub use system::break_glass_service::BreakGlassService;
 pub use system::cluster::ClusterService;
 pub use system::config_db::ConfigDb;
 pub use system::memory::MemoryService;

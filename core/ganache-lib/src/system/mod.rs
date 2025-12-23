@@ -1,6 +1,7 @@
 pub mod acl_service;
 pub mod ad_service;
 pub mod boot;
+pub mod break_glass_service;
 pub mod cluster;
 pub mod config_db;
 pub mod memory;

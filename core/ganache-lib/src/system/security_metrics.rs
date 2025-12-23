@@ -236,6 +236,7 @@ impl SecurityMetricsService {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use ganache_api::models::security::SecurityEvent;
     use serde_json::json;
 
     #[test]

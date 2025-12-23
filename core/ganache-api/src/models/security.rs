@@ -172,13 +172,14 @@ pub struct SecurityAlert {
 /// * `event_type` - Filtrar por tipo de evento
 /// * `user` - Filtrar por nome de usuário
 /// * `source_ip` - Filtrar por IP de origem
+/// * `resource` - Filtrar por nome de arquivo ou recurso (busca parcial)
 /// * `severity` - Filtrar por nível de severidade
 /// * `date_from` - Data inicial (ISO 8601)
 /// * `date_to` - Data final (ISO 8601)
 /// * `limit` - Número máximo de resultados (padrão: 100, max: 1000)
 /// * `offset` - Paginação: número de registros a pular
 ///
-/// @ref Story-5.4 - Event filtering and pagination
+/// @ref Story-5.2 - Event filtering with filename search
 #[derive(Serialize, Deserialize, ToSchema, Clone, Debug)]
 pub struct EventFilter {
     /// Filtrar por tipo de evento
@@ -190,6 +191,9 @@ pub struct EventFilter {
     /// Filtrar por IP de origem
     #[serde(skip_serializing_if = "Option::is_none")]
     pub source_ip: Option<String>,
+    /// Filtrar por nome de arquivo ou recurso (busca parcial)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub resource: Option<String>,
     /// Filtrar por severidade
     #[serde(skip_serializing_if = "Option::is_none")]
     pub severity: Option<SeverityLevel>,
@@ -217,6 +221,7 @@ impl Default for EventFilter {
             event_type: None,
             user: None,
             source_ip: None,
+            resource: None,
             severity: None,
             date_from: None,
             date_to: None,

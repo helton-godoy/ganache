@@ -106,7 +106,7 @@ impl SecurityEventService {
     /// # Purpose
     /// Permite consultas flexíveis com filtros REST API
     ///
-    /// @ref Story-5.4 - Filtered event queries
+    /// @ref Story-5.2 - Filtered event queries with filename search
     pub fn get_events(filter: &EventFilter) -> Result<Vec<SecurityEvent>> {
         let cache = EVENT_CACHE
             .read()
@@ -136,6 +136,24 @@ impl SecurityEventService {
                             return false;
                         }
                     } else {
+                        return false;
+                    }
+                }
+
+                // Filtro por resource/filename (busca parcial case-insensitive)
+                // @ref Story-5.2 - Filename search implementation
+                if let Some(ref resource_filter) = filter.resource {
+                    if let Some(ref event_resource) = e.resource {
+                        // Busca case-insensitive e parcial (permite buscar "patient_records.xls"
+                        // e encontrar "/shares/sensitive/patient_records.xls")
+                        if !event_resource
+                            .to_lowercase()
+                            .contains(&resource_filter.to_lowercase())
+                        {
+                            return false;
+                        }
+                    } else {
+                        // Se o filtro especifica resource mas o evento não tem, não match
                         return false;
                     }
                 }

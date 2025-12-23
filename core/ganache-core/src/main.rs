@@ -968,7 +968,7 @@ async fn set_acl(
 /// # Purpose
 /// Returns security events from the in-memory cache with optional filters
 ///
-/// @ref Story-5.4 - Security events endpoint
+/// @ref Story-5.2 - Security events endpoint with filename search
 #[utoipa::path(
     get,
     path = "/api/v1/security/events",
@@ -976,6 +976,7 @@ async fn set_acl(
         ("event_type" = Option<String>, Query, description = "Filter by event type"),
         ("user" = Option<String>, Query, description = "Filter by username"),
         ("source_ip" = Option<String>, Query, description = "Filter by source IP"),
+        ("resource" = Option<String>, Query, description = "Filter by filename or resource path (partial match)"),
         ("severity" = Option<String>, Query, description = "Filter by severity level"),
         ("date_from" = Option<String>, Query, description = "Filter from date (ISO 8601)"),
         ("date_to" = Option<String>, Query, description = "Filter to date (ISO 8601)"),
@@ -1016,6 +1017,7 @@ async fn get_security_events(
         event_type,
         user: params.get("user").cloned(),
         source_ip: params.get("source_ip").cloned(),
+        resource: params.get("resource").cloned(),
         severity,
         date_from: params.get("date_from").cloned(),
         date_to: params.get("date_to").cloned(),

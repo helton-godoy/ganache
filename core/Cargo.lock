@@ -430,6 +430,7 @@ dependencies = [
  "futures",
  "ganache-api",
  "ganache-lib",
+ "lazy_static",
  "once_cell",
  "serde",
  "serde_json",

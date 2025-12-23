@@ -2,6 +2,11 @@ use axum::{http::StatusCode, routing::get, Json, Router};
 use ganache_api::{
     models::acl::{GetAclResponse, SetAclRequest, SetAclResponse},
     models::active_directory::{AdPrincipalType, AdSearchRequest, AdSearchResponse},
+    models::break_glass::{
+        BreakGlassActivateRequest, BreakGlassActivateResponse, BreakGlassActivationInfo,
+        BreakGlassDeactivateRequest, BreakGlassDeactivateResponse, BreakGlassStatusResponse,
+        PasswordValidationRequest, PasswordValidationResponse,
+    },
     models::git_commit::{GitCommit, GitDiff},
     models::security::{
         EventFilter, SecurityAlert, SecurityEvent, SecurityEventType, SecurityMetrics,
@@ -16,6 +21,7 @@ use ganache_lib::{
     SecurityEventService, SecurityMetricsService, ZpoolService,
 };
 mod auth;
+mod break_glass_handlers;
 mod services;
 mod websocket_security;
 use auth::AuthenticatedUser;
@@ -104,6 +110,10 @@ async fn main() {
             get_security_metrics,
             get_security_alerts,
             acknowledge_security_alert,
+            break_glass_handlers::activate_break_glass,
+            break_glass_handlers::deactivate_break_glass,
+            break_glass_handlers::get_break_glass_status,
+            break_glass_handlers::validate_password,
             websocket_security::ws_security_events
         ),
         components(schemas(
@@ -148,6 +158,14 @@ async fn main() {
             ganache_api::models::security::EventFilter,
             ganache_api::models::security::SecurityEventType,
             ganache_api::models::security::SeverityLevel,
+            ganache_api::models::break_glass::BreakGlassActivateRequest,
+            ganache_api::models::break_glass::BreakGlassActivateResponse,
+            ganache_api::models::break_glass::BreakGlassDeactivateRequest,
+            ganache_api::models::break_glass::BreakGlassDeactivateResponse,
+            ganache_api::models::break_glass::BreakGlassStatusResponse,
+            ganache_api::models::break_glass::BreakGlassActivationInfo,
+            ganache_api::models::break_glass::PasswordValidationRequest,
+            ganache_api::models::break_glass::PasswordValidationResponse,
             SystemLog,
             DiskInfo
         ))
@@ -233,6 +251,28 @@ async fn main() {
         .route(
             "/api/v1/security/events/ws",
             get(websocket_security::ws_security_events),
+        )
+        .route("/api/v1/security/metrics", get(get_security_metrics))
+        .route("/api/v1/security/alerts", get(get_security_alerts))
+        .route(
+            "/api/v1/security/alerts/acknowledge",
+            axum::routing::post(acknowledge_security_alert),
+        )
+        .route(
+            "/api/v1/security/break-glass/activate",
+            axum::routing::post(break_glass_handlers::activate_break_glass),
+        )
+        .route(
+            "/api/v1/security/break-glass/deactivate",
+            axum::routing::post(break_glass_handlers::deactivate_break_glass),
+        )
+        .route(
+            "/api/v1/security/break-glass/status",
+            get(break_glass_handlers::get_break_glass_status),
+        )
+        .route(
+            "/api/v1/security/break-glass/validate-password",
+            axum::routing::post(break_glass_handlers::validate_password),
         )
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .layer(CorsLayer::permissive());

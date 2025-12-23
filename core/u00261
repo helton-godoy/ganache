@@ -1,0 +1,17 @@
+   Compiling ganache-api v0.1.0 (/root/GANACHE/core/ganache-api)
+   Compiling ganache-lib v0.1.0 (/root/GANACHE/core/ganache-lib)
+   Compiling ganache-core v0.1.0 (/root/GANACHE/core/ganache-core)
+warning: unused imports: `BreakGlassActivateRequest`, `BreakGlassActivateResponse`, `BreakGlassActivationInfo`, `BreakGlassDeactivateRequest`, `BreakGlassDeactivateResponse`, `BreakGlassStatusResponse`, `PasswordValidationRequest`, and `PasswordValidationResponse`
+ --> ganache-core/src/main.rs:6:9
+  |
+6 |         BreakGlassActivateRequest, BreakGlassActivateResponse, BreakGlassDeactivateRequest,
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7 |         BreakGlassDeactivateResponse, BreakGlassStatusResponse, PasswordValidationRequest,
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^
+8 |         PasswordValidationResponse, BreakGlassActivationInfo,
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `ganache-core` (bin "ganache-core") generated 1 warning (run `cargo fix --bin "ganache-core" -p ganache-core` to apply 1 suggestion)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.74s

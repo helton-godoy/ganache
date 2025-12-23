@@ -53,13 +53,13 @@ export const EventTimeline: React.FC<EventTimelineProps> = ({ events }) => {
                                 <div>
                                     <div className="flex items-center space-x-2">
                                         <span className="font-bold text-sm uppercase tracking-wide px-2 py-0.5 rounded bg-white bg-opacity-50">
-                                            {event.type}
+                                            {event.event_type.replace('_', ' ')}
                                         </span>
                                         <span className="text-xs opacity-75">
                                             {new Date(event.timestamp).toLocaleTimeString()}
                                         </span>
                                     </div>
-                                    <p className="mt-1 font-medium">{event.message}</p>
+                                    <p className="mt-1 font-medium">{event.action}</p>
                                 </div>
                                 {(event.source_ip || event.user) && (
                                     <div className="text-right text-xs opacity-80">

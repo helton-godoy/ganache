@@ -16,26 +16,36 @@ export enum SecuritySeverity {
 export interface SecurityEvent {
     id: string;
     timestamp: string; // ISO 8601
-    type: SecurityEventType;
+    event_type: SecurityEventType;
     severity: SecuritySeverity;
-    message: string;
+    user: string;
     source_ip?: string;
-    user?: string;
+    action: string;
+    resource?: string;
     details?: Record<string, unknown>;
 }
 
 export interface SecurityMetrics {
     events_per_minute: number;
-    active_users: number;
-    suspicious_ips: number;
-    critical_events_count: number;
+    total_events_24h: number;
+    active_users: string[];
+    suspicious_ips: Array<{
+        ip: string;
+        failed_attempts: number;
+        last_attempt: string;
+        reason: string;
+    }>;
+    critical_alerts: number;
+    failed_logins_1h: number;
 }
 
 export interface SecurityAlert {
     id: string;
-    timestamp: string;
+    created_at: string;
     severity: SecuritySeverity;
-    message: string;
+    title: string;
+    description: string;
+    related_events: string[];
     acknowledged: boolean;
 }
 

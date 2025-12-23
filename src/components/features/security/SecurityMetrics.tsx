@@ -10,25 +10,25 @@ export const SecurityMetrics: React.FC<SecurityMetricsProps> = ({ metrics }) => 
     const cards = [
         {
             title: 'Events / Minute',
-            value: metrics.events_per_minute,
+            value: metrics.events_per_minute.toFixed(1),
             color: 'bg-blue-500',
             textColor: 'text-blue-500',
         },
         {
             title: 'Active Users',
-            value: metrics.active_users,
+            value: metrics.active_users.length,
             color: 'bg-green-500',
             textColor: 'text-green-500',
         },
         {
             title: 'Suspicious IPs',
-            value: metrics.suspicious_ips,
+            value: metrics.suspicious_ips.length,
             color: 'bg-yellow-500',
             textColor: 'text-yellow-500',
         },
         {
             title: 'Critical Events',
-            value: metrics.critical_events_count,
+            value: metrics.critical_alerts,
             color: 'bg-red-500',
             textColor: 'text-red-500',
         },

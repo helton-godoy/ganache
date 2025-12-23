@@ -9,20 +9,24 @@ export const useSecurityEvents = () => {
         events: [],
         metrics: {
             events_per_minute: 0,
-            active_users: 0,
-            suspicious_ips: 0,
-            critical_events_count: 0,
+            total_events_24h: 0,
+            active_users: [],
+            suspicious_ips: [],
+            critical_alerts: 0,
+            failed_logins_1h: 0,
         },
         alerts: [],
         isConnected: false,
     });
+
+    const FETCH_LIMIT = 50;
 
     const wsRef = useRef<WebSocket | null>(null);
 
     const fetchData = useCallback(async () => {
         try {
             const [eventsRes, metricsRes, alertsRes] = await Promise.all([
-                fetch(`${API_BASE}/events?limit=50`),
+                fetch(`${API_BASE}/events?limit=${FETCH_LIMIT}`),
                 fetch(`${API_BASE}/metrics`),
                 fetch(`${API_BASE}/alerts`),
             ]);
@@ -34,10 +38,7 @@ export const useSecurityEvents = () => {
             setState(prev => ({
                 ...prev,
                 events,
-                metrics: {
-                    ...metrics,
-                    critical_events_count: metrics.critical_alerts || 0
-                },
+                metrics,
                 alerts,
             }));
         } catch (error) {

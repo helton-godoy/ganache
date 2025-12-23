@@ -229,7 +229,7 @@ async fn main() {
         .route("/api/v1/security/metrics", get(get_security_metrics))
         .route("/api/v1/security/alerts", get(get_security_alerts))
         .route(
-            "/api/v1/security/alerts/:id/acknowledge",
+            "/api/v1/security/alerts/{id}/acknowledge",
             axum::routing::post(acknowledge_security_alert),
         )
         .route(

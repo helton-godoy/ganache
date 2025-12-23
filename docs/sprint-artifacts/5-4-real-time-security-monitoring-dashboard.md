@@ -125,7 +125,7 @@ Agente SM (BMad)
 - `src/components/features/security/SecurityMetrics.tsx` (novo)
 - `src/hooks/useSecurityEvents.ts` (modificado - acknowledge endpoint real)
 - `src/types/security.ts` (novo - tipos TypeScript)
-- `src/pages/security.tsx` (novo - rota Next.js)
+- `src/app/security/page.tsx` (modificado - rota Next.js App Router)
 
 **Testes**:
 
@@ -151,7 +151,7 @@ Agente SM (BMad)
 
 - Git events: `security_event_service.rs:L275-L323`
 - Acknowledge endpoint: `main.rs:L1061-L1091`
-- Frontend route: `src/pages/security.tsx`
+- Frontend route: `src/app/security/page.tsx`
 
 ### Registro de Remediação (Adversarial Review #3)
 

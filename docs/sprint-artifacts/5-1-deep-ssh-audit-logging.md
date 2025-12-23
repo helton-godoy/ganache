@@ -30,9 +30,6 @@ So that I can perform a complete forensic analysis in case of a breach or accide
   - [x] Direct commands (e.g., ls, rm)
   - [x] Scripts and sub-shells
   - [x] Sudo commands and privilege escalation
-- [x] UI integration for audit viewing (if required)
-  - [x] Add audit dashboard in React frontend
-  - [x] Consume audit API from Rust core
 
 ## Dev Notes
 
@@ -81,7 +78,7 @@ antigravity-dev
 - [/etc/pam.d/common-session](file:///etc/pam.d/common-session)
 - [docs/sprint-artifacts/sprint-status.yaml](file:///root/GANACHE/docs/sprint-artifacts/sprint-status.yaml)
 
-**Note:** Frontend files (`src/components/features/security/`, `src/hooks/useSecurityEvents.ts`, `src/types/security.ts`) removed as they belong to Story 5.4 (Real-time Security Monitoring Dashboard), not Story 5.1 (Deep SSH Audit Logging backend implementation).
+**Note:** Frontend files (`src/components/features/security/`, etc) were identified as belonging to Story 5.4. They have been committed separately to unblock Story 5.1 validation.
 
 ### Code Review Remediation Notes
 
@@ -129,4 +126,3 @@ antigravity-dev
 **Issues Remanescentes:**
 
 - ⚠️ L2 (LOW): Falta validação E2E de captura real de comandos SSH em sessão ativa (requer validação manual)
-

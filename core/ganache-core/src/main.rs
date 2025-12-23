@@ -484,7 +484,7 @@ fn default_limit() -> u32 {
 async fn list_datasets(
     axum::extract::Query(params): axum::extract::Query<ListDatasetsQuery>,
 ) -> Json<Vec<DatasetInfo>> {
-    // If a test parameter is provided OR if the pool is named 'pool' (for quick testing), 
+    // If a test parameter is provided OR if the pool is named 'pool' (for quick testing),
     // generate dummy datasets for simulation
     if params.test.is_some() || params.pool == "pool" {
         let n = params.test.unwrap_or(70);

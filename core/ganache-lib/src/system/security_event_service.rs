@@ -3,7 +3,6 @@ use chrono::Utc;
 use ganache_api::models::security::{EventFilter, SecurityEvent, SecurityEventType, SeverityLevel};
 use serde_json::json;
 use std::sync::{Arc, RwLock};
-// use uuid::Uuid;
 
 /// Cache global de eventos de segurança
 ///
@@ -316,6 +315,14 @@ impl SecurityEventService {
                     .unwrap_or("unknown");
 
                 if let Some(event) = Self::parse_tty_log(line, user) {
+                    let mut event = event;
+                    // Tenta resolver UIDs comuns para nomes mais amigáveis se o audit log trouxe apenas números
+                    if event.user == "0" {
+                        event.user = "root".to_string();
+                    } else if event.user == "1000" {
+                        event.user = "admin".to_string(); // Default admin user in appliance
+                    }
+
                     if !Self::event_exists(&event.id) {
                         Self::add_event(event)?;
                         collected += 1;

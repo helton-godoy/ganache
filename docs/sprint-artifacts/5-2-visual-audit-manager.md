@@ -1,6 +1,6 @@
 # Story 5.2: visual-audit-manager
 
-Status: ready-for-dev
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -28,10 +28,10 @@ So that I can quickly respond to compliance requests without grep-ing text files
   - [x] Build search form with filename input and filters
   - [x] Display results in table format with User, IP, Timestamp
   - [x] Add export functionality for PDF/CSV
-- [ ] Test audit search functionality
-  - [ ] Unit tests for search logic in Rust
-  - [ ] E2E tests for UI search and export
-  - [ ] Integration tests for API endpoints
+- [x] Test audit search functionality
+  - [x] Unit tests for search logic in Rust
+  - [x] E2E tests for UI search and export
+  - [x] Integration tests for API endpoints
 
 ## Dev Notes
 

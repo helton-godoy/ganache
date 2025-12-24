@@ -1,0 +1,76 @@
+name: Adversarial Review Checks
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+  workflow_dispatch:
+
+jobs:
+  adversarial-checks:
+    name: Adversarial Review Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Make scripts executable
+        run: chmod +x scripts/*.sh
+
+      - name: Run analyze-review-readiness checks
+        id: analyze-review-readiness
+        run: |
+          echo "=== Running analyze-review-readiness checks ==="
+          FAILED_FILES=0
+          for file in $(git diff --name-only HEAD~1 HEAD); do
+            if [ -f "$file" ]; then
+              echo "Checking $file for TODOs..."
+              if ! ./scripts/analyze-review-readiness.sh --check-todos "$file"; then
+                echo "::warning file=$file::TODO/FIXME found in $file"
+                FAILED_FILES=$((FAILED_FILES + 1))
+              fi
+            fi
+          done
+          
+          if [ $FAILED_FILES -gt 0 ]; then
+            echo "::error::Found $FAILED_FILES file(s) with TODOs/FIXMEs"
+            echo "failed_files=$FAILED_FILES" >> $GITHUB_OUTPUT
+            exit 1
+          else
+            echo "::notice::No TODOs/FIXMEs found"
+            echo "failed_files=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run suggestion engine checks
+        id: suggestion-engine
+        run: |
+          echo "=== Running suggestion engine checks ==="
+          SUGGESTIONS_FOUND=0
+          for file in $(git diff --name-only HEAD~1 HEAD); do
+            if [ -f "$file" ]; then
+              echo "Checking $file with suggestion engine..."
+              if ./scripts/suggest-fixes.sh --check-all "$file" 2>&1 | grep -q "Suggestions provided"; then
+                echo "::warning file=$file::Suggestions available for $file"
+                SUGGESTIONS_FOUND=$((SUGGESTIONS_FOUND + 1))
+              fi
+            fi
+          done
+          
+          if [ $SUGGESTIONS_FOUND -gt 0 ]; then
+            echo "::notice::Found $SUGGESTIONS_FOUND file(s) with suggestions"
+            echo "suggestions_found=$SUGGESTIONS_FOUND" >> $GITHUB_OUTPUT
+          else
+            echo "::notice::No suggestions needed"
+            echo "suggestions_found=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Summary
+        run: |
+          echo "=== Adversarial Review Checks Summary ==="
+          echo "Failed files with TODOs: ${{ steps.analyze-review-readiness.outputs.failed_files }}"
+          echo "Files with suggestions: ${{ steps.suggestion-engine.outputs.suggestions_found }}"
+          
+          if [ "${{ steps.analyze-review-readiness.outputs.failed_files }}" -gt 0 ]; then
+            echo "::error::Please fix TODOs/FIXMEs before submitting for review"
+            exit 1
+          fi

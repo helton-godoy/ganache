@@ -32,11 +32,28 @@ async fn get_security_events(
     axum::extract::Query(params): axum::extract::Query<std::collections::HashMap<String, String>>,
 ) -> Result<Json<Vec<SecurityEvent>>, (StatusCode, String)> {
     // Parse query parameters into EventFilter
+    let event_type = params.get("event_type").and_then(|s| match s.as_str() {
+        "ssh_login" => Some(SecurityEventType::SshLogin),
+        "ssh_command" => Some(SecurityEventType::SshCommand),
+        "file_access" => Some(SecurityEventType::FileAccess),
+        "config_change" => Some(SecurityEventType::ConfigChange),
+        "break_glass_access" => Some(SecurityEventType::BreakGlassAccess),
+        "permission_change" => Some(SecurityEventType::PermissionChange),
+        _ => None,
+    });
+
+    let severity = params.get("severity").and_then(|s| match s.to_lowercase().as_str() {
+        "info" => Some(SeverityLevel::Info),
+        "warning" => Some(SeverityLevel::Warning),
+        "critical" => Some(SeverityLevel::Critical),
+        _ => None,
+    });
+
     let filter = EventFilter {
-        event_type: None, // TODO: Parse from params
+        event_type,
         user: params.get("user").cloned(),
         source_ip: params.get("source_ip").cloned(),
-        severity: None, // TODO: Parse from params
+        severity,
         date_from: params.get("date_from").cloned(),
         date_to: params.get("date_to").cloned(),
         limit: params
@@ -93,6 +110,6 @@ async fn get_security_alerts(
 ) -> Result<Json<Vec<SecurityAlert>>, (StatusCode, String)> {
     match SecurityMetricsService::generate_alerts() {
         Ok(alerts) => Ok(Json(alerts)),
-        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string( ))),
+        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
     }
 }

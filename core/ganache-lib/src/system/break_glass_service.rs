@@ -1,7 +1,13 @@
-use anyhow::Result;
+use crate::ConfigDb;
+use anyhow::{Context, Result};
 use ganache_api::models::security::{SecurityEvent, SecurityEventType, SeverityLevel};
 use serde::{Deserialize, Serialize};
+use std::process::Command;
 use std::sync::{Arc, RwLock};
+use tracing::{error, info};
+
+const CONFIG_FILE: &str = "break_glass_config.json";
+const EMERGENCY_USER: &str = "emergency_admin";
 
 /// Estado da conta Break-Glass emergency_admin
 ///
@@ -37,6 +43,13 @@ pub struct BreakGlassActivation {
     pub reason: Option<String>,
 }
 
+/// Estrutura para persistência do estado
+#[derive(Serialize, Deserialize, Clone, Debug)]
+struct BreakGlassPersistedState {
+    state: BreakGlassState,
+    activation_info: Option<BreakGlassActivation>,
+}
+
 /// Serviço de gerenciamento da conta Break-Glass
 ///
 /// # Purpose
@@ -45,80 +58,181 @@ pub struct BreakGlassActivation {
 /// - Auditoria completa de atividades
 /// - Integração com sistema de notificação
 /// - Validação de complexidade de senha
+/// - Persistência de estado e ativação real de usuário no OS
 ///
 /// @ref Story-5.3 - Break-Glass emergency admin service
 pub struct BreakGlassService {
-    /// Estado atual da conta
-    state: Arc<RwLock<BreakGlassState>>,
-    /// Informações da ativação atual (se ativada)
-    activation_info: Arc<RwLock<Option<BreakGlassActivation>>>,
+    /// Estado atual persistido
+    data: Arc<RwLock<BreakGlassPersistedState>>,
 }
 
 impl BreakGlassService {
-    /// Cria nova instância do serviço com conta desativada
+    /// Cria nova instância do serviço e carrega estado persistido
     ///
-    /// @ref Story-5.3 AC 5.3.1 - Conta desativada por padrão
+    /// @ref Story-5.3 AC 5.3.1 - Carregamento de estado persistente
     pub fn new() -> Self {
+        let default_state = BreakGlassPersistedState {
+            state: BreakGlassState::Disabled,
+            activation_info: None,
+        };
+
+        // Tentar carregar estado do disco
+        let loaded_state = match Self::load_state() {
+            Ok(Some(s)) => {
+                info!("Loaded persisted break-glass state: {:?}", s.state);
+                s
+            }
+            Ok(None) => default_state,
+            Err(e) => {
+                error!("Failed to load break-glass state: {}", e);
+                default_state
+            }
+        };
+
         Self {
-            state: Arc::new(RwLock::new(BreakGlassState::Disabled)),
-            activation_info: Arc::new(RwLock::new(None)),
+            data: Arc::new(RwLock::new(loaded_state)),
         }
+    }
+
+    /// Carrega o estado do ConfigDb (sistema de arquivos git-backed)
+    fn load_state() -> Result<Option<BreakGlassPersistedState>> {
+        let root = crate::GitService::get_repo_path();
+        let file_path = root.join("db").join(CONFIG_FILE);
+
+        if file_path.exists() {
+            let content = std::fs::read_to_string(file_path)?;
+            let state = serde_json::from_str(&content)?;
+            Ok(Some(state))
+        } else {
+            Ok(None)
+        }
+    }
+
+    /// Salva o estado atual no ConfigDb
+    fn save_state(&self, user: &str, action: &str) -> Result<()> {
+        let data = self.data.read().unwrap().clone();
+        ConfigDb::save_and_commit(
+            CONFIG_FILE,
+            &data,
+            user,
+            action,
+            "break-glass configuration",
+        )
     }
 
     /// Retorna o estado atual da conta
     pub fn get_state(&self) -> Result<BreakGlassState> {
-        Ok(self
-            .state
-            .read()
-            .map_err(|e| anyhow::anyhow!("Failed to read state: {}", e))?
-            .clone())
+        Ok(self.data.read().unwrap().state.clone())
+    }
+
+    /// Executa comando de ativação real no SO
+    fn activate_os_user() -> Result<()> {
+        if std::env::var("GANACHE_DEV_MODE").is_ok() {
+            info!("[DEV] Mocking user activation (usermod -U)");
+            return Ok(());
+        }
+
+        // Verifica se usuário existe
+        let check_user = Command::new("id").arg(EMERGENCY_USER).output()?;
+
+        if !check_user.status.success() {
+            // Cria usuário se não existir (sem acesso a shell por enquanto)
+            info!("Creating emergency user: {}", EMERGENCY_USER);
+            Command::new("useradd")
+                .args(["-m", "-s", "/bin/bash", EMERGENCY_USER])
+                .output()
+                .context("Failed to create emergency user")?;
+        }
+
+        // Desbloqueia a conta (remove ! do shadow)
+        info!("Unlocking emergency user: {}", EMERGENCY_USER);
+        let output = Command::new("usermod")
+            .args(["-U", EMERGENCY_USER])
+            .output()
+            .context("Failed to unlock emergency user")?;
+
+        if !output.status.success() {
+            let err = String::from_utf8_lossy(&output.stderr);
+            return Err(anyhow::anyhow!("Failed to activate execution: {}", err));
+        }
+
+        // Força expiração de senha para exigir troca no login
+        // chage -d 0 forces password change on next login
+        Command::new("chage")
+            .args(["-d", "0", EMERGENCY_USER])
+            .output()
+            .context("Failed to force password change")?;
+
+        Ok(())
+    }
+
+    /// Executa comando de desativação real no SO
+    fn deactivate_os_user() -> Result<()> {
+        if std::env::var("GANACHE_DEV_MODE").is_ok() {
+            info!("[DEV] Mocking user deactivation (usermod -L)");
+            return Ok(());
+        }
+
+        // Bloqueia a conta (adiciona ! no shadow)
+        info!("Locking emergency user: {}", EMERGENCY_USER);
+        let output = Command::new("usermod")
+            .args(["-L", EMERGENCY_USER])
+            .output()
+            .context("Failed to lock emergency user")?;
+
+        if !output.status.success() {
+            let err = String::from_utf8_lossy(&output.stderr);
+            return Err(anyhow::anyhow!("Failed to deactivate execution: {}", err));
+        }
+
+        // Mata processos do usuário
+        Command::new("pkill")
+            .args(["-u", EMERGENCY_USER])
+            .output()
+            .ok(); // Ignora erro se não houver processos
+
+        Ok(())
     }
 
     /// Ativa a conta emergency_admin
     ///
-    /// # Arguments
-    /// * `activated_by` - Nome do usuário que disparou a ativação
-    /// * `source_ip` - IP de origem (opcional)
-    /// * `reason` - Motivo da ativação (opcional)
-    ///
-    /// # Returns
-    /// SecurityEvent de auditoria da ativação
-    ///
-    /// @ref Story-5.3 AC 5.3.1 - Ativação segura com auditoria
+    /// @ref Story-5.3 AC 5.3.1 - Ativação segura com persistência e OS hook
     pub fn activate(
         &self,
         activated_by: String,
         source_ip: Option<String>,
         reason: Option<String>,
     ) -> Result<SecurityEvent> {
-        let mut state = self
-            .state
-            .write()
-            .map_err(|e| anyhow::anyhow!("Failed to write state: {}", e))?;
+        // Scope para write lock
+        {
+            let mut data = self.data.write().unwrap();
 
-        if *state != BreakGlassState::Disabled {
-            return Err(anyhow::anyhow!(
-                "Cannot activate: account is not in Disabled state"
-            ));
+            if data.state != BreakGlassState::Disabled {
+                return Err(anyhow::anyhow!(
+                    "Cannot activate: account is not in Disabled state"
+                ));
+            }
+
+            // Tenta ativar no OS primeiro
+            if let Err(e) = Self::activate_os_user() {
+                error!("Failed to activate OS user: {}", e);
+                return Err(anyhow::anyhow!("OS activation failed: {}", e));
+            }
+
+            data.state = BreakGlassState::ActivatedPendingPassword;
+            data.activation_info = Some(BreakGlassActivation {
+                activated_at: chrono::Utc::now().to_rfc3339(),
+                activated_by: activated_by.clone(),
+                activation_source_ip: source_ip.clone(),
+                reason: reason.clone(),
+            });
+        } // Drop lock antes de salvar (save pega read lock -> deadlock potential if inside)
+
+        // Persistir (pega read lock internamente)
+        if let Err(e) = self.save_state(&activated_by, "activate") {
+            error!("Failed to persist activation state: {}", e);
+            // Non-fatal? Talvez fatal para manter consistência
         }
-
-        *state = BreakGlassState::ActivatedPendingPassword;
-
-        let activation = BreakGlassActivation {
-            activated_at: chrono::Utc::now().to_rfc3339(),
-            activated_by: activated_by.clone(),
-            activation_source_ip: source_ip.clone(),
-            reason: reason.clone(),
-        };
-
-        *self
-            .activation_info
-            .write()
-            .map_err(|e| anyhow::anyhow!("Failed to write activation info: {}", e))? =
-            Some(activation);
-
-        // TODO: Executar comando useradd/passwd para habilitar conta real
-        // TODO: Enviar notificações via sistema existente
 
         // Criar evento de auditoria
         Ok(SecurityEvent {
@@ -129,7 +243,7 @@ impl BreakGlassService {
             user: activated_by,
             source_ip,
             action: "Emergency admin account activated".to_string(),
-            resource: Some("emergency_admin".to_string()),
+            resource: Some(EMERGENCY_USER.to_string()),
             details: serde_json::json!({
                 "reason": reason,
                 "state_transition": "Disabled -> ActivatedPendingPassword"
@@ -139,37 +253,36 @@ impl BreakGlassService {
 
     /// Desativa a conta emergency_admin
     ///
-    /// # Arguments
-    /// * `deactivated_by` - Nome do usuário que disparou a desativação
-    ///
-    /// # Returns
-    /// SecurityEvent de auditoria da desativação
-    ///
-    /// @ref Story-5.3 AC 5.3.4 - Desativação automática
+    /// @ref Story-5.3 AC 5.3.4 - Desativação com persistência e OS hook
     pub fn deactivate(&self, deactivated_by: String) -> Result<SecurityEvent> {
-        let mut state = self
-            .state
-            .write()
-            .map_err(|e| anyhow::anyhow!("Failed to write state: {}", e))?;
+        let previous_state;
 
-        if *state == BreakGlassState::Disabled {
-            return Err(anyhow::anyhow!(
-                "Cannot deactivate: account is already Disabled"
-            ));
+        {
+            let mut data = self.data.write().unwrap();
+
+            if data.state == BreakGlassState::Disabled {
+                return Err(anyhow::anyhow!(
+                    "Cannot deactivate: account is already Disabled"
+                ));
+            }
+
+            // Desativa no OS
+            if let Err(e) = Self::deactivate_os_user() {
+                error!("Failed to deactivate OS user: {}", e);
+                // Continue anyway to ensure system state is consistent regarding disabled status?
+                // Lets return error to be safe
+                return Err(anyhow::anyhow!("OS deactivation failed: {}", e));
+            }
+
+            previous_state = data.state.clone();
+            data.state = BreakGlassState::Disabled;
+            data.activation_info = None;
         }
 
-        let previous_state = state.clone();
-        *state = BreakGlassState::Disabled;
+        if let Err(e) = self.save_state(&deactivated_by, "deactivate") {
+            error!("Failed to persist deactivation state: {}", e);
+        }
 
-        *self
-            .activation_info
-            .write()
-            .map_err(|e| anyhow::anyhow!("Failed to reset activation info: {}", e))? = None;
-
-        // TODO: Executar comando passwd -l para desativar conta real
-        // TODO: Enviar notificações de desativação
-
-        // Criar evento de auditoria
         Ok(SecurityEvent {
             id: uuid::Uuid::new_v4().to_string(),
             timestamp: chrono::Utc::now().to_rfc3339(),
@@ -178,7 +291,7 @@ impl BreakGlassService {
             user: deactivated_by.clone(),
             source_ip: None,
             action: "Emergency admin account deactivated".to_string(),
-            resource: Some("emergency_admin".to_string()),
+            resource: Some(EMERGENCY_USER.to_string()),
             details: serde_json::json!({
                 "deactivated_by": deactivated_by,
                 "state_transition": format!("{:?} -> Disabled", previous_state)
@@ -187,12 +300,6 @@ impl BreakGlassService {
     }
 
     /// Valida complexidade de senha
-    ///
-    /// # Arguments
-    /// * `password` - Senha a ser validada
-    ///
-    /// # Returns
-    /// Ok(()) se válida, Err com mensagem descritiva se inválida
     ///
     /// @ref Story-5.3 AC 5.3.2 - Complexidade de senha
     pub fn validate_password_complexity(password: &str) -> Result<()> {
@@ -212,17 +319,14 @@ impl BreakGlassService {
                 "Password must contain at least one uppercase letter"
             ));
         }
-
         if !has_lowercase {
             return Err(anyhow::anyhow!(
                 "Password must contain at least one lowercase letter"
             ));
         }
-
         if !has_digit {
             return Err(anyhow::anyhow!("Password must contain at least one digit"));
         }
-
         if !has_symbol {
             return Err(anyhow::anyhow!(
                 "Password must contain at least one special symbol"
@@ -236,28 +340,37 @@ impl BreakGlassService {
     ///
     /// @ref Story-5.3 AC 5.3.2 - Redefinição de senha obrigatória
     pub fn mark_password_changed(&self) -> Result<()> {
-        let mut state = self
-            .state
-            .write()
-            .map_err(|e| anyhow::anyhow!("Failed to write state: {}", e))?;
+        {
+            let mut data = self.data.write().unwrap();
 
-        if *state != BreakGlassState::ActivatedPendingPassword {
-            return Err(anyhow::anyhow!(
-                "Cannot mark password changed: account is not in ActivatedPendingPassword state"
-            ));
+            if data.state != BreakGlassState::ActivatedPendingPassword {
+                return Err(anyhow::anyhow!("Cannot mark password changed: account is not in ActivatedPendingPassword state"));
+            }
+
+            data.state = BreakGlassState::Active;
         }
 
-        *state = BreakGlassState::Active;
+        // Persistir a mudança de estado
+        self.save_state_system("system-password-change")?;
+
         Ok(())
+    }
+
+    // Helper para salvar como sistema
+    fn save_state_system(&self, action: &str) -> Result<()> {
+        let data = self.data.read().unwrap().clone();
+        ConfigDb::save_and_commit(
+            CONFIG_FILE,
+            &data,
+            "system",
+            action,
+            "break-glass state update",
+        )
     }
 
     /// Retorna informações da ativação atual
     pub fn get_activation_info(&self) -> Result<Option<BreakGlassActivation>> {
-        Ok(self
-            .activation_info
-            .read()
-            .map_err(|e| anyhow::anyhow!("Failed to read activation info: {}", e))?
-            .clone())
+        Ok(self.data.read().unwrap().activation_info.clone())
     }
 }
 

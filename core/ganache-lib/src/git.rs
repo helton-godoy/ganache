@@ -13,9 +13,18 @@ pub const DEFAULT_REPO_PATH: &str = "/etc/ganache";
 pub struct GitService;
 
 impl GitService {
+    /// Get the current repository path (respects GANACHE_CONFIG_DIR env var)
+    pub fn get_repo_path() -> std::path::PathBuf {
+        if let Ok(path) = std::env::var("GANACHE_CONFIG_DIR") {
+            std::path::PathBuf::from(path)
+        } else {
+            std::path::PathBuf::from(DEFAULT_REPO_PATH)
+        }
+    }
+
     /// Initialize git repository at the default path if not exists
     pub fn init_repo() -> Result<()> {
-        Self::init_repo_at(DEFAULT_REPO_PATH)
+        Self::init_repo_at(Self::get_repo_path())
     }
 
     /// Initialize git repository at the specified path if not exists
@@ -66,7 +75,7 @@ impl GitService {
 
     /// Commit changes using default repository path
     pub fn commit_changes(username: &str, action: &str, resource: &str) -> Result<()> {
-        Self::commit_changes_at(DEFAULT_REPO_PATH, username, action, resource)
+        Self::commit_changes_at(Self::get_repo_path(), username, action, resource)
     }
 
     /// Commit changes with username and message at specific path
@@ -122,7 +131,7 @@ impl GitService {
     ///
     /// @ref Story-3.3 - Implements git-based configuration rollback
     pub fn rollback_config(commit_id: &str, username: &str, reason: &str) -> Result<String> {
-        Self::rollback_config_to(DEFAULT_REPO_PATH, commit_id, username, reason)
+        Self::rollback_config_to(Self::get_repo_path(), commit_id, username, reason)
     }
 
     /// Rollback configuration to a specific commit at a specific path

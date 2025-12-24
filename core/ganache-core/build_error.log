@@ -1,0 +1,40 @@
+    Checking ganache-core v0.1.0 (/root/GANACHE/core/ganache-core)
+error[E0603]: constant `DEFAULT_REPO_PATH` is private
+   --> ganache-core/src/main.rs:612:27
+    |
+612 |         ganache_lib::git::DEFAULT_REPO_PATH,
+    |                           ^^^^^^^^^^^^^^^^^ private constant
+    |
+note: the constant `DEFAULT_REPO_PATH` is defined here
+   --> /root/GANACHE/core/ganache-lib/src/git.rs:11:1
+    |
+ 11 | const DEFAULT_REPO_PATH: &str = "/etc/ganache";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0603]: constant `DEFAULT_REPO_PATH` is private
+   --> ganache-core/src/main.rs:651:64
+    |
+651 |     match GitHistoryService::get_commit_diff(ganache_lib::git::DEFAULT_REPO_PATH, &commit_id) {
+    |                                                                ^^^^^^^^^^^^^^^^^ private constant
+    |
+note: the constant `DEFAULT_REPO_PATH` is defined here
+   --> /root/GANACHE/core/ganache-lib/src/git.rs:11:1
+    |
+ 11 | const DEFAULT_REPO_PATH: &str = "/etc/ganache";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `BreakGlassActivateRequest`, `BreakGlassActivateResponse`, `BreakGlassActivationInfo`, `BreakGlassDeactivateRequest`, `BreakGlassDeactivateResponse`, `BreakGlassStatusResponse`, `PasswordValidationRequest`, and `PasswordValidationResponse`
+ --> ganache-core/src/main.rs:6:9
+  |
+6 |         BreakGlassActivateRequest, BreakGlassActivateResponse, BreakGlassActivationInfo,
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^
+7 |         BreakGlassDeactivateRequest, BreakGlassDeactivateResponse, BreakGlassStatusResponse,
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^
+8 |         PasswordValidationRequest, PasswordValidationResponse,
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+For more information about this error, try `rustc --explain E0603`.
+warning: `ganache-core` (bin "ganache-core") generated 1 warning
+error: could not compile `ganache-core` (bin "ganache-core") due to 2 previous errors; 1 warning emitted

@@ -2,7 +2,6 @@ use crate::GitService;
 use anyhow::Result;
 use serde::Serialize;
 use std::fs;
-use std::path::Path;
 
 pub struct ConfigDb;
 
@@ -15,8 +14,8 @@ impl ConfigDb {
         action: &str,
         resource: &str,
     ) -> Result<()> {
-        let root = crate::git::DEFAULT_REPO_PATH;
-        let db_dir = Path::new(root).join("db");
+        let root = crate::GitService::get_repo_path();
+        let db_dir = root.join("db");
 
         // Ensure db directory exists
         if !db_dir.exists() {
@@ -38,8 +37,8 @@ impl ConfigDb {
         action: &str,
         resource: &str,
     ) -> Result<()> {
-        let root = crate::git::DEFAULT_REPO_PATH;
-        let file_path = Path::new(root).join("db").join(filename);
+        let root = crate::GitService::get_repo_path();
+        let file_path = root.join("db").join(filename);
 
         if file_path.exists() {
             fs::remove_file(file_path)?;

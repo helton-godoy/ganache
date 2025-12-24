@@ -6,8 +6,9 @@ use ganache_api::models::break_glass::{
     BreakGlassDeactivateRequest, BreakGlassDeactivateResponse, BreakGlassStatusResponse,
     PasswordValidationRequest, PasswordValidationResponse,
 };
-use ganache_lib::BreakGlassService;
+use ganache_lib::{BreakGlassService, SecurityEventService};
 use std::sync::{Arc, Mutex};
+use tracing::{info, warn};
 
 use crate::auth::AuthenticatedUser;
 
@@ -47,8 +48,22 @@ pub async fn activate_break_glass(
         Some(payload.reason.clone()),
     ) {
         Ok(event) => {
-            // TODO: Adicionar evento ao SecurityEventService
-            // TODO: Enviar notificações de alta prioridade
+            // Persist audit event
+            if let Err(e) = SecurityEventService::add_event(event.clone()) {
+                warn!(
+                    "Failed to persist break-glass activation audit event: {}",
+                    e
+                );
+            } else {
+                info!("Break-glass activation audit event persisted: {}", event.id);
+            }
+
+            // TODO: Real notification implementation (SMS/Email)
+            // For now, we log a CRITICAL warning which should be picked up by log monitoring
+            warn!(
+                "CRITICAL: Break-Glass account activated by {}! Reason: {}",
+                payload.activated_by, payload.reason
+            );
 
             Ok(Json(BreakGlassActivateResponse {
                 success: true,
@@ -86,8 +101,24 @@ pub async fn deactivate_break_glass(
 
     match service.deactivate(payload.deactivated_by.clone()) {
         Ok(event) => {
-            // TODO: Adicionar evento ao SecurityEventService
-            // TODO: Enviar notificações de desativação
+            // Persist audit event
+            if let Err(e) = SecurityEventService::add_event(event.clone()) {
+                warn!(
+                    "Failed to persist break-glass deactivation audit event: {}",
+                    e
+                );
+            } else {
+                info!(
+                    "Break-glass deactivation audit event persisted: {}",
+                    event.id
+                );
+            }
+
+            // TODO: Real notification implementation
+            info!(
+                "Break-Glass account deactivated by {}",
+                payload.deactivated_by
+            );
 
             Ok(Json(BreakGlassDeactivateResponse {
                 success: true,

@@ -1,6 +1,6 @@
 # História 6.2: Diretrizes para Integração de Histórias
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -43,19 +43,21 @@ E incluir pontos de verificação de coordenação durante o desenvolvimento
   - [x] Validar comunicação entre 6.4 e 6.6
   - [x] Documentar lições aprendidas e ajustes
 
-## Action Items (Code Review Follow-ups)
+## Code Review Fixes Applied (2025-12-24)
 
-### Validação de Integração
+### Issues Identified: 8 (3 HIGH, 4 MEDIUM, 1 LOW)
 
-- [ ] **[Integration-Review][HIGH]** - Validar integração entre serviços compartilhados
-  - Verificar que serviços criados em 6.1 não conflitam com 6.3
-  - Garantir comunicação clara entre componentes
-  - Testar fluxos de dados entre histórias
+**All HIGH and MEDIUM issues FIXED:**
 
-- [ ] **[Architecture-Review][MEDIUM]** - Validar limites de responsabilidade
-  - Confirmar que cada história tem escopo bem definido
-  - Verificar ausência de sobreposição funcional
-  - Validar que dependências são explícitas
+- [x] **HIGH #1** - AC #1 parcialmente implementado → **FIXED**: Adicionados exemplos concretos (SecurityEventService, Validation Scripts Library)
+- [x] **HIGH #2** - Análise incompleta de histórias → **FIXED**: Expandida análise para TODAS as 6 histórias com matriz de conflitos
+- [x] **HIGH #3** - Integration validator superficial → **FIXED**: Validator agora verifica compliance real (seções obrigatórias, exemplos, análise completa)
+- [x] **MEDIUM #4** - Dependency template vazio → **FIXED**: Preenchido com caso real (Story 6.3 depende de 6.1)
+- [x] **MEDIUM #5** - Testes limitados → **FIXED**: Testes validam conteúdo e qualidade, não apenas existência
+- [x] **MEDIUM #6** - Processo de coordenação vago → **FIXED**: Adicionados checkpoints concretos, protocolo de resolução, matriz de priorização
+- [x] **MEDIUM #7** - Documentação de uso ausente → **FIXED**: Criado guia completo passo-a-passo "Como Usar Estas Diretrizes"
+
+**LOW issue not addressed:** Scripts error handling (acceptable)
 
 ## Notas de Desenvolvimento
 
@@ -127,6 +129,32 @@ kwaipilot/kat-coder-pro:free
 - **Integração:** Validação de integração adicionada ao `scripts/bmad-validate.sh` (Step 8).
 - **Testes:** Criado e validado `tests/integration/test_integration_validation.sh`.
 - **Cleanup:** Removidos requisitos de validação sobre histórias futuras (6.3-6.6) do escopo de teste imediato, focando na existência do framework e ferramentas.
+
+### Code Review Remediations (2025-12-24)
+
+**Enhancements Applied:**
+
+1. **Framework Expansion:**
+   - Matriz completa com 6 histórias (6.1-6.6) incluindo status, componentes e arquivos
+   - 4 conflitos identificados com mitigações concretas (Log Parsing, Scripts, Docs, Tests)
+   - Exemplos práticos: SecurityEventService (6.1+6.3), Validation Scripts Library (6.1+6.2)
+   - Guia passo-a-passo "Como Usar Estas Diretrizes" com 3 fases (antes, durante, final)
+
+2. **Validation Improvements:**
+   - `integration-validator.sh` valida 5 seções obrigatórias + exemplos concretos + análise completa
+   - `test_integration_validation.sh` verifica conteúdo de qualidade, não apenas existência
+   - Validação funcional: script executa e passa compliance checks
+
+3. **Template Enrichment:**
+   - Preenchido com caso real: Story 6.3 (robustness) depende de 6.1 (optimization)
+   - Documenta componentes compartilhados, impactos e plano de mitigação
+   - Inclui instruções de uso do template
+
+4. **Process Formalization:**
+   - Checklist de integração em 3 fases (pre-dev, durante, pre-review)
+   - Protocolo de resolução de conflitos em 3 níveis (arquivo, interface, arquitetura)
+   - Matriz de priorização P0-P3
+   - Workflow mermaid de integração com sprint-status
 
 ### Resumo de Implementação
 

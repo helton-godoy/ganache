@@ -57,7 +57,9 @@ E incluir pontos de verificação de coordenação durante o desenvolvimento
 - [x] **MEDIUM #6** - Processo de coordenação vago → **FIXED**: Adicionados checkpoints concretos, protocolo de resolução, matriz de priorização
 - [x] **MEDIUM #7** - Documentação de uso ausente → **FIXED**: Criado guia completo passo-a-passo "Como Usar Estas Diretrizes"
 
-**LOW issue not addressed:** Scripts error handling (acceptable)
+**LOW issue FIXED:**
+
+- [x] **LOW #8** - Template usability & Test redundancy → **FIXED**: Split template/example and refactored test script to avoid duplication.
 
 ## Notas de Desenvolvimento
 
@@ -129,6 +131,7 @@ kwaipilot/kat-coder-pro:free
 - **Integração:** Validação de integração adicionada ao `scripts/bmad-validate.sh` (Step 8).
 - **Testes:** Criado e validado `tests/integration/test_integration_validation.sh`.
 - **Cleanup:** Removidos requisitos de validação sobre histórias futuras (6.3-6.6) do escopo de teste imediato, focando na existência do framework e ferramentas.
+- **Low Issue Remediation:** Separado `dependency-mapping-template.md` (limpo) de `examples/dependency-mapping-example.md`. Refatorado `test_integration_validation.sh` para usar `integration-validator.sh` como fonte de verdade.
 
 ### Code Review Remediations (2025-12-24)
 

@@ -10,7 +10,7 @@ test.describe('Compliance: Real-time Security Dashboard (Story 5.4)', () => {
      * @ref Story 5.4 - Acceptance Criterion 4 & 7
      * Scenario: Real-time update via WebSocket
      */
-    test('should update dashboard metrics automatically via WebSocket stream', async ({ page }) => {
+    test('[P1] should update dashboard metrics automatically via WebSocket stream', async ({ page }) => {
         // GIVEN: Initial metric value
         const initialEvents = page.locator('[data-testid="metric-events-min"]');
         const initialValue = await initialEvents.innerText();
@@ -32,7 +32,7 @@ test.describe('Compliance: Real-time Security Dashboard (Story 5.4)', () => {
      * @ref Story 5.4 - Acceptance Criterion 5
      * Scenario: Visual alerts for critical events
      */
-    test('should show visual toast alerts for high-risk security events', async ({ page }) => {
+    test('[P0] should show visual toast alerts for high-risk security events', async ({ page }) => {
         // GIVEN: A high-risk event (e.g. multiple failed logins)
         await page.request.post('/api/v1/security/events', {
             data: {

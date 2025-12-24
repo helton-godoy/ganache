@@ -155,7 +155,7 @@ graph TD
 
 - [x] Serviço Break-Glass implementado (BreakGlassService) ✅
 - [x] API REST implementada com OpenAPI documentation ✅
-- [x] Testes unitários passando (13/13 testes) ✅
+- [x] Testes unitários passando (9/9 testes) ✅
 - [x] Validação de senha implementada ✅
 - [x] Auditoria integrada com SecurityEvent ✅
 - [ ] Notificações Email/SMS (TODO - não bloqueante)
@@ -185,7 +185,7 @@ graph TD
 ```
 [2025-12-23 19:08] História recebida com status 'ready-for-dev'
 [2025-12-23 19:15] Implementação de BreakGlassService iniciada (TDD red-green-refactor)
-[2025-12-23 19:22] 13 testes unitários passando
+[2025-12-23 19:22] 9 testes unitários passando
 [2025-12-23 19:30] Commit 1: feat(backend): BreakGlassService + testes
 [2025-12-23 19:45] Modelos OpenAPI e handlers REST implementados
 [2025-12-23 19:58] Commit 2: feat(backend): REST API handlers
@@ -204,7 +204,7 @@ graph TD
   - POST `/api/v1/security/break-glass/validate-password`
 - Validação de senha com NIST compliance (12+ caracteres, 4 tipos de caracteres)
 - Auditoria completa via SecurityEvent (tipo BreakGlassAccess)
-- 13 testes unitários (100% pass rate)
+- 9 testes unitários (100% pass rate)
 - Documentação OpenAPI para todos os endpoints
 
 **Scope Trade-offs** (TODO para fase 2 ou stories futuras):
@@ -219,6 +219,7 @@ graph TD
 - **False AC 5.3.1 Implementation**: Previously, the service only simulated activation. Now (`v2`), it executes `useradd`, `usermod`, and `passwd` commands to actually manage the OS user `emergency_admin`.
 - **State Persistence**: Previously in-memory only. Now uses `ConfigDb` (json file in git repo) to persist state across restarts.
 - **Test Isolation**: Refactored `git.rs` and `config_db.rs` to support `GANACHE_CONFIG_DIR` env var, allowing robust unit testing of persistence logic without affecting production config.
+- **Code Review (2025-12-23 20:31)**: Fixed test count documentation (was 13, actually 9). Removed 8 unused Break-Glass imports from `main.rs`.
 
 **Decision Rationale**:
 Priorizei core functionality backend + API contract para permitir desenvolvimento frontend paralelo. Notificações e account provisioning são integráveis posteriormente sem quebrar contracts existentes.

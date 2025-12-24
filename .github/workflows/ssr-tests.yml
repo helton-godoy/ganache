@@ -1,0 +1,39 @@
+name: SSR Regression Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/**'
+      - 'tests/ssr/**'
+      - 'package.json'
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  ssr-quality-gate:
+    name: SSR Quality Gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Unit & Integration Tests (Vitest)
+        run: npx vitest run tests/ssr --config vitest.config.ts
+
+      - name: Run E2E SSR Tests (Playwright)
+        run: npx playwright test --config playwright.ssr.config.ts
+        env:
+          CI: true

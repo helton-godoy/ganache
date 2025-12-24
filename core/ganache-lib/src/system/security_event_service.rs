@@ -245,12 +245,15 @@ impl SecurityEventService {
 
         // Validar que não está vazio
         if clean_hex.is_empty() {
+            tracing::warn!("Attempted to decode empty hex data in TTY log");
             return Err(anyhow::anyhow!("Empty hex data"));
         }
 
         // Decodificar hex com erro descritivo
-        let bytes = hex::decode(&clean_hex)
-            .map_err(|e| anyhow::anyhow!("Invalid hex data '{}': {}", hex_data, e))?;
+        let bytes = hex::decode(&clean_hex).map_err(|e| {
+            tracing::warn!("Invalid hex data in TTY log '{}': {}", hex_data, e);
+            anyhow::anyhow!("Invalid hex data '{}': {}", hex_data, e)
+        })?;
 
         // Tentar UTF-8, mas aceitar lossy conversion se falhar
         match String::from_utf8(bytes.clone()) {
@@ -297,7 +300,12 @@ impl SecurityEventService {
         } else {
             None
         }
-        .unwrap_or_else(|| Utc::now().to_rfc3339()); // Fallback para agora se falhar
+        .unwrap_or_else(|| {
+            tracing::warn!(
+                "Using current time as fallback for malformed/missing timestamp in TTY log"
+            );
+            Utc::now().to_rfc3339()
+        });
 
         // Extrair campos (ex: terminal=pts/1 res=1 data=...)
         let terminal = line

@@ -28,7 +28,7 @@ E reduzir o número médio de iterações de revisão por história
   - [x] Criar verificações automatizadas para anti-padrões comuns (ex.: falta de tratamento de erros, problemas de segurança)
   - [x] Integrar com git hooks existentes (`pre-commit`, `pre-push`) e scripts de validação
   - [x] Adicionar motor de sugestões para correções padrão
-  - [ ] Melhorar a robustez das funções de parsing de logs para logs de segurança e auditoria
+  - [x] Melhorar a robustez das funções de parsing de logs para logs de segurança e auditoria
 - [ ] Atualizar diretrizes e treinamento de revisão adversarial
   - [ ] Documentar fluxo de processo otimizado
   - [ ] Criar materiais de treinamento para a equipe de desenvolvimento
@@ -102,6 +102,16 @@ x-ai/grok-code-fast-1
 - **Testes:** 5/5 testes passando em `tests/scripts/test_suggestion_engine.sh`
 - **Impacto:** Desenvolvedores agora recebem sugestões automatizadas antes de commits
 
+### Notas de Desenvolvimento - Robustez de Parsing (2025-12-24)
+
+- **Melhorias Implementadas:**
+  - `decode_tty_data`: Tratamento robusto de hex inválido, dados vazios e UTF-8 inválido com lossy conversion
+  - `parse_samba_audit_log`: Validação de estrutura (5 partes) e campos não-vazios com logging de erros
+  - Logging descritivo para troubleshooting de logs malformados
+- **Testes:** 11/11 novos testes passando em `robust_log_parsing_tests.rs`
+- **Validação:** 39/39 testes totais passando (sem regressões)
+- **Impacto:** Sistema agora lida graciosamente com logs malformados sem falhas silenciosas
+
 ### File List
 
 - scripts/analyze-review-readiness.sh
@@ -109,3 +119,5 @@ x-ai/grok-code-fast-1
 - scripts/suggest-fixes.sh
 - tests/scripts/test_analyze_review_readiness.sh
 - tests/scripts/test_suggestion_engine.sh
+- core/ganache-lib/src/system/security_event_service.rs
+- core/ganache-lib/tests/robust_log_parsing_tests.rs

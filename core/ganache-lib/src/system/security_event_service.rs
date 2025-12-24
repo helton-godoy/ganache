@@ -222,15 +222,43 @@ impl SecurityEventService {
         Self::get_events(&filter)
     }
 
-    /// Decodifica dados hexadecimal de logs TTY
+    /// Decodifica dados hexadecimal de logs TTY com tratamento robusto de erros
+    ///
+    /// # Arguments
+    /// * `hex_data` - String hexadecimal (pode conter espaços)
+    ///
+    /// # Returns
+    /// String decodificada ou erro descritivo
+    ///
+    /// # Purpose
+    /// Trata edge cases: hex inválido, dados vazios, bytes não-UTF8
+    ///
+    /// @ref Story-6.1 - Robust log parsing improvements
     pub fn decode_tty_data(hex_data: &str) -> Result<String> {
         let clean_hex = hex_data.replace(' ', "");
-        let bytes = hex::decode(clean_hex)?;
-        let mut decoded = String::from_utf8(bytes)?;
-
-        // Remover caracteres de controle (como \r ou \n) e limpar o comando
-        decoded = decoded.replace('\r', "").replace('\n', "");
-        Ok(decoded)
+        
+        // Validar que não está vazio
+        if clean_hex.is_empty() {
+            return Err(anyhow::anyhow!("Empty hex data"));
+        }
+        
+        // Decodificar hex com erro descritivo
+        let bytes = hex::decode(&clean_hex)
+            .map_err(|e| anyhow::anyhow!("Invalid hex data '{}': {}", hex_data, e))?;
+        
+        // Tentar UTF-8, mas aceitar lossy conversion se falhar
+        match String::from_utf8(bytes.clone()) {
+            Ok(mut decoded) => {
+                decoded = decoded.replace('\r', "").replace('\n', "");
+                Ok(decoded)
+            }
+            Err(_) => {
+                // Fallback: lossy conversion para dados binários
+                tracing::warn!("Non-UTF8 data in TTY log, using lossy conversion");
+                let decoded = String::from_utf8_lossy(&bytes).to_string();
+                Ok(decoded.replace('\r', "").replace('\n', ""))
+            }
+        }
     }
 
     /// Processa uma linha de log TTY e converte em SecurityEvent
@@ -304,6 +332,11 @@ impl SecurityEventService {
     }
 
     /// Processa uma linha de log de auditoria do Samba e converte em SecurityEvent
+    ///
+    /// # Purpose
+    /// Parsing robusto com validação de estrutura e campos
+    ///
+    /// @ref Story-6.1 - Robust Samba log parsing
     pub fn parse_samba_audit_log(line: &str) -> Option<SecurityEvent> {
         // Exemplo de log:
         // smbd_audit: User alice|192.168.1.10|open|ok|/shares/sensitive/doc.pdf
@@ -315,64 +348,75 @@ impl SecurityEventService {
         if let Some(audit_part) = line.split("smbd_audit:").nth(1) {
             // Use splitn(5) to ensure the file path (5th element) captures any remaining pipes
             let parts: Vec<&str> = audit_part.trim().splitn(5, '|').collect();
-            if parts.len() >= 5 {
-                let user_raw = parts[0];
-                let ip = parts[1];
-                let action_raw = parts[2];
-                let status = parts[3];
-                let file_path = parts[4];
-
-                // Extrair apenas o nome do usuário se tiver prefixo "User "
-                let user = user_raw.replace("User ", "");
-
-                // Mapear ação para verbo mais legível
-                let action = match action_raw {
-                    "open" => "Open File",
-                    "pread" | "read" => "Read File",
-                    "pwrite" | "write" => "Write File",
-                    "unlink" | "rmdir" => "Delete File",
-                    "mkdir" => "Create Directory",
-                    "rename" => "Rename File",
-                    _ => action_raw,
-                };
-
-                let severity = if status == "fail" {
-                    SeverityLevel::Warning
-                } else if action.contains("Delete") {
-                    SeverityLevel::Warning
-                } else {
-                    SeverityLevel::Info
-                };
-
-                // Determinar SecurityEventType
-                let event_type = if action.contains("Delete")
-                    || action.contains("Write")
-                    || action.contains("Rename")
-                {
-                    SecurityEventType::FileAccess
-                } else {
-                    SecurityEventType::FileAccess
-                };
-
-                let event_id =
-                    uuid::Uuid::new_v5(&uuid::Uuid::NAMESPACE_OID, line.as_bytes()).to_string();
-
-                return Some(SecurityEvent {
-                    id: event_id,
-                    timestamp: Utc::now().to_rfc3339(), // Idealmente extrair do log se possível
-                    event_type,
-                    severity,
-                    user,
-                    source_ip: Some(ip.to_string()),
-                    action: action.to_string(),
-                    resource: Some(file_path.to_string()),
-                    details: json!({
-                        "raw_log": line,
-                        "status": status,
-                        "original_action": action_raw
-                    }),
-                });
+            
+            // Validar estrutura esperada
+            if parts.len() < 5 {
+                tracing::warn!("Malformed Samba audit log (expected 5 parts, got {}): {}", parts.len(), line);
+                return None;
             }
+            
+            let user_raw = parts[0];
+            let ip = parts[1];
+            let action_raw = parts[2];
+            let status = parts[3];
+            let file_path = parts[4];
+
+            // Validar campos não-vazios
+            if user_raw.is_empty() || ip.is_empty() || action_raw.is_empty() {
+                tracing::warn!("Empty required fields in Samba audit log: {}", line);
+                return None;
+            }
+
+            // Extrair apenas o nome do usuário se tiver prefixo "User "
+            let user = user_raw.replace("User ", "");
+
+            // Mapear ação para verbo mais legível
+            let action = match action_raw {
+                "open" => "Open File",
+                "pread" | "read" => "Read File",
+                "pwrite" | "write" => "Write File",
+                "unlink" | "rmdir" => "Delete File",
+                "mkdir" => "Create Directory",
+                "rename" => "Rename File",
+                _ => action_raw,
+            };
+
+            let severity = if status == "fail" {
+                SeverityLevel::Warning
+            } else if action.contains("Delete") {
+                SeverityLevel::Warning
+            } else {
+                SeverityLevel::Info
+            };
+
+            // Determinar SecurityEventType
+            let event_type = if action.contains("Delete")
+                || action.contains("Write")
+                || action.contains("Rename")
+            {
+                SecurityEventType::FileAccess
+            } else {
+                SecurityEventType::FileAccess
+            };
+
+            let event_id =
+                uuid::Uuid::new_v5(&uuid::Uuid::NAMESPACE_OID, line.as_bytes()).to_string();
+
+            return Some(SecurityEvent {
+                id: event_id,
+                timestamp: Utc::now().to_rfc3339(), // Idealmente extrair do log se possível
+                event_type,
+                severity,
+                user,
+                source_ip: Some(ip.to_string()),
+                action: action.to_string(),
+                resource: Some(file_path.to_string()),
+                details: json!({
+                    "raw_log": line,
+                    "status": status,
+                    "original_action": action_raw
+                }),
+            });
         }
         None
     }

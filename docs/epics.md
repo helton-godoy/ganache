@@ -6,462 +6,476 @@ inputDocuments:
   - docs/ux-design-specification.md
 ---
 
-# GANACHE - Epic Breakdown
+# GANACHE - Decomposição de Épicos
 
-## Overview
+## Visão Geral
 
-This document provides the complete epic and story breakdown for GANACHE, decomposing the requirements from the PRD, UX Design if it exists, and Architecture requirements into implementable stories.
+Este documento fornece a decomposição completa de épicos e histórias para o GANACHE, decompondo os requisitos do PRD, Design UX (se existir) e requisitos de Arquitetura em histórias implementáveis.
 
-## Requirements Inventory
+## Inventário de Requisitos
 
-### Functional Requirements
+### Requisitos Funcionais
 
-FR1: User can trigger "Compatibility Mode" wizard to automatically configure ZFS-over-DRBD on PERC 6/i controllers.
-FR2: System must auto-tune ZFS ARC size based on detected RAM (16GB vs 32GB) range.
-FR3: User can select a previous Ganache System Version from the GRUB Boot Menu to rollback a failed update.
-FR4: System can sustain a single-node power loss with <30s failover time (RTO).
-FR5: System must enforce a 90% Hard Quota on the ZFS Pool to prevent CoW lockup.
-FR6: User can create/delete ZFS Datasets for file sharing separation.
-FR7: System must record every configuration change (Network, Users, Shares) as a Git commit.
-FR8: Administrator can view a timeline of configuration changes (Who, When, What).
-FR9: Administrator can "Rollback" the system configuration to any previous Git commit from the UI.
-FR10: Auditor Users (Permission Restricted) can search/filter file access logs via the "Visual Audit Manager".
-FR11: System must log all SSH command executions with timestamps and usernames ("Deep Bash Audit").
-FR12: Administrator can enable a "Break-Glass" local admin account for emergency access during AD failure.
-FR13: User can join the appliance to an Active Directory Domain via the UI.
-FR14: System must map AD Groups to SMB Share Permissions implementing the TrueNAS NFSv4 ACL logic.
+FR1: O usuário pode acionar o assistente de "Modo de Compatibilidade" para configurar automaticamente ZFS-over-DRBD em controladores PERC 6/i.
+FR2: O sistema deve auto-ajustar o tamanho do ARC do ZFS com base na faixa de RAM detectada (16GB vs 32GB).
+FR3: O usuário pode selecionar uma versão anterior do sistema Ganache no menu de inicialização do GRUB para reverter uma atualização com falha.
+FR4: O sistema pode suportar a perda de energia de um único nó com tempo de failover <30s (RTO).
+FR5: O sistema deve impor uma cota rígida de 90% no Pool ZFS para evitar o travamento de CoW.
+FR6: O usuário pode criar/excluir Datasets ZFS para separação de compartilhamento de arquivos.
+FR7: O sistema deve registrar cada alteração de configuração (Rede, Usuários, Compartilhamentos) como um commit do Git.
+FR8: O administrador pode visualizar uma linha do tempo das alterações de configuração (Quem, Quando, O quê).
+FR9: O administrador pode "Reverter" a configuração do sistema para qualquer commit anterior do Git através da interface do usuário (UI).
+FR10: Usuários Auditores (com restrição de permissão) podem pesquisar/filtrar logs de acesso a arquivos via o "Visual Audit Manager".
+FR11: O sistema deve registrar todas as execuções de comandos SSH com carimbos de data/hora e nomes de usuário ("Deep Bash Audit").
+FR12: O administrador pode habilitar uma conta de administrador local "Break-Glass" para acesso de emergência durante falha do AD.
+FR13: O usuário pode ingressar o appliance em um domínio do Active Directory via UI.
+FR14: O sistema deve mapear grupos do AD para permissões de compartilhamento SMB implementando a lógica ACL NFSv4 do TrueNAS.
 
-### NonFunctional Requirements
+### Requisitos Não Funcionais
 
-NFR1: (SMB Throughput) System must saturate a 1GbE network link (110MB/s) for sequential large file writes.
-NFR2: (Boot Time) Appliance must boot from "Power On" to "Ready" in < 3 minutes on Dell 2950 hardware.
-NFR3: (Resource Cap) Middleware + OS must not exceed 4GB RAM usage.
-NFR4: (Failover Speed) High Availability failover must complete in < 30 seconds upon primary node failure.
-NFR5: (Recovery) A clear "Split Brain" degraded state must be visible in the UI if the cluster interconnect fails.
-NFR6: (Audit Integrity) Audit logs must be immutable (User cannot edit them via UI).
-NFR7: (SSH Session) All interactive SSH sessions must display a "This system is audited" banner upon login.
-NFR8: (Wizard Clarity) 100% of "Destructive Actions" must require a typed confirmation ("CONFIRM").
-NFR9: (Error Messages) Errors must provide a "Human Readable" explanation + a "Technical Code".
+NFR1: (Taxa de Transferência SMB) O sistema deve saturar um link de rede 1GbE (110MB/s) para gravações sequenciais de arquivos grandes.
+NFR2: (Tempo de Inicialização) O appliance deve inicializar de "Power On" até "Pronto" em < 3 minutos no hardware Dell 2950.
+NFR3: (Limite de Recursos) Middleware + SO não devem exceder 4GB de uso de RAM.
+NFR4: (Velocidade de Failover) O failover de Alta Disponibilidade deve ser concluído em < 30 segundos após a falha do nó primário.
+NFR5: (Recuperação) Um estado degradado claro de "Split Brain" deve ser visível na UI se a interconexão do cluster falhar.
+NFR6: (Integridade da Auditoria) Os logs de auditoria devem ser imutáveis (o usuário não pode editá-los via UI).
+NFR7: (Sessão SSH) Todas as sessões SSH interativas devem exibir um banner "Este sistema é auditado" ao fazer login.
+NFR8: (Clareza do Assistente) 100% das "Ações Destrutivas" devem exigir uma confirmação digitada ("CONFIRMAR").
+NFR9: (Mensagens de Erro) Os erros devem fornecer uma explicação "Legível por Humanos" + um "Código Técnico".
 
-### Additional Requirements
+### Requisitos Adicionais
 
-From Architecture:
+Da Arquitetura:
 
-- Initialize project using T3-Lite scaffold (Next.js, tRPC, Tailwind) via `npm create t3-app@latest`.
-- Implement security model using sudo allow-list in `/etc/sudoers.d/ganache`.
-- Implement Real-time state synchronization via Short Polling (2-5s) using React Query.
-- Implement "Panic Mode" recovery flow for emergency failover.
-- API Strategy: Use tRPC + React Query for Type-Safe API layer.
-- Components to be implemented in `src/components/features` (Smart) vs `src/components/ui` (Dumb).
+- Inicializar o projeto usando o scaffold T3-Lite (Next.js, tRPC, Tailwind) via `npm create t3-app@latest`.
+- Implementar modelo de segurança usando lista de permissões sudo em `/etc/sudoers.d/ganache`.
+- Implementar sincronização de estado em tempo real via Short Polling (2-5s) usando React Query.
+- Implementar fluxo de recuperação "Panic Mode" para failover de emergência.
+- Estratégia de API: Usar tRPC + React Query para camada de API Type-Safe.
+- Componentes a serem implementados em `src/components/features` (Smart) vs `src/components/ui` (Dumb).
 
-From UX Design:
+Do Design UX:
 
-- Implement "Ganache SAFE" theme (Slate Blue/Emerald) with Dark Mode support.
-- Implement Custom Component: Server Blade Card (with drag & drop).
-- Implement Custom Component: Twin-View Sync Ring (Visualizing DRBD/ZFS health).
-- Implement Custom Component: Zpool Topology Tree (Visual VDEV hierarchy).
-- Ensure WCAG AA compliance (Accessibility).
-- Setup Wizard must be 100% navigable via Keyboard.
-- Implement "Twin-View Topology" visualization for Cluster Setup.
+- Implementar tema "Ganache SAFE" (Slate Blue/Emerald) com suporte a Modo Escuro.
+- Implementar Componente Personalizado: Server Blade Card (com arrastar e soltar).
+- Implementar Componente Personalizado: Twin-View Sync Ring (Visualizando saúde de DRBD/ZFS).
+- Implementar Componente Personalizado: Zpool Topology Tree (Hierarquia Visual VDEV).
+- Garantir conformidade WCAG AA (Acessibilidade).
+- O Assistente de Configuração deve ser 100% navegável via teclado.
+- Implementar visualização "Twin-View Topology" para configuração do cluster.
 
-### FR Coverage Map
+### Mapa de Cobertura de FR
 
-FR1: Epic 1 - Wizard de Instalação Compatível
-FR2: Epic 1 - Auto-Tune de RAM/ARC
-FR3: Epic 1 - Rollback de Boot via GRUB
+FR1: Epic 1 - Assistente de Instalação Compatível
+FR2: Epic 1 - Auto-Ajuste de RAM/ARC
+FR3: Epic 1 - Rollback de Inicialização via GRUB
 FR4: Epic 2 - Failover de Nó (<30s)
-FR5: Epic 2 - Cotas Rígidas de 90%
+FR5: Epic 2 - Imposição de cota de 90%
 FR6: Epic 2 - Gestão de Datasets ZFS
 FR7: Epic 3 - Backend Git para Configuração
-FR8: Epic 3 - Timeline de Auditoria
-FR9: Epic 3 - Rollback de UI
+FR8: Epic 3 - Linha do Tempo de Auditoria
+FR9: Epic 3 - Rollback via UI
 FR10: Epic 5 - Visual Audit Manager
 FR11: Epic 5 - Deep Bash Audit (SSH)
 FR12: Epic 5 - Conta Break-Glass
-FR13: Epic 4 - Join no Active Directory
+FR13: Epic 4 - Ingressar no Active Directory
 FR14: Epic 4 - Mapeamento de ACLs Winbind
 
-## Epic List
+## Lista de Épicos
 
-### Epic 1: The Trustable Appliance Core
+### Épico 1: O Núcleo do Appliance Confiável
 
-Enable users to transform legacy hardware into a secure "Compatibility Mode" cluster with clear visual feedback and automatic hardware tuning.
-**FRs covered:** FR1, FR2, FR3
+Permitir que os usuários transformem hardware legado em um cluster de "Modo de Compatibilidade" seguro com feedback visual claro e ajuste automático de hardware.
+**FRs cobertos:** FR1, FR2, FR3
 
-### Epic 2: Resilient HA Storage
+### Épico 2: Armazenamento HA Resiliente
 
-Establish a robust storage layer that ensures data survival during hardware failures through ZFS over DRBD and automated failover.
-**FRs covered:** FR4, FR5, FR6
+Estabelecer uma camada de armazenamento robusta que garanta a sobrevivência dos dados durante falhas de hardware através de ZFS sobre DRBD e failover automatizado.
+**FRs cobertos:** FR4, FR5, FR6
 
-### Epic 3: Config Time-Machine
+### Épico 3: Máquina do Tempo de Configuração
 
-Eliminate configuration anxiety by treating system state as versioned code, providing full history and instant rollback capabilities.
-**FRs covered:** FR7, FR8, FR9
+Eliminar a ansiedade de configuração tratando o estado do sistema como código versionado, fornecendo histórico completo e capacidades de rollback instantâneo.
+**FRs cobertos:** FR7, FR8, FR9
 
-### Epic 4: Enterprise Integration
+### Épico 4: Integração Corporativa
 
-Seamlessly integrate with existing Windows networks, ensuring correct authentication and permission mapping without friction.
-**FRs covered:** FR13, FR14
+Integrar perfeitamente com redes Windows existentes, garantindo autenticação correta e mapeamento de permissões sem fricção.
+**FRs cobertos:** FR13, FR14
 
-### Epic 5: Compliance Shield
+### Épico 5: Escudo de Conformidade
 
-Provide HIPAA-grade traceability for all system access and modifications, ensuring accountability and emergency access integrity.
-**FRs covered:** FR10, FR11, FR12
+Fornecer rastreabilidade de nível HIPAA para todos os acessos e modificações do sistema, garantindo responsabilidade e integridade do acesso de emergência.
+**FRs cobertos:** FR10, FR11, FR12
 
-### Epic 6: Quality Process Improvements
+### Épico 6: Melhorias no Processo de Qualidade
 
-Implement process and technical improvements identified in Epic 5 retrospective to enhance development efficiency and code quality.
-**Improvements:** Process optimization, technical robustness, documentation
+Implementar melhorias técnicas e de processo identificadas na retrospectiva do Épico 5 para aumentar a eficiência do desenvolvimento e a qualidade do código.
+**Melhorias:** Otimização de processos, robustez técnica, documentação
 
-<!-- Repeat for each epic in epics_list (N = 1, 2, 3...) -->
+## Épico 1: O Núcleo do Appliance Confiável
 
-## Epic 1: The Trustable Appliance Core
+Permitir que os usuários transformem hardware legado em um cluster de "Modo de Compatibilidade" seguro com feedback visual claro e ajuste automático de hardware.
 
-Enable users to transform legacy hardware into a secure "Compatibility Mode" cluster with clear visual feedback and automatic hardware tuning.
+### História 1.1: Detectar Hardware RAID e Recomendar Modo
 
-### Story 1.1: Detect RAID Hardware & Recommend Mode
+Como um SysAdmin Júnior,
+Eu quero que o sistema detecte se estou executando em qualquer Controlador RAID,
+Para que eu seja guiado automaticamente para o "Modo de Compatibilidade" seguro sem precisar conhecer especificações de hardware.
 
-As a Junior SysAdmin,
-I want the system to detect if I'm running on any RAID Controller,
-So that I am automatically guided to the safe "Compatibility Mode" without needing to know hardware specifics.
+**Critérios de Aceitação:**
 
-**Acceptance Criteria:**
+**Dado** que o sistema está iniciando pela primeira vez
+**Quando** a varredura de hardware detecta QUALQUER controlador RAID suportado (ex: PERC 6/i, H700, etc.)
+**Então** a tela de boas-vindas do Assistente deve recomendar por padrão o "Modo de Compatibilidade"
+**E** exibir um selo "Hardware Detectado: [Nome do Controlador]"
+**E** mostrar uma dica (tooltip) explicando por que o Modo de Compatibilidade é recomendado (RAID detectado)
 
-**Given** the system is booting for the first time
-**When** the hardware scan detects ANY supported RAID controller (e.g., PERC 6/i, H700, etc.)
-**Then** the Wizard welcome screen should default to recommending "Compatibility Mode"
-**And** display a "Hardware Detected: [Controller Name]" badge
-**And** show a tooltip explaining why Compatibility Mode is recommended (RAID detected)
+### História 1.2: Assistente de Configuração do Modo de Compatibilidade
 
-### Story 1.2: Compatibility Mode Setup Wizard
+Como um Administrador de Sistemas,
+Eu quero uma explicação guiada da arquitetura do "Modo de Compatibilidade",
+Para que eu entenda e confie na segurança do ZFS-over-DRBD antes de confirmar.
 
-As a System Administrator,
-I want a guided explanation of the "Compatibility Mode" architecture,
-So that I understand and trust the safety of ZFS-over-DRBD before confirming.
+**Critérios de Aceitação:**
 
-**Acceptance Criteria:**
+**Dado** que o usuário seleciona o "Modo de Compatibilidade"
+**Quando** prosseguindo pelas etapas de configuração
+**Então** a UI deve exibir "Dicas Educativas" explicando a arquitetura (RAID -> DRBD -> ZFS)
+**E** exigir uma ação de "CONFIRMAR" digitada antes de criar o cluster
+**E** visualizar os nós gêmeos se conectando em tempo real
 
-**Given** the user selects "Compatibility Mode"
-**When** proceeding through the setup steps
-**Then** the UI must display "Educational Tooltips" explaining the architecture (RAID -> DRBD -> ZFS)
-**And** require a typed "CONFIRM" action before creating the cluster
-**And** visualize the twin-nodes connecting in real-time
+### História 1.3: Auto-Ajuste de Recursos do Sistema
 
-### Story 1.3: System Resource Auto-Tuning
+Como um Administrador de Sistemas,
+Eu quero que o sistema ajuste automaticamente os limites do ZFS ARC com base na minha RAM instalada,
+Para que o sistema permaneça estável sem ajuste manual de memória.
 
-As a System Administrator,
-I want the system to automatically tune ZFS ARC limits based on my installed RAM,
-So that the system remains stable without manual memory tuning.
+**Critérios de Aceitação:**
 
-**Acceptance Criteria:**
+**Dado** o processo de inicialização do sistema
+**Quando** a RAM é detectada
+**Então** definir o Máximo de ZFS ARC para 50% da RAM Total se < 32GB
+**E** definir o Máximo de ZFS ARC para 2GB a menos que a RAM Total se > 32GB
+**E** garantir que pelo menos 4GB sejam reservados para o SO/Middleware
 
-**Given** the system boot process
-**When** RAM is detected
-**Then** set ZFS ARC Max to 50% of Total RAM if < 32GB
-**And** set ZFS ARC Max to 2GB less than Total RAM if > 32GB
-**And** ensure at least 4GB is reserved for the OS/Middleware
+### História 1.4: Rollback do Ambiente de Inicialização
 
-### Story 1.4: Boot Environment Rollback
+Como um Administrador de Sistemas,
+Eu quero selecionar versões anteriores do sistema no menu de inicialização,
+Para que eu possa me recuperar de uma atualização com falha imediatamente.
 
-As a System Administrator,
-I want to select previous system versions from the boot menu,
-So that I can recover from a failed update immediately.
+**Critérios de Aceitação:**
 
-**Acceptance Criteria:**
+**Dado** uma atualização de sistema ou configuração com falha
+**Quando** o servidor reinicia e o menu do GRUB aparece
+**Então** eu devo ver uma lista de "Ambientes de Inicialização" (snapshots) anteriores
+**E** selecionar um deve iniciar o sistema exatamente como estava naquele ponto
+**E** a UI deve indicar "Iniciado a partir de [Nome do Snapshot]" após o login
 
-**Given** a failed system update or configuration
-**When** the server reboots and the GRUB menu appears
-**Then** I should see a list of previous "Boot Environments" (snapshots)
-**And** selecting one should boot the system exactly as it was at that point
-**And** the UI should indicate "Booted from [Snapshot Name]" after login
+## Épico 2: Armazenamento HA Resiliente
 
-## Epic 2: Resilient HA Storage
+Estabelecer uma camada de armazenamento robusta que garanta a sobrevivência dos dados durante falhas de hardware através de ZFS sobre DRBD e failover automatizado.
 
-Establish a robust storage layer that ensures data survival during hardware failures through ZFS over DRBD and automated failover.
+### História 2.1: Inicialização do Cluster de Dois Nós
 
-### Story 2.1: Twin-Node Cluster Initialization
+Como um Administrador de Sistemas,
+Eu quero inicializar o link de replicação entre meus dois nós,
+Para que eles comecem a se comportar como um único cluster de Alta Disponibilidade.
 
-As a System Administrator,
-I want to initialize the replication link between my two nodes,
-So that they start behaving as a single High Availability cluster.
+**Critérios de Aceitação:**
 
-**Acceptance Criteria:**
+**Dado** dois nós provisionados com IPs estáticos
+**Quando** eu inicio o processo de "Ingresso no Cluster"
+**Então** o Sistema deve verificar a troca de chaves SSH
+**E** configurar os recursos DRBD no disco secundário
+**E** iniciar a sincronização inicial em nível de bloco
 
-**Given** two provisioned nodes with static IPs
-**When** I initiate the "Cluster Join" process
-**Then** the System should verify SSH key exchange
-**And** configure the DRBD resources on the secondary disk
-**And** start the initial block-level synchronization
+### História 2.2: Criação de Pool ZFS sobre DRBD
 
-### Story 2.2: ZFS Pool Creation on DRBD
+Como um Administrador de Sistemas,
+Eu quero que o pool de armazenamento ZFS seja criado sobre o dispositivo replicado,
+Para que todos os meus dados sejam automaticamente espelhados para o segundo nó.
 
-As a System Administrator,
-I want the ZFS storage pool to be created on top of the replicated device,
-So that all my data is automatically mirrored to the second node.
+**Critérios de Aceitação:**
 
-**Acceptance Criteria:**
+**Dado** que o recurso DRBD está em estado 'UpToDate'
+**Quando** o sistema inicia a "Formatação de Armazenamento"
+**Então** ele deve executar `zpool create` direcionado a `/dev/drbdX` (NÃO ao disco bruto)
+**E** habilitar compressão (lz4) por padrão
+**E** verificar se o pool está visível apenas no nó Primário
 
-**Given** the DRBD resource is UpToDate
-**When** the system initiates "Storage Format"
-**Then** it must execute `zpool create` targeting `/dev/drbdX` (NOT the raw disk)
-**And** enable compression (lz4) by default
-**And** verify the pool is visible only on the Primary node
+### História 2.3: Imposição de Cota Rígida de 90%
 
-### Story 2.3: 90% Hard Quota Enforcement
+Como um Administrador de Sistemas,
+Eu quero que o sistema me impeça de preencher o disco acima de 90%,
+Para que a lógica de Copy-on-Write do ZFS nunca falhe por falta de espaço (Espiral da Morte).
 
-As a System Administrator,
-I want the system to prevent me from filling the disk above 90%,
-So that ZFS Copy-on-Write logic never fails due to lack of space (Death Spiral).
+**Critérios de Aceitação:**
 
-**Acceptance Criteria:**
+**Dado** que o pool ZFS está ativo
+**Quando** o pool é criado ou redimensionado
+**Então** o sistema deve aplicar automaticamente `refquota=90%` ao dataset raiz
+**E** o painel da UI deve mostrar o espaço livre com base nesta cota, não na capacidade bruta do disco
 
-**Given** the ZFS pool is active
-**When** the pool is created or resized
-**Then** the system must automatically apply `refquota=90%` to the root dataset
-**And** the UI dashboard must show free space based on this quota, not raw disk capacity
+### História 2.4: Gestão de Datasets
 
-### Story 2.4: Dataset Management
+Como um Administrador de Armazenamento,
+Eu quero criar, renomear e destruir datasets ZFS,
+Para que eu possa organizar meus dados logicamente (ex: separando Departamentos ou Backups).
 
-As a Storage Admin,
-I want to create, rename, and destroy ZFS datasets,
-So that I can organize my data logically (e.g., separating Departments or Backups).
+**Critérios de Aceitação:**
 
-**Acceptance Criteria:**
+**Dado** um pool de armazenamento ativo
+**Quando** eu crio um novo "Compartilhamento" na UI
+**Então** o backend deve criar um dataset filho ZFS correspondente
+**E** herdar propriedades padrão (compressão, acls) do pai
 
-**Given** an active storage pool
-**When** I create a new "Share" in the UI
-**Then** the backend must create a corresponding ZFS child dataset
-**And** inherit default properties (compression, acls) from the parent
+### História 2.5: Failover Automatizado (Lógica de Pânico)
 
-### Story 2.5: Automated Failover (Panic Logic)
+Como um Proprietário de Negócio,
+Eu quero que o sistema mude automaticamente para o nó de backup se o primário falhar,
+Para que meus funcionários possam continuar trabalhando com o mínimo de interrupção (<30s).
 
-As a Business Owner,
-I want the system to automatically switch to the backup node if the primary fails,
-So that my employees can continue working with minimal interruption (<30s).
+**Critérios de Aceitação:**
 
-**Acceptance Criteria:**
+**Dado** um estado de cluster saudável
+**Quando** o nó Primário perde energia (Simulação de "Puxar o Cabo")
+**Então** o nó Secundário deve detectar a perda em até 5 segundos
+**E** promover-se a Primário
+**E** importar o pool ZFS
+**E** assumir o endereço IP Virtual
+**E** o tempo de inatividade total deve ser inferior a 30 segundos
 
-**Given** a healthy cluster state
-**When** the Primary node loses power (Simulated "Plug Pull")
-**Then** the Secondary node must detect the loss within 5 seconds
-**And** promote itself to Primary
-**And** import the ZFS pool
-**And** take over the Virtual IP address
-**And** the total downtime must be less than 30 seconds
+## Épico 3: Máquina do Tempo de Configuração
 
-## Epic 3: Config Time-Machine
+Eliminar a ansiedade de configuração tratando o estado do sistema como código versionado, fornecendo histórico completo e capacidades de rollback instantâneo.
 
-Eliminate configuration anxiety by treating system state as versioned code, providing full history and instant rollback capabilities.
+### História 3.1: Motor de Configuração Baseado em Git
 
-### Story 3.1: Git-Backed Configuration Engine
+Como um Desenvolvedor/Administrador de Sistemas,
+Eu quero que o sistema faça commit automático de cada alteração de configuração em um repositório Git local,
+Para que eu tenha um histórico imutável de quem alterou o quê e quando, sem esforço manual.
 
-As a System Developer/Admin,
-I want the system to automatically commit every configuration change to a local Git repository,
-So that I have an immutable history of who changed what and when, without manual effort.
+**Critérios de Aceitação:**
 
-**Acceptance Criteria:**
+**Dado** que o middleware do sistema está em execução
+**Quando** qualquer arquivo de configuração em `/etc/ganache` ou entrada de banco de dados é modificado via UI/API
+**Então** o sistema deve acionar uma operação de `git commit`
+**E** incluir o nome de usuário autenticado e o carimbo de data/hora na mensagem do commit
+**E** garantir que o repositório permaneça consistente mesmo se ocorrerem edições simultâneas
 
-**Given** the system middleware is running
-**When** any configuration file in `/etc/ganache` or database entry is modified via the UI/API
-**Then** the system must trigger a `git commit` operation
-**And** include the authenticated username and timestamp in the commit message
-**And** ensure the repository remains consistent even if concurrent edits occur
+### História 3.2: UI da Linha do Tempo de Configuração
 
-### Story 3.2: Configuration Timeline UI
+Como um Administrador de Sistemas,
+Eu quero visualizar uma linha do tempo cronológica de todas as mudanças do sistema,
+Para que eu possa auditar atividades recentes ou diagnosticar onde um problema começou.
 
-As a System Administrator,
-I want to view a chronological timeline of all system changes,
-So that I can audit recent activity or troubleshoot when a problem started.
+**Critérios de Aceitação:**
 
-**Acceptance Criteria:**
+**Dado** a página do painel de "Histórico"
+**Quando** eu carrego a visualização
+**Então** eu devo ver uma lista de commits com Data, Autor e um breve resumo
+**E** clicar em um commit deve mostrar um "Diff" simples (comparação visual de mudanças)
+**E** a visualização deve permitir filtrar por usuário ou intervalo de datas
 
-**Given** the "History" dashboard page
-**When** I load the view
-**Then** I should see a list of commits with Date, Author, and a brief summary
-**And** clicking a commit should show a simple "Diff" (Visual comparison of changes)
-**And** the view should allow filtering by user or date range
+### História 3.3: Rollback de Configuração em Um Clique
 
-### Story 3.3: One-Click Config Rollback
+Como um Administrador de Sistemas,
+Eu quero reverter a configuração do sistema para um ponto anterior no tempo,
+Para que eu possa me recuperar instantaneamente de uma alteração de configuração que quebrou algo (ex: configuração de rede ruim).
 
-As a System Administrator,
-I want to revert the system configuration to a previous point in time,
-So that I can instantly recover from a breaking configuration change (e.g., bad network setting).
+**Critérios de Aceitação:**
 
-**Acceptance Criteria:**
+**Dado** um commit selecionado na UI da Linha do Tempo
+**Quando** eu clico no botão "Reverter para este Ponto" e confirmo
+**Então** o sistema deve fazer o checkout desse estado específico de commit do git
+**E** aplicar os arquivos de configuração ao sistema em tempo real
+**E** reiniciar quaisquer serviços que foram afetados pelas mudanças
+**E** criar um novo "Commit de Rollback" para documentar esta ação
 
-**Given** a selected commit in the Timeline UI
-**When** I click the "Rollback to this Point" button and confirm
-**Then** the system must checkout that specific git commit state
-**And** apply the configuration files to the live system
-**And** restart any services that were affected by the changes
-**And** create a new "Rollback Commit" to document this action
+## Épico 4: Integração Corporativa
 
-## Epic 4: Enterprise Integration
+Integrar perfeitamente com redes Windows existentes, garantindo autenticação correta e mapeamento de permissões sem fricção, usando camadas de Integração de Sistema de alto desempenho.
 
-Seamlessly integrate with existing Windows networks, ensuring correct authentication and permission mapping without friction, using high-performance System Integration layers.
+### História 4.1: Ingresso no Domínio Active Directory (Middleware Rust)
 
-### Story 4.1: Active Directory Domain Join (Rust Middleware)
+Como um SysAdmin,
+Eu quero ingressar o appliance Ganache em um domínio Active Directory existente via UI,
+Para que eu possa atribuir usuários e grupos existentes do AD a compartilhamentos SMB sem gestão manual de usuários.
 
-As a SysAdmin,
-I want to join the Ganache appliance to an existing Active Directory domain via the UI,
-So that I can assign existing AD users and groups to SMB shares without manual user management.
+**Critérios de Aceitação:**
 
-**Acceptance Criteria:**
+**Dado** credenciais válidas de Controlador de Domínio e configurações de DNS
+**Quando** eu envio o formulário "Ingressar no Domínio"
+**Então** a Camada de Integração do Sistema deve executar a sequência de ingresso de forma segura
+**E** atualizar a configuração do Samba (`smb.conf`) para o modo de segurança "ADS"
+**E** refatorar/portar a lógica comprovada de Ingresso no Domínio do TrueNAS SCALE (Python) para Rust (Ganache Core)
+**E** a lógica de cache deve ser implementada no backend tRPC eficiente para desempenho
+**E** persistir o estado do serviço AD através de reinicializações
 
-**Given** valid Domain Controller credentials and DNS settings
-**When** I submit the "Join Domain" form
-**Then** the System Integration Layer must execute the join sequence securely
-**And** update the Samba configuration (`smb.conf`) to "ADS" security mode
-**And** refactor/port the proven Domain Join logic from TrueNAS SCALE (Python) into Rust (Ganache Core)
-**And** the caching logic must be implemented in the efficient tRPC backend for performance
-**And** persist the AD service state across reboots
+### História 4.2: Mapeador de ACL (Implementação Rust Core)
 
-### Story 4.2: ACL Mapper (Rust Core Implementation)
+Como um SysAdmin,
+Eu quero navegar pelos grupos do Active Directory ao configurar permissões de compartilhamento,
+Para que eu possa restringir facilmente o acesso a departamentos específicos (ex: "Grupo-Financeiro").
 
-As a SysAdmin,
-I want to browse Active Directory groups when configuring share permissions,
-So that I can easily restrict access to specific departments (e.g., "Finance-Group").
+**Critérios de Aceitação:**
 
-**Acceptance Criteria:**
+**Dado** um domínio AD ingressado com sucesso
+**Quando** eu configuro o "Gestor de ACL" de um Dataset
+**Então** eu devo ver uma lista pesquisável de Usuários e Grupos do AD via uma API de backend
+**E** a lógica de aplicação de ACL deve ser portatada do TrueNAS SCALE (Python) para Rust para garantir a correção
+**E** as permissões aplicadas devem ser validadas contra a saída do `getfacl`
+**E** listar "Administradores do Domínio" e outros grupos sem timeouts
 
-**Given** a successfully joined AD domain
-**When** I configure a Dataset's "ACL Manager"
-**Then** I should see a searchable list of AD Users and Groups via a backend API
-**And** the ACL application logic must be ported from TrueNAS SCALE (Python) to Rust to ensure correctness
-**And** permissions applied must be validated against `getfacl` outputterns)
-**And** list "Domain Admins" and other groups without timeouts
+### História 4.3: Gestão de ACL para Compartilhamentos
 
-### Story 4.3: ACL Management for Shares
+Como um Administrador de Sistemas,
+Eu quero aplicar permissões compatíveis com Windows (ACLs) aos meus datasets,
+Para que o controle de acesso funcione exatamente como um Windows Server nativo.
 
-As a System Administrator,
-I want to apply Windows-compatible permissions (ACLs) to my datasets,
-So that access control works exactly like a native Windows Server.
+**Critérios de Aceitação:**
 
-**Acceptance Criteria:**
+**Dado** um dataset compartilhado via SMB
+**Quando** eu edito permissões na UI
+**Então** o backend deve aplicar ACLs NFSv4/POSIX compatíveis com o Windows Explorer
+**E** a lógica de aplicação de ACL deve ser portatada do TrueNAS SCALE (Python) para Rust para garantir a correção
+**E** suportar aplicação recursiva de permissões de forma eficiente
 
-**Given** a dataset shared via SMB
-**When** I edit permissions in the UI
-**Then** the backend must apply NFSv4/POSIX ACLs compatible with Windows Explorer
-**And** the ACL application logic must be ported from TrueNAS SCALE (Python) to Rust to ensure correctness
-**And** support recursive application of permissions efficiently
+## Épico 5: Escudo de Conformidade
 
-## Epic 5: Compliance Shield
+Fornecer rastreabilidade de nível HIPAA para todos os acessos e modificações do sistema, garantindo responsabilidade e integridade do acesso de emergência.
 
-Provide HIPAA-grade traceability for all system access and modifications, ensuring accountability and emergency access integrity.
+### História 5.1: Auditoria Profunda de Logs SSH
 
-### Story 5.1: Deep SSH Audit Logging
+Como um Oficial de Segurança,
+Eu quero que o sistema registre cada comando executado no terminal (SSH/Console), não apenas eventos de login,
+Para que eu possa realizar uma análise forense completa em caso de violação ou acidente.
 
-As a Security Officer,
-I want the system to record every command executed in the terminal (SSH/Console), not just login events,
-So that I can perform a complete forensic analysis in case of a breach or accident.
+**Critérios de Aceitação:**
 
-**Acceptance Criteria:**
+**Dado** uma sessão SSH ativa por qualquer usuário
+**Quando** um comando é executado (ex: `rm -rf`, `sudo vi`)
+**Então** o sistema deve capturar o comando, argumentos, carimbo de data/hora e o ID do usuário real
+**E** enviar esses dados para o log de auditoria do sistema à prova de adulteração
+**E** capturar comandos mesmo se o usuário tentar burlar o registro (ex: dentro de scripts ou sub-shells)
 
-**Given** an active SSH session by any user
-**When** a command is executed (e.g., `rm -rf`, `sudo vi`)
-**Then** the system must capture the command, arguments, timestamp, and real user ID
-**And** send this data to the tamper-proof system audit log
-**And** capture commands even if the user tries to evade logging (e.g., inside scripts or sub-shells)
+### História 5.2: Gestor de Auditoria Visual (Visual Audit Manager)
 
-### Story 5.2: Visual Audit Manager
+Como um Auditor,
+Eu quero um motor de busca para logs de acesso a arquivos para responder "Quem acessou o arquivo sensível X?",
+Para que eu possa responder rapidamente a solicitações de conformidade sem usar grep em arquivos de texto.
 
-As an Auditor,
-I want a search engine for file access logs to answer "Who accessed sensitive file X?",
-So that I can quickly respond to compliance requests without grep-ing text files.
+**Critérios de Aceitação:**
 
-**Acceptance Criteria:**
+**Dado** a página do painel de "Auditoria"
+**Quando** eu pesquiso por um nome de arquivo (ex: "registros_pacientes.xls")
+**Então** os resultados devem mostrar cada evento de Abrir/Ler/Gravar/Excluir para aquele arquivo
+**E** exibir o Usuário, IP do Cliente e Carimbo de Data/Hora para cada evento
+**E** permitir a exportação do relatório como PDF/CSV
 
-**Given** the "Audit" dashboard page
-**When** I search for a filename (e.g., "patient_records.xls")
-**Then** the results must show every Open/Read/Write/Delete event for that file
-**And** display the User, Client IP, and Timestamp for each event
-**And** allow exporting the report as PDF/CSV
+### História 5.3: Administrador de Emergência Break-Glass
 
-### Story 5.3: Break-Glass Emergency Admin
+Como um CIO/Diretor de TI,
+Eu quero uma conta de administrador local segura que fique normalmente desativada, mas possa ser ativada se o Active Directory estiver fora do ar,
+Para que nunca fiquemos bloqueados de nosso próprio sistema de armazenamento durante um desastre.
 
-As a CIO/IT Director,
-I want a secure local admin account that is normally disabled but can be activated if Active Directory is down,
-So that we are never locked out of our own storage system during a disaster.
+**Critérios de Aceitação:**
 
-**Acceptance Criteria:**
+**Dado** que o controlador do AD está inacessível
+**Quando** um administrador aciona a ativação "Break-Glass" (console físico ou URL secreta específica)
+**Então** o sistema deve habilitar a conta local `emergency_admin`
+**E** forçar uma redefinição de senha no primeiro login
+**E** enviar um alerta crítico de "Alta Prioridade" para todos os canais de notificação configurados (E-mail/SMS)
+**E** registrar firmemente quem acionou a ativação
 
-**Given** the AD controller is unreachable
-**When** an admin triggers the "Break-Glass" activation (physical console or specific secret URL)
-**Then** the system must enable the local `emergency_admin` account
-**And** force a password reset on first login
-**And** send a critical "High Priority" alert to all configured notification channels (Email/SMS)
-**And** log firmly who triggered the activation
+## Épico 6: Melhorias no Processo de Qualidade
 
-## Epic 6: Quality Process Improvements
+Implementar melhorias técnicas e de processo identificadas na retrospectiva do Épico 5 para aumentar a eficiência do desenvolvimento e a qualidade do código.
 
-Implement process and technical improvements identified in Epic 5 retrospective to enhance development efficiency and code quality.
+### História 6.1: Otimizar o Processo de Revisão Adversarial
 
-### Story 6.1: Optimize Adversarial Review Process
+Como uma Equipe de Desenvolvimento,
+Eu quero que o processo de revisão de código adversarial seja mais eficiente,
+Para que possamos atingir alta qualidade com menos rodadas de revisão.
 
-As a Development Team,
-I want the adversarial code review process to be more efficient,
-So that we can achieve high quality with fewer review rounds.
+**Critérios de Aceitação:**
 
-**Acceptance Criteria:**
+**Dado** uma alteração de código pronta para revisão
+**Quando** o processo de revisão adversarial é executado
+**Então** ele deve identificar problemas na primeira passagem de forma mais eficaz
+**E** fornecer sugestões automatizadas para correções comuns
+**E** reduzir o número médio de iterações de revisão por história
 
-**Given** a code change ready for review
-**When** the adversarial review process runs
-**Then** it should identify issues in the first pass more effectively
-**And** provide automated suggestions for common fixes
-**And** reduce the average number of review iterations per story
+### História 6.2: Diretrizes para Integração de Histórias
 
-### Story 6.2: Guidelines for Story Integration
+Como uma Equipe de Desenvolvimento,
+Eu quero diretrizes claras para integrar múltiplas histórias,
+Para que evitemos sobreposição de funcionalidades e garantamos uma implementação coesa.
 
-As a Development Team,
-I want clear guidelines for integrating multiple stories,
-So that we avoid feature overlap and ensure cohesive implementation.
+**Critérios de Aceitação:**
 
-**Acceptance Criteria:**
+**Dado** múltiplas histórias em um épico que compartilham funcionalidades
+**Quando** planejando a implementação
+**Então** as diretrizes devem fornecer padrões para serviços compartilhados
+**E** definir limites claros entre as responsabilidades de cada história
+**E** incluir pontos de verificação de coordenação durante o desenvolvimento
 
-**Given** multiple stories in an epic that share functionality
-**When** planning the implementation
-**Then** the guidelines should provide patterns for shared services
-**And** define clear boundaries between story responsibilities
-**And** include coordination checkpoints during development
+### História 6.3: Melhorias na Robustez de Log Parsing
 
-### Story 6.3: Robust Log Parsing Improvements
+Como um Desenvolvedor Backend,
+Eu quero robustez aprimorada nas funções de análise de logs (parsing),
+Para que casos de borda sejam tratados graciosamente sem quebrar o sistema.
 
-As a Backend Developer,
-I want improved robustness in log parsing functions,
-So that edge cases are handled gracefully without breaking the system.
+**Critérios de Aceitação:**
 
-**Acceptance Criteria:**
+**Dado** dados de log malformados ou inesperados
+**Quando** as funções de análise os processam
+**Então** elas devem tratar erros graciosamente
+**E** fornecer valores de fallback quando possível
+**E** registrar falhas de análise para depuração sem travar o sistema
 
-**Given** malformed or unexpected log data
-**When** the parsing functions process it
-**Then** they should handle errors gracefully
-**And** provide fallback values when possible
-**And** log parsing failures for debugging without crashing
+### História 6.4: Testes de Regressão SSR Automatizados
 
-### Story 6.4: Automated SSR Regression Tests
+Como um Desenvolvedor Frontend,
+Eu quero testes automatizados para evitar regressões de SSR,
+Para que problemas de renderização no lado do servidor do Next.js sejam detectados precocemente.
 
-As a Frontend Developer,
-I want automated tests to prevent SSR regressions,
-So that Next.js server-side rendering issues are caught early.
+**Critérios de Aceitação:**
 
-**Acceptance Criteria:**
+**Dado** uma alteração no frontend que afeta o SSR
+**Quando** os testes automatizados são executados
+**Então** eles devem detectar falhas de SSR
+**E** fornecer mensagens de erro claras sobre o que quebrou
+**E** impedir a implantação de funcionalidades de SSR quebradas
 
-**Given** a frontend change that affects SSR
-**When** the automated tests run
-**Then** they should detect SSR failures
-**And** provide clear error messages about what broke
-**And** prevent deployment of broken SSR functionality
+### História 6.5: Guia de Solução de Problemas para Recursos de Auditoria
 
-### Story 6.5: Troubleshooting Guide for Audit Features
+Como um Engenheiro de QA,
+Eu quero um guia abrangente de solução de problemas para recursos de auditoria,
+Para que eu possa diagnosticar e resolver rapidamente problemas relacionados à auditoria.
 
-As a QA Engineer,
-I want a comprehensive troubleshooting guide for audit features,
-So that I can quickly diagnose and resolve audit-related issues.
+**Critérios de Aceitação:**
 
-**Acceptance Criteria:**
+**Dado** um problema com o registro de auditoria ou monitoramento
+**Quando** eu consulto o guia de solução de problemas
+**Então** ele deve fornecer procedimentos de diagnóstico passo a passo
+**E** incluir modos de falha comuns e soluções
+**E** referenciar locais de código e logs relevantes
 
-**Given** an issue with audit logging or monitoring
-**When** I consult the troubleshooting guide
-**Then** it should provide step-by-step diagnostic procedures
-**And** include common failure modes and solutions
-**And** reference relevant code locations and logs
+### História 6.6: Geração Automatizada de Documentação
+
+Como uma Equipe de Desenvolvimento,
+Eu quero um sistema de geração automatizada de documentação,
+Para que possamos manter uma documentação consistente e atualizada com o mínimo esforço manual.
+
+**Critérios de Aceitação:**
+
+**Dado** alterações de código com comentários semânticos e anotações apropriadas
+**Quando** o processo de geração de documentação é executado
+**Então** ele deve extrair e formatar automaticamente a documentação a partir do código
+**E** gerar documentação de API a partir de especificações OpenAPI
+**E** criar documentação de componentes a partir de anotações de componentes React
+**E** garantir que toda a documentação gerada siga os padrões de documentação semântica do projeto
+**E** integrar-se com o pipeline de compilação de documentação existente

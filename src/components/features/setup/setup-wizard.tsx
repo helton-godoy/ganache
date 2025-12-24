@@ -15,10 +15,25 @@ import { WizardWelcomeStep } from "./WizardWelcomeStep";
 
 type WizardStep = "welcome" | "config" | "review" | "compatibility";
 
-export function SetupWizard() {
+interface SetupWizardProps {
+    initialSetupStatus?: { data: any };
+    initialDisks?: { data: DiskInfo[] };
+}
+
+export function SetupWizard({ initialSetupStatus, initialDisks }: SetupWizardProps) {
     const router = useRouter();
-    const { data: axiosDisks, isLoading } = useListDisks();
-    const serverDisks = axiosDisks?.data;
+    const { data: axiosDisks, isLoading } = useListDisks({
+        query: {
+            initialData: initialDisks ? {
+                data: initialDisks.data,
+                status: 200,
+                statusText: 'OK',
+                headers: {},
+                config: {} as any
+            } : undefined
+        }
+    });
+    const serverDisks = axiosDisks?.data || initialDisks?.data;
 
     const [currentStep, setCurrentStep] = useState<WizardStep>("welcome");
 

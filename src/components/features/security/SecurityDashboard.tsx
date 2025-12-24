@@ -1,11 +1,27 @@
+"use client";
 
 import React from 'react';
 import { useSecurityEvents } from '../../../hooks/useSecurityEvents';
+import { SecurityAlert, SecurityEvent, SecurityMetrics as SecurityMetricsType } from '../../../types/security';
 import { EventTimeline } from './EventTimeline';
 import { SecurityMetrics } from './SecurityMetrics';
 
-export const SecurityDashboard: React.FC = () => {
-    const { events, metrics, isConnected } = useSecurityEvents();
+interface SecurityDashboardProps {
+    initialEvents?: SecurityEvent[];
+    initialMetrics?: SecurityMetricsType;
+    initialAlerts?: SecurityAlert[];
+}
+
+export const SecurityDashboard: React.FC<SecurityDashboardProps> = ({
+    initialEvents,
+    initialMetrics,
+    initialAlerts
+}) => {
+    const { events, metrics, isConnected } = useSecurityEvents({
+        events: initialEvents,
+        metrics: initialMetrics,
+        alerts: initialAlerts
+    });
 
     return (
         <div className="min-h-screen bg-gray-100 p-6">

@@ -4,7 +4,7 @@ import {
   useGetPools,
   useGetSystemResources,
 } from "@/api/generated/default/default";
-import type { PoolInfo } from "@/api/generated/model";
+import type { PoolInfo, SystemResources } from "@/api/generated/model";
 import {
   Accordion,
   AccordionContent,
@@ -16,24 +16,44 @@ import { cn } from "@/lib/utils";
 import { Activity, AlertTriangle, CheckCircle, Database, Server, ShieldCheck } from "lucide-react";
 import { DatasetManager } from "../storage/DatasetManager";
 
-export function StatusDashboard() {
+interface StatusDashboardProps {
+  initialResources?: { data: SystemResources };
+  initialPools?: { data: PoolInfo[] };
+}
+
+// Poll system resources every 2 seconds via OpenAPI Client
+export function StatusDashboard({ initialResources, initialPools }: StatusDashboardProps) {
   // Poll system resources every 2 seconds via OpenAPI Client
   const { data: axiosResponse, isLoading: isResourcesLoading } =
     useGetSystemResources({
       query: {
         refetchInterval: 2000,
+        initialData: initialResources ? {
+          data: initialResources.data,
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config: {} as any
+        } : undefined,
       },
     });
 
   const { data: poolsResponse, isLoading: isPoolsLoading } = useGetPools({
     query: {
       refetchInterval: 5000,
+      initialData: initialPools ? {
+        data: initialPools.data,
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: {} as any
+      } : undefined,
     },
   });
 
-  const isLoading = isResourcesLoading || isPoolsLoading;
+  const isLoading = (isResourcesLoading && !initialResources) || (isPoolsLoading && !initialPools);
 
-  const status = axiosResponse?.data;
+  const status = axiosResponse?.data || initialResources?.data;
 
   if (isLoading) {
     return (

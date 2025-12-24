@@ -1,20 +1,28 @@
+"use client";
+
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { SecurityEvent, SecurityState } from '../types/security';
+import { SecurityAlert, SecurityEvent, SecurityMetrics, SecurityState } from '../types/security';
 
 const API_BASE = '/api/v1/security';
 
-export const useSecurityEvents = () => {
+interface SecurityInitialData {
+    events?: SecurityEvent[];
+    metrics?: SecurityMetrics;
+    alerts?: SecurityAlert[];
+}
+
+export const useSecurityEvents = (initialData?: SecurityInitialData) => {
     const [state, setState] = useState<SecurityState>({
-        events: [],
-        metrics: {
+        events: initialData?.events || [],
+        metrics: initialData?.metrics || {
             events_per_minute: 0,
-            total_events_24h: 0,
             active_users: [],
             suspicious_ips: [],
             critical_alerts: 0,
             failed_logins_1h: 0,
+            total_events_24h: 0,
         },
-        alerts: [],
+        alerts: initialData?.alerts || [],
         isConnected: false,
     });
 

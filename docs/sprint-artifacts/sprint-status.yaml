@@ -124,7 +124,7 @@ development_status:
       shared_components: tests/ssr/, jest.ssr.config.js
   6-5-troubleshooting-guide-for-audit-features:
     name: Troubleshooting Guide for Audit Features
-    status: in-progress
+    status: review
     scrum_master_notes: Validação concluída. História aprovada e pronta para desenvolvimento.
   6-6-automated-documentation-generation:
     name: "Automated Documentation Generation"

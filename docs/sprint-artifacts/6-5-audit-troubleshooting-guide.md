@@ -1,6 +1,6 @@
 # Story 6.5: Guia de Solução de Problemas para Recursos de Auditoria
 
-Status: in-progress
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -122,7 +122,6 @@ mistralai/devstral-2512:free
 
 - [Debug Log: Pesquisa de Problemas de Auditoria](path/to/debug/logs/audit-research.log)
 - [Debug Log: Desenvolvimento do Guia](path/to/debug/logs/guide-development.log)
-
 - ✅ Pesquisa de problemas comuns de auditoria concluída (arquitetura in-memory identificada como principal ponto de confusão).
 - ✅ Guia consolidado criado em `docs/audit-troubleshooting-guide.md`.
 - ✅ Conteúdo inclui Diagnóstico, Soluções Comuns, FAQ e Referências em um único documento (SSoT).

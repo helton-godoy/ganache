@@ -30,6 +30,12 @@ static LAST_SAMBA_CHECK: once_cell::sync::Lazy<Arc<RwLock<chrono::DateTime<Utc>>
         Arc::new(RwLock::new(Utc::now() - chrono::Duration::seconds(60)))
     });
 
+/// Cursor de tempo para eventos Git
+static LAST_GIT_CHECK: once_cell::sync::Lazy<Arc<RwLock<chrono::DateTime<Utc>>>> =
+    once_cell::sync::Lazy::new(|| {
+        Arc::new(RwLock::new(Utc::now() - chrono::Duration::seconds(60)))
+    });
+
 /// Broadcaster para eventos em tempo real
 static EVENT_BROADCASTER: once_cell::sync::Lazy<tokio::sync::broadcast::Sender<SecurityEvent>> =
     once_cell::sync::Lazy::new(|| {
@@ -236,16 +242,16 @@ impl SecurityEventService {
     /// @ref Story-6.1 - Robust log parsing improvements
     pub fn decode_tty_data(hex_data: &str) -> Result<String> {
         let clean_hex = hex_data.replace(' ', "");
-        
+
         // Validar que não está vazio
         if clean_hex.is_empty() {
             return Err(anyhow::anyhow!("Empty hex data"));
         }
-        
+
         // Decodificar hex com erro descritivo
         let bytes = hex::decode(&clean_hex)
             .map_err(|e| anyhow::anyhow!("Invalid hex data '{}': {}", hex_data, e))?;
-        
+
         // Tentar UTF-8, mas aceitar lossy conversion se falhar
         match String::from_utf8(bytes.clone()) {
             Ok(mut decoded) => {
@@ -281,9 +287,11 @@ impl SecurityEventService {
                         None
                     }
                 } else {
+                    tracing::warn!("Failed to parse timestamp from audit log: {}", ts_str);
                     None
                 }
             } else {
+                tracing::warn!("Malformed audit timestamp format in line: {}", line);
                 None
             }
         } else {
@@ -302,29 +310,39 @@ impl SecurityEventService {
             .and_then(|s| s.split_whitespace().next());
 
         if let Some(hex_data) = data {
-            if let Ok(command) = Self::decode_tty_data(hex_data) {
-                if command.is_empty() {
+            match Self::decode_tty_data(hex_data) {
+                Ok(command) => {
+                    if command.is_empty() {
+                        return None;
+                    }
+
+                    let event_id =
+                        uuid::Uuid::new_v5(&uuid::Uuid::NAMESPACE_OID, line.as_bytes()).to_string();
+
+                    return Some(SecurityEvent {
+                        id: event_id,
+                        timestamp, // Usar timestamp extraído
+                        event_type: SecurityEventType::SshCommand,
+                        severity: SeverityLevel::Info,
+                        user: default_user.to_string(), // O audit log nem sempre traz o usuário de forma fácil
+                        source_ip: None,
+                        action: command.clone(),
+                        resource: terminal.map(|t| format!("/dev/{}", t)),
+                        details: json!({
+                            "raw_log": line,
+                            "command": command,
+                            "terminal": terminal
+                        }),
+                    });
+                }
+                Err(e) => {
+                    tracing::warn!(
+                        "Failed to decode TTY data in log line: {}. Error: {}",
+                        line,
+                        e
+                    );
                     return None;
                 }
-
-                let event_id =
-                    uuid::Uuid::new_v5(&uuid::Uuid::NAMESPACE_OID, line.as_bytes()).to_string();
-
-                return Some(SecurityEvent {
-                    id: event_id,
-                    timestamp, // Usar timestamp extraído
-                    event_type: SecurityEventType::SshCommand,
-                    severity: SeverityLevel::Info,
-                    user: default_user.to_string(), // O audit log nem sempre traz o usuário de forma fácil
-                    source_ip: None,
-                    action: command.clone(),
-                    resource: terminal.map(|t| format!("/dev/{}", t)),
-                    details: json!({
-                        "raw_log": line,
-                        "command": command,
-                        "terminal": terminal
-                    }),
-                });
             }
         }
 
@@ -348,13 +366,17 @@ impl SecurityEventService {
         if let Some(audit_part) = line.split("smbd_audit:").nth(1) {
             // Use splitn(5) to ensure the file path (5th element) captures any remaining pipes
             let parts: Vec<&str> = audit_part.trim().splitn(5, '|').collect();
-            
+
             // Validar estrutura esperada
             if parts.len() < 5 {
-                tracing::warn!("Malformed Samba audit log (expected 5 parts, got {}): {}", parts.len(), line);
+                tracing::warn!(
+                    "Malformed Samba audit log (expected 5 parts, got {}): {}",
+                    parts.len(),
+                    line
+                );
                 return None;
             }
-            
+
             let user_raw = parts[0];
             let ip = parts[1];
             let action_raw = parts[2];
@@ -619,16 +641,26 @@ impl SecurityEventService {
         let mut collected = 0;
         let repo_path = "/etc/ganache";
 
-        // Executar git log para buscar commits nos últimos 10 segundos
+        // Calcular janela de tempo baseada na última verificação
+        let last_check = *LAST_GIT_CHECK.read().unwrap();
+        let now = Utc::now();
+        let since_arg = last_check.to_rfc3339();
+
+        // Executar git log para buscar commits desde a última verificação
         let output = std::process::Command::new("git")
             .arg("-C")
             .arg(repo_path)
             .args(&[
                 "log",
-                "--since=10 seconds ago",
+                &format!("--since={}", since_arg),
                 "--pretty=format:%H|%an|%s|%ai",
             ])
             .output();
+
+        // Atualizar cursor se sucesso
+        if output.is_ok() {
+            *LAST_GIT_CHECK.write().unwrap() = now;
+        }
 
         if let Ok(output) = output {
             let stdout = String::from_utf8_lossy(&output.stdout);

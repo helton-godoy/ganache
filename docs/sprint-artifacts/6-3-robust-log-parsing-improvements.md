@@ -1,6 +1,6 @@
 # História 6.3: Melhorias na Robustez de Log Parsing
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -73,9 +73,10 @@ x-ai/grok-code-fast-1
 - ✅ Validação de entrada implementada com mensagens de erro descritivas
 - ✅ Fallback de timestamp implementado em `parse_tty_log` para timestamps malformados
 - ✅ Validação de estrutura e campos não-vazios em `parse_samba_audit_log`
-- ✅ Logging estruturado com `tracing::warn!` para debugging de logs malformados
+- ✅ Logging estruturado com `tracing::warn!` para debugging de logs malformados e falhas de decodificação
 - ✅ Lossy UTF-8 conversion para dados binários sem crashes
 - ✅ Uso de `splitn(5)` para capturar pipes em caminhos de arquivo
+- ✅ Refatoração do Git Poll para usar cursor de tempo persistente (remediação de review)
 - ✅ 11 testes unitários cobrindo todos os casos de borda
 - ✅ Nenhuma regressão detectada na suite de testes completa
 
@@ -129,7 +130,8 @@ História pronta para desenvolvimento com contexto abrangente e orientação té
 
 - 2025-12-24: Validação da implementação completa de parsing robusto de logs (Dev Agent)
 - 2025-12-24: Todos os 11 testes unitários passando com sucesso
-- 2025-12-24: Story marcada como concluída e pronta para review
+- 2025-12-24: Remediação de achados da revisão adversarial (Logging, Git Polling)
+- 2025-12-24: Story marcada como concluída (done) após verificação final
 
 ## Status
 

@@ -336,6 +336,45 @@ if [ "$VALIDATE" = true ]; then
         fi
     fi
     
+    # 5. Adversarial Readiness (TODO check)
+    if [ -f "./scripts/analyze-review-readiness.sh" ]; then
+        echo -e "${CYAN}→ Checking for TODOs/FIXMEs...${NC}"
+        TODO_COUNT=0
+        for file in "${FEAT_FILES[@]}" "${TEST_FILES[@]}"; do
+             if ! ./scripts/analyze-review-readiness.sh --check-todos "$file" > /dev/null 2>&1; then
+                 echo -e "  ${YELLOW}⚠ TODO found in $file${NC}"
+                 TODO_COUNT=$((TODO_COUNT + 1))
+             fi
+        done
+        if [ $TODO_COUNT -eq 0 ]; then
+            echo -e "${GREEN}✓ No TODOs found${NC}"
+        else
+            echo -e "${YELLOW}⚠ Found $TODO_COUNT file(s) with TODOs (Adversarial Review Risk)${NC}"
+        fi
+    fi
+    
+    # 6. Automated Suggestions (NEW - Story 6.1)
+    if [ -f "./scripts/suggest-fixes.sh" ]; then
+        echo -e "${CYAN}→ Running automated suggestion engine...${NC}"
+        SUGGESTIONS_PROVIDED=0
+        for file in "${FEAT_FILES[@]}" "${TEST_FILES[@]}"; do
+            if [ -f "$file" ]; then
+                # Run suggestions silently, capture if suggestions were made
+                if ./scripts/suggest-fixes.sh --check-all "$file" 2>&1 | grep -q "Suggestions provided"; then
+                    echo -e "  ${BLUE}💡 Suggestions available for: $file${NC}"
+                    echo -e "     Run: ${BOLD}./scripts/suggest-fixes.sh --check-all $file${NC}"
+                    SUGGESTIONS_PROVIDED=$((SUGGESTIONS_PROVIDED + 1))
+                fi
+            fi
+        done
+        if [ $SUGGESTIONS_PROVIDED -eq 0 ]; then
+            echo -e "${GREEN}✓ No automated suggestions needed${NC}"
+        else
+            echo -e "${BLUE}💡 $SUGGESTIONS_PROVIDED file(s) have automated suggestions available${NC}"
+            echo -e "   ${CYAN}Tip: Review suggestions before committing for better code quality${NC}"
+        fi
+    fi
+    
     echo ""
     if [ $VALIDATION_ERRORS -gt 0 ]; then
         echo -e "${RED}${BOLD}╔════════════════════════════════════════════════╗${NC}"

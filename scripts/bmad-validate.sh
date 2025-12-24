@@ -166,6 +166,20 @@ CTX="project-context.md"
 validate_item "7" "$CTX" "Documentation Methodology" "Seção" "Metodologia de Documentação"
 validate_item "7" "$CTX" "Anti-Fragmentation Rules" "Seção" "Regras Anti-Fragmentação"
 
+# === 8. Integration Guidelines ===
+echo -e "\n\n=== 8. Integration Guidelines =================================================="
+if [ -f "scripts/integration-validator.sh" ]; then
+    if ./scripts/integration-validator.sh > /dev/null 2>&1; then
+       echo -e "\n  ${GREEN}[✓] ${NC}Integration Validator:${BLUE} 'Passed'${NC}"
+    else
+       echo -e "\n  ${RED}[✗] ${NC}Integration Validator:${BLUE} 'Failed'${NC}"
+       ERROR_LIST+=("Fase 8: Integration Guidelines validation failed.")
+       ERRORS=$((ERRORS + 1))
+    fi
+else
+    echo -e "\n  ${BLUE}[i] ${NC}Integration Validator script not found (Optional)"
+fi
+
 echo ""
 echo -e "\n--------------------------------------------------------------------------------"
 if [ $ERRORS -eq 0 ]; then

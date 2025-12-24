@@ -106,8 +106,8 @@ development_status:
     status: done
     scrum_master_notes: "✅ COMPLETADO (2025-12-24). Processo de revisão adversarial otimizado implementado com sucesso. 5 commits atômicos executados. Testes: 92/92 passed. AC #1 VALIDADO: 58% detecção automatizada, 100% first-pass no scope, 81% redução de tempo (285→55min), 43% redução de iterações (7→4). Pilot results documented (434 linhas). force-agent-compliance.sh: exit 0."
   6-2-guidelines-for-story-integration:
-    status: backlog
-    scrum_master_notes: "Verified by TEA (Traceability + Quality + NFR). P0 Coverage 100%. Test Quality 92/100 (A). Gate: CONCERNS (Safe to Deploy). NFR: 6 PASS, 6 evidence gaps (non-blocking)."
+    status: review
+    scrum_master_notes: "✅ IMPLEMENTADO (2025-12-24). Framework de Diretrizes de Integração criado. Validator script integrado ao bmad-validate.sh. Testes de validação passando."
   6-3-robust-log-parsing-improvements:
     status: backlog
     scrum_master_notes: "Adversarial Review Complete. Issues Fixed: Fake AC 5.3.1 (fixed with real OS user cmds), Persistence (fixed with ConfigDb). Tests verified."

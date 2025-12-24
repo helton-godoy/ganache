@@ -131,8 +131,12 @@ História pronta para desenvolvimento com contexto abrangente e orientação té
 - 2025-12-24: Validação da implementação completa de parsing robusto de logs (Dev Agent)
 - 2025-12-24: Todos os 11 testes unitários passando com sucesso
 - 2025-12-24: Remediação de achados da revisão adversarial (Logging, Git Polling)
-- 2025-12-24: Story marcada como concluída (done) após verificação final
+- 2025-12-24: Code Review adversarial completo - 3 issues corrigidos (1 HIGH, 2 MEDIUM)
+  - Issue #1 HIGH: Uncommitted files → Resolvido via commit 0d38546
+  - Issue #2 MEDIUM: Missing error logging em decode_tty_data → Resolvido via commit c60dba1
+  - Issue #3 MEDIUM: Silent timestamp fallback → Resolvido via commit c60dba1
+- 2025-12-24: Story marcada como concluída (done) após verificação final e correções
 
 ## Status
 
-review
+done

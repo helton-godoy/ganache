@@ -173,6 +173,8 @@ if [ -f "scripts/integration-validator.sh" ]; then
        echo -e "\n  ${GREEN}[✓] ${NC}Integration Validator:${BLUE} 'Passed'${NC}"
     else
        echo -e "\n  ${RED}[✗] ${NC}Integration Validator:${BLUE} 'Failed'${NC}"
+       ERROR_LIST+=("Fase 8: Integration Guidelines validation failed.")
+       ERRORS=$((ERRORS + 1))
     fi
 else
     echo -e "\n  ${BLUE}[i] ${NC}Integration Validator script not found (Optional)"

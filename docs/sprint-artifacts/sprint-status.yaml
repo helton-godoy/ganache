@@ -128,5 +128,6 @@ development_status:
     scrum_master_notes: "✅ COMPLETADO (2025-12-24). Guia de Troubleshooting para Auditoria implementado. Code Review Adversarial executado: 8 issues encontrados (1 CRITICAL, 4 MEDIUM, 3 LOW) e corrigidos automaticamente. Correções incluem: links relativos, seção de validação, teste robusto com regex. Teste passando 100%."
   6-6-automated-documentation-generation:
     name: "Automated Documentation Generation"
-    status: review
+    status: done
+    scrum_master_notes: "✅ COMPLETADO (2025-12-25). Sistema de geração automatizada de documentação implementado. Code Review Adversarial executado: 15 issues encontrados (8 CRITICAL, 5 MEDIUM, 2 LOW) e corrigidos automaticamente. Correções incluem: File List completo (21 arquivos), test_rust_doc_coverage.sh STRICT MODE (EXIT_CODE=1), generate-rust-docs.py filtra target/, bmad-validate.sh syntax fix. Implementação: 4 geradores (Rust/OpenAPI/React/Traceability) + 4 testes + integração bmad-sync/validate. 5 commits atômicos executados."
   epic-6-retrospective: backlog

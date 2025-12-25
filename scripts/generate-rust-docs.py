@@ -95,8 +95,11 @@ def main():
         print(f"Core directory not found at {core_dir}")
         return
 
-    # Find crates (directories in core/)
+    # Find crates (directories in core/), excluding build artifacts
     for item in os.listdir(core_dir):
+        # Skip target directory (Cargo build artifacts)
+        if item == 'target':
+            continue
         item_path = os.path.join(core_dir, item)
         if os.path.isdir(item_path):
             generate_markdown(item, item_path, output_dir)

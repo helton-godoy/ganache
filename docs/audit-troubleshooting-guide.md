@@ -140,7 +140,50 @@ R: Sim, o Samba/CIFS é monitorado. SFTP (via SSH) gera logs de sessão, mas a t
 
 ## Referências e Recursos
 
-- **Story 5.1:** [Deep SSH Audit Logging](docs/sprint-artifacts/5-1-deep-ssh-audit-logging.md)
-- **Story 5.2:** [Visual Audit Manager](docs/sprint-artifacts/5-2-visual-audit-manager.md)
+- **Story 5.1:** [Deep SSH Audit Logging](sprint-artifacts/5-1-deep-ssh-audit-logging.md)
+- **Story 5.2:** [Visual Audit Manager](sprint-artifacts/5-2-visual-audit-manager.md)
 - **Código Fonte:** `core/ganache-lib/src/system/security_event_service.rs`
 - **Documentação Oficial:** `man journalctl`, `man pam_tty_audit`
+
+## Como Validar Este Guia
+
+Para garantir que este guia esteja correto e útil:
+
+### 1. Validar Comandos Documentados
+
+Teste cada comando sugerido em um ambiente de desenvolvimento:
+
+```bash
+# Verificar se serviço está rodando
+systemctl status ganache-core
+
+# Consultar logs brutos
+journalctl _TRANSPORT=audit --since "5 minutes ago"
+journalctl -u smbd --since "5 minutes ago"
+journalctl -u ssh --since "5 minutes ago"
+
+# Testar API
+curl -s http://localhost:3000/api/v1/security/events | head -20
+```
+
+### 2. Validar Precisão das Soluções
+
+Para cada problema documentado na seção "Soluções Comuns":
+
+- Reproduza o problema em ambiente de teste
+- Aplique a solução sugerida
+- Confirme que o problema foi resolvido
+
+### 3. Verificar Referências de Código
+
+Confirme que os arquivos de código mencionados existem:
+
+```bash
+test -f core/ganache-lib/src/system/security_event_service.rs && echo "✓ Source file exists" || echo "✗ Missing"
+```
+
+### 4. Executar Teste Automatizado
+
+```bash
+bash tests/docs/test_audit_guide_exists.sh
+```

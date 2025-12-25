@@ -30,8 +30,9 @@ for file in $FILES; do
     if [ ! -z "$MISSING" ]; then
         echo "⚠️  Missing docs in $file:"
         echo "$MISSING" | head -n 5
-        # Relaxed for legacy codebase transition
-        EXIT_CODE=0
+        # STRICT MODE: Fail on missing docs to enforce documentation standards
+        # Set EXIT_CODE=0 temporarily during legacy codebase transition if needed
+        EXIT_CODE=1
     fi
 done
 

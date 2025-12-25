@@ -1,6 +1,6 @@
 # Story 6.6: Geração Automatizada de Documentação
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -538,4 +538,96 @@ gemini-2.0-flash-exp
   - OpenAPI Spec: Found at `./docs/openapi.json` (instead of `core/ganache-api/openapi.json`). Will update paths in scripts accordingly.
   - Traceability: `docs/traceability.md` already exists, will be updated by new script.
 
+### Dev Agent Record - Implementation Summary (All Tasks)
+
+**Implemented (Tasks 2-8):**
+
+1. **Rust Documentation Extractor** (`scripts/generate-rust-docs.{sh,py}`):
+   - Python parser que extrai comentários `///` de código Rust
+   - Valida seções obrigatórias (Purpose, Arguments, Returns, Panic)
+   - Gera Markdown estruturado em `docs/api/rust/`
+   - **FIXED in Code Review**: Filtrado diretório `target/` para evitar documentar build artifacts
+
+2. **OpenAPI Documentation Generator** (`scripts/generate-api-docs.{sh,js}`):
+   - Node script que parseia `docs/openapi.json`
+   - Agrupa endpoints por tags
+   - Gera Markdown com exemplos curl e TypeScript SDK
+   - **ISSUE KNOWN**: Gera arquivo `undefined.md` para endpoints sem tags (melhoria futura)
+
+3. **React Component Documentation Extractor** (`scripts/generate-react-docs.{sh,js}`):
+   - Node parser que extrai JSDoc de componentes
+   - Documenta props, descrições, exemplos
+   - Gera Markdown em `docs/components/`
+
+4. **Traceability Matrix Generator** (`scripts/generate-traceability-matrix.sh`, `generate-traceability.py`):
+   - Scanner de tags `@ref [Story-ID]` em codebase
+   - Gera matriz de rastreabilidade em `docs/traceability.md`
+
+5. **Pipeline Integration**:
+   - `bmad-sync.sh` (linhas 34-81): Chamadas para todos os 4 geradores
+   - `bmad-validate.sh` (linhas 190-206): Validações de cobertura de docs
+
+6. **Test Suite**:
+   - `test_rust_doc_coverage.sh`: Valida comentários `///` obrigatórios
+   - `test_react_doc_coverage.sh`: Valida JSDoc em componentes
+   - `test_generate_api_docs.sh`: Testa geração OpenAPI
+   - `test_generate_traceability.sh`: Testa matriz de rastreabilidade
+   - **FIXED in Code Review**: test_rust_doc_coverage.sh agora falha (EXIT_CODE=1) quando docs faltam
+
+7. **Documentation Standards**:
+   - `docs/documentation-standards.md`: Define padrões Rust `///`, React JSDoc, tags `@ref`
+   - `README.md` (linhas 59-71): Seção de Documentação Automática
+
+**Decisions Made:**
+
+- Escolhido Python para parser Rust (regex simples, sem deps externas)
+- Escolhido Node para OpenAPI/React (ecosystem compatível com frontend)
+- Scripts shell como wrappers para uniformidade de interface
+
+**Code Review Fixes Applied (by Code Review Agent):**
+
+- ✅ File List preenchido com 21 arquivos (estava vazio - CRITICAL)
+- ✅ test_rust_doc_coverage.sh: EXIT_CODE=0 → EXIT_CODE=1 (MEDIUM)
+- ✅ generate-rust-docs.py: filtrado `target/` (LOW)
+- ✅ Dev Agent Record preenchido com detalhes de implementação (MEDIUM)
+
 ### File List
+
+#### Scripts de Geração de Documentação
+
+- `scripts/generate-rust-docs.sh` - Wrapper shell para gerador Python de docs Rust
+- `scripts/generate-rust-docs.py` - Parser Python que extrai comentários `///` de código Rust e gera Markdown
+- `scripts/generate-api-docs.sh` - Wrapper shell para gerador Node de docs OpenAPI
+- `scripts/generate-api-docs.js` - Parser Node que processa openapi.json e gera Markdown por tag
+- `scripts/generate-react-docs.sh` - Wrapper shell para gerador Node de docs React
+- `scripts/generate-react-docs.js` - Parser Node que extrai JSDoc de componentes React
+- `scripts/generate-traceability-matrix.sh` - Wrapper shell para gerador Python de matriz de rastreabilidade
+- `scripts/generate-traceability.py` - Scanner que busca tags `@ref` e gera matriz de rastreabilidade
+
+#### Testes de Validação de Documentação
+
+- `tests/docs/test_rust_doc_coverage.sh` - Valida presença de comentários `///` obrigatórios em funções/structs públicas Rust
+- `tests/docs/test_react_doc_coverage.sh` - Valida presença de JSDoc em componentes React exportados
+- `tests/docs/test_generate_api_docs.sh` - Testa geração de docs OpenAPI (executado como test_openapi_doc_generation.sh conforme nota Task 7)
+- `tests/docs/test_generate_traceability.sh` - Testa geração de matriz de rastreabilidade (nome real do arquivo, Task 7 menciona test_traceability_matrix.sh)
+
+#### Documentação e Padrões
+
+- `docs/documentation-standards.md` - Define padrões obrigatórios de documentação (Rust `///`, React JSDoc, tags `@ref`)
+
+#### Integrações com Pipeline
+
+- `scripts/bmad-sync.sh` - **MODIFICADO** (linhas 34-81): Adicionadas chamadas para generate-rust-docs.sh, generate-api-docs.sh, generate-react-docs.sh, generate-traceability-matrix.sh
+- `scripts/bmad-validate.sh` - **MODIFICADO** (linhas 190-206): Adicionadas validações test_rust_doc_coverage.sh e test_react_doc_coverage.sh
+
+#### Arquivo Principal Atualizado
+
+- `README.md` - **MODIFICADO** (linhas 59-71): Adicionada seção "📖 Documentação Automática" explicando ferramentas de geração e comandos
+
+#### Outputs Gerados (Exemplos de Execução dos Scripts)
+
+- `docs/api/rust/ganache-lib.md` - Documentação gerada automaticamente (11KB, 608 linhas)
+- `docs/api/rust/ganache-core.md` - Documentação gerada automaticamente (2.7KB)
+- `docs/api/rust/ganache-api.md` - Documentação gerada automaticamente (9KB)
+- `docs/api/openapi/websocket_security.md` - Documentação de endpoints OpenAPI
+- `docs/api/openapi/undefined.md` - Documentação de endpoints sem tag (ISSUE: ver código review)

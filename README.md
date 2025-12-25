@@ -56,6 +56,20 @@ git config --global credential.helper store
 # Ao realizar o primeiro push, use seu Username e o Token como senha.
 ```
 
+## 📖 Documentação Automática
+
+Este projeto utiliza ferramentas de **Geração Automática de Documentação** para garantir SSoT.
+
+- **Rust Backend**: Documentação extraída de comentários `///` para `docs/api/rust/`.
+- **OpenAPI**: Documentação de endpoints gerada de `docs/openapi.json` para `docs/api/openapi/`.
+- **React Components**: Documentação JSDoc extraída de `src/components/` para `docs/components/`.
+- **Rastreabilidade**: Matriz gerada automaticamente em `docs/traceability.md` via tags `@ref`.
+
+**Comandos**:
+
+- `./scripts/bmad-sync.sh`: Regenera toda a documentação.
+- Veja [Padronização de Documentação](docs/documentation-standards.md) para detalhes de sintaxe.
+
 ## 📖 Documentação & Governança
 
 Este projeto segue rigorosamente o princípio **Single Source of Truth (SSoT)** através do fluxo **BMAD 6**.

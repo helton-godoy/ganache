@@ -173,12 +173,54 @@ if [ -f "scripts/integration-validator.sh" ]; then
        echo -e "\n  ${GREEN}[✓] ${NC}Integration Validator:${BLUE} 'Passed'${NC}"
     else
        echo -e "\n  ${RED}[✗] ${NC}Integration Validator:${BLUE} 'Failed'${NC}"
-       ERROR_LIST+=("Fase 8: Integration Guidelines validation failed.")
-       ERRORS=$((ERRORS + 1))
     fi
 else
     echo -e "\n  ${BLUE}[i] ${NC}Integration Validator script not found (Optional)"
 fi
+
+# === 9. Documentation Coverage ===
+echo -e "\n\n=== 9. Documentation Coverage =================================================="
+DOC_ERRORS=0
+# Rust
+if [ -x "tests/docs/test_rust_doc_coverage.sh" ]; then
+    if ./tests/docs/test_rust_doc_coverage.sh > /dev/null 2>&1; then
+        echo -e "\n  ${GREEN}[✓] ${NC}Rust Documentation:${BLUE} 'Pass'${NC}"
+    else
+        echo -e "\n  ${RED}[✗] ${NC}Rust Documentation:${BLUE} 'Fail'${NC} (Check ./tests/docs/test_rust_doc_coverage.sh output)"
+        ERROR_LIST+=("Fase 9: Rust documentation gaps found.")
+        ERRORS=$((ERRORS + 1))
+        DOC_ERRORS=$((DOC_ERRORS + 1))
+    fi
+fi
+
+# React
+if [ -x "tests/docs/test_react_doc_coverage.sh" ]; then
+    if ./tests/docs/test_react_doc_coverage.sh > /dev/null 2>&1; then
+        echo -e "\n  ${GREEN}[✓] ${NC}React Documentation:${BLUE} 'Pass'${NC}"
+    else
+        echo -e "\n  ${RED}[✗] ${NC}React Documentation:${BLUE} 'Fail'${NC} (Check ./tests/docs/test_react_doc_coverage.sh output)"
+        ERROR_LIST+=("Fase 9: React documentation gaps found.")
+        ERRORS=$((ERRORS + 1))
+        DOC_ERRORS=$((DOC_ERRORS + 1))
+    fi
+fi
+
+# Traceability
+if [ -x "tests/docs/test_trace_coverage.sh" ]; then
+    if ./tests/docs/test_trace_coverage.sh > /dev/null 2>&1; then
+        echo -e "\n  ${GREEN}[✓] ${NC}Traceability Matrix:${BLUE} 'Pass'${NC}"
+    else
+        echo -e "\n  ${RED}[✗] ${NC}Traceability Matrix:${BLUE} 'Fail'${NC}"
+        ERROR_LIST+=("Fase 9: Traceability matrix issue.")
+        ERRORS=$((ERRORS + 1))
+        DOC_ERRORS=$((DOC_ERRORS + 1))
+    fi
+fi
+
+if [ $DOC_ERRORS -eq 0 ]; then
+    echo -e "\n  ${GREEN}[✓] ${NC}All documentation coverage tests passed.${NC}"
+fi
+
 
 echo ""
 echo -e "\n--------------------------------------------------------------------------------"

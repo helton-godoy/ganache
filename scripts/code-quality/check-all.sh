@@ -7,6 +7,7 @@ set -e
 
 # Load config
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=config.sh
 source "$SCRIPT_DIR/config.sh"
 
 ensure_project_root
@@ -31,7 +32,7 @@ start_spinner() {
     SPINNER_PID=$!
     
     # Ensure spinner is killed on script exit
-    trap "kill $SPINNER_PID 2>/dev/null || true" EXIT
+    trap 'kill $SPINNER_PID 2>/dev/null || true' EXIT
 }
 
 stop_spinner() {

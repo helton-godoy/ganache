@@ -5,14 +5,16 @@
 
 # ============================================================
 # Language Toggles - Set to true/false to enable/disable
+# These flags control which languages are processed by lint/fmt scripts
+# Usage: Set to 'false' to skip a language entirely
 # ============================================================
-ENABLE_RUST=true
-ENABLE_PYTHON=true
-ENABLE_JAVASCRIPT=true
-ENABLE_SHELL=true
-ENABLE_YAML=true
-ENABLE_MARKDOWN=true
-ENABLE_TOML=true
+export ENABLE_RUST=true
+export ENABLE_PYTHON=true
+export ENABLE_JAVASCRIPT=true
+export ENABLE_SHELL=true
+export ENABLE_YAML=true
+export ENABLE_MARKDOWN=true
+export ENABLE_TOML=true
 
 # ============================================================
 # Path Exclusions - Directories to skip during lint/format
@@ -106,6 +108,6 @@ ensure_project_root() {
     fi
 }
 
-# Get script directory
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+# Get script directory (exported for use by other scripts)
+export SCRIPT_DIR="${SCRIPT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
+export PROJECT_ROOT="${PROJECT_ROOT:-$(cd "$SCRIPT_DIR/../.." && pwd)}"

@@ -111,14 +111,15 @@ if [ -f "$SPRINT_STATUS" ]; then
     # 1. Chave direta: "2-3-90-hard-quota-enforcement: ready-for-dev"
     # 2. Lista estruturada: "- id: \"2-1...\" \n status: \"done\""
 
-    # Processar formato chave direta
-    grep -E "^  [0-9]-[0-9].*:" "$SPRINT_STATUS" | while read -r line; do
+    # Processar formato chave direta (usando process substitution para evitar subshell)
+    while read -r line; do
         ID=$(echo "$line" | awk -F':' '{print $1}' | tr -d ' ')
         [[ $ID == "generated" || $ID == "id" || $ID == "status" ]] && continue
 
         YAML_STATUS=$(echo "$line" | awk -F': ' '{print $2}' | tr -d '" ')
         [ "$YAML_STATUS" == "backlog" ] && continue
 
+        # shellcheck disable=SC2086
         STORY_FILE=$(ls docs/sprint-artifacts/${ID}*.md 2>/dev/null | head -1)
         if [ -f "$STORY_FILE" ]; then
             FILE_STATUS=$(grep -i "Status:" "$STORY_FILE" | head -1 | sed -E 's/.*Status:[[:space:]]*//i' | tr -d '[:space:]#*')
@@ -134,14 +135,15 @@ if [ -f "$SPRINT_STATUS" ]; then
             ERROR_LIST+=("Fase 6: Arquivo para Story $ID não encontrado.")
             ERRORS=$((ERRORS + 1))
         fi
-    done
+    done < <(grep -E "^  [0-9]-[0-9].*:" "$SPRINT_STATUS")
 
-    # Processar formato lista id/status
-    grep -E 'id: "[0-9]-[0-9].*"' "$SPRINT_STATUS" | while read -r line; do
+    # Processar formato lista id/status (usando process substitution para evitar subshell)
+    while read -r line; do
         ID=$(echo "$line" | awk -F'"' '{print $2}')
         YAML_STATUS=$(grep -A 5 "id: \"$ID\"" "$SPRINT_STATUS" | grep "status:" | head -1 | awk -F'"' '{print $2}')
         [ "$YAML_STATUS" == "backlog" ] && continue
 
+        # shellcheck disable=SC2086
         STORY_FILE=$(ls docs/sprint-artifacts/${ID}*.md 2>/dev/null | head -1)
         if [ -f "$STORY_FILE" ]; then
             FILE_STATUS=$(grep -i "Status:" "$STORY_FILE" | head -1 | sed -E 's/.*Status:[[:space:]]*//i' | tr -d '[:space:]#*')
@@ -156,7 +158,7 @@ if [ -f "$SPRINT_STATUS" ]; then
                 fi
             fi
         fi
-    done
+    done < <(grep -E 'id: "[0-9]-[0-9].*"' "$SPRINT_STATUS")
 fi
 
 # === 7. Contexto do Projeto ===

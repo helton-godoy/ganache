@@ -173,4 +173,5 @@ Se precisar desativar temporariamente:
 ```
 
 ---
-*Maintained by the Ganache Team*
+
+_Maintained by the Ganache Team_

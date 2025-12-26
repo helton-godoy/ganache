@@ -7,7 +7,7 @@ echo "🔍 Verificando cobertura de documentação React..."
 FILES=$(find src/components -name "*.tsx")
 
 for file in $FILES; do
-    MISSING=$(awk '
+	MISSING=$(awk '
     /\/\*\*/ { doc=1 }
     /\*\// { doc_end=1 }
     /export (function|const)/ {
@@ -24,19 +24,19 @@ for file in $FILES; do
         # Assuming JSDoc is immediately before
     }
     ' "$file")
-    
-    if [ ! -z "$MISSING" ]; then
-        echo "⚠️  Missing JSDoc in $file:"
-        echo "$MISSING"
-        # Relaxed for legacy codebase
-        EXIT_CODE=0
-    fi
+
+	if [ ! -z "$MISSING" ]; then
+		echo "⚠️  Missing JSDoc in $file:"
+		echo "$MISSING"
+		# Relaxed for legacy codebase
+		EXIT_CODE=0
+	fi
 done
 
 if [ $EXIT_CODE -eq 0 ]; then
-    echo "✅ React documentation coverage OK"
+	echo "✅ React documentation coverage OK"
 else
-    echo "❌ React documentation gaps found"
+	echo "❌ React documentation gaps found"
 fi
 
 exit $EXIT_CODE

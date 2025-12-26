@@ -3,7 +3,7 @@
 
 # Mock
 mkdir -p src/components/test
-cat <<EOF > src/components/test/TestComponent.tsx
+cat <<EOF >src/components/test/TestComponent.tsx
 import React from 'react';
 
 /**
@@ -21,21 +21,21 @@ EOF
 
 # Run
 if [ ! -f ./scripts/generate-react-docs.sh ]; then
-    echo "❌ Generator script not found"
-    exit 1
+	echo "❌ Generator script not found"
+	exit 1
 fi
 
 ./scripts/generate-react-docs.sh
 
 # Check
 if [ ! -f docs/components/TestComponent.md ]; then
-    echo "❌ Output file docs/components/TestComponent.md not found"
-    exit 1
+	echo "❌ Output file docs/components/TestComponent.md not found"
+	exit 1
 fi
 
 if ! grep -q "Test Component for documentation generation" docs/components/TestComponent.md; then
-    echo "❌ Missing description content"
-    exit 1
+	echo "❌ Missing description content"
+	exit 1
 fi
 
 echo "✅ Test passed"

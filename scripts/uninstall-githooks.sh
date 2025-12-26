@@ -1,6 +1,6 @@
 #!/bin/bash
 # scripts/uninstall-githooks.sh
-# 
+#
 # Remove os githooks customizados do projeto GANACHE
 # Útil para troubleshooting ou se precisar desativar temporariamente
 # Uso: ./scripts/uninstall-githooks.sh
@@ -22,8 +22,8 @@ echo ""
 
 # Verificar se está no repositório Git
 if [ ! -d ".git" ]; then
-    echo -e "${RED}❌ ERRO: Este script deve ser executado na raiz do repositório Git.${NC}"
-    exit 1
+	echo -e "${RED}❌ ERRO: Este script deve ser executado na raiz do repositório Git.${NC}"
+	exit 1
 fi
 
 # Confirmar ação
@@ -34,8 +34,8 @@ read -p "Deseja continuar? (y/N): " -n 1 -r
 echo ""
 
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo -e "${CYAN}Operação cancelada.${NC}"
-    exit 0
+	echo -e "${CYAN}Operação cancelada.${NC}"
+	exit 0
 fi
 
 echo ""
@@ -52,13 +52,13 @@ REMOVED_COUNT=0
 CUSTOM_HOOKS="pre-commit prepare-commit-msg commit-msg post-commit pre-push"
 
 for hook_name in $CUSTOM_HOOKS; do
-    hook_file=".git/hooks/$hook_name"
-    
-    if [ -f "$hook_file" ] || [ -L "$hook_file" ]; then
-        rm "$hook_file"
-        echo -e "   ${GREEN}✓${NC} Removido: $hook_name"
-        REMOVED_COUNT=$((REMOVED_COUNT + 1))
-    fi
+	hook_file=".git/hooks/$hook_name"
+
+	if [ -f "$hook_file" ] || [ -L "$hook_file" ]; then
+		rm "$hook_file"
+		echo -e "   ${GREEN}✓${NC} Removido: $hook_name"
+		REMOVED_COUNT=$((REMOVED_COUNT + 1))
+	fi
 done
 
 echo ""
@@ -67,16 +67,16 @@ echo ""
 LATEST_BACKUP=$(ls -dt .git/hooks.backup.* 2>/dev/null | head -1 || echo "")
 
 if [ ! -z "$LATEST_BACKUP" ]; then
-    echo -e "${CYAN}📦 Backup encontrado: $LATEST_BACKUP${NC}"
-    read -p "Deseja restaurar os hooks do backup? (y/N): " -n 1 -r
-    echo ""
-    
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        echo -e "${CYAN}   Restaurando hooks do backup...${NC}"
-        cp "$LATEST_BACKUP"/* .git/hooks/ 2>/dev/null || true
-        echo -e "${GREEN}   ✓ Hooks restaurados${NC}"
-    fi
-    echo ""
+	echo -e "${CYAN}📦 Backup encontrado: $LATEST_BACKUP${NC}"
+	read -p "Deseja restaurar os hooks do backup? (y/N): " -n 1 -r
+	echo ""
+
+	if [[ $REPLY =~ ^[Yy]$ ]]; then
+		echo -e "${CYAN}   Restaurando hooks do backup...${NC}"
+		cp "$LATEST_BACKUP"/* .git/hooks/ 2>/dev/null || true
+		echo -e "${GREEN}   ✓ Hooks restaurados${NC}"
+	fi
+	echo ""
 fi
 
 # Resumo

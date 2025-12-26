@@ -1,3 +1,33 @@
 {
-    "recommendations": []
+    "recommendations": [
+        // Rust
+        "rust-lang.rust-analyzer",
+        
+        // JavaScript/TypeScript
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        
+        // Python
+        "ms-python.python",
+        "ms-python.black-formatter",
+        "charliermarsh.ruff",
+        
+        // Shell
+        "foxundermoon.shell-format",
+        "timonwong.shellcheck",
+        
+        // TOML/YAML
+        "tamasfe.even-better-toml",
+        "redhat.vscode-yaml",
+        
+        // Markdown
+        "davidanson.vscode-markdownlint",
+        
+        // Git
+        "eamodio.gitlens",
+        
+        // General
+        "editorconfig.editorconfig"
+    ],
+    "unwantedRecommendations": []
 }

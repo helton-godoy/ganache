@@ -36,10 +36,10 @@ Every exported component MUST have a JSDoc block:
 ```tsx
 /**
  * @description Description of the component.
- * 
+ *
  * @param props.label - Description of prop
  * @returns JSX Element
- * 
+ *
  * @ref Story-X.Y - Context
  */
 export function Component() {}

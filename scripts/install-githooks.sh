@@ -1,6 +1,6 @@
 #!/bin/bash
 # scripts/install-githooks.sh
-# 
+#
 # Instala os githooks customizados do projeto GANACHE
 # Uso: ./scripts/install-githooks.sh
 
@@ -20,30 +20,30 @@ echo ""
 
 # Verificar se está no repositório Git
 if [ ! -d ".git" ]; then
-    echo -e "${YELLOW}⚠  ERRO: Este script deve ser executado na raiz do repositório Git.${NC}"
-    exit 1
+	echo -e "${YELLOW}⚠  ERRO: Este script deve ser executado na raiz do repositório Git.${NC}"
+	exit 1
 fi
 
 # Verificar se .githooks existe
 if [ ! -d ".githooks" ]; then
-    echo -e "${YELLOW}⚠  ERRO: Diretório .githooks não encontrado.${NC}"
-    exit 1
+	echo -e "${YELLOW}⚠  ERRO: Diretório .githooks não encontrado.${NC}"
+	exit 1
 fi
 
 echo -e "${CYAN}📋 Hooks disponíveis em .githooks/:${NC}"
 ls -1 .githooks/ | grep -v "\.md\|\.sample" | while read hook; do
-    echo -e "   - $hook"
+	echo -e "   - $hook"
 done
 echo ""
 
 # Criar backup dos hooks existentes (se houver)
 BACKUP_DIR=".git/hooks.backup.$(date +%Y%m%d_%H%M%S)"
 if ls .git/hooks/* 2>/dev/null | grep -qv "\.sample"; then
-    echo -e "${CYAN}📦 Criando backup dos hooks existentes...${NC}"
-    mkdir -p "$BACKUP_DIR"
-    cp .git/hooks/* "$BACKUP_DIR/" 2>/dev/null || true
-    echo -e "${GREEN}✓ Backup salvo em: $BACKUP_DIR${NC}"
-    echo ""
+	echo -e "${CYAN}📦 Criando backup dos hooks existentes...${NC}"
+	mkdir -p "$BACKUP_DIR"
+	cp .git/hooks/* "$BACKUP_DIR/" 2>/dev/null || true
+	echo -e "${GREEN}✓ Backup salvo em: $BACKUP_DIR${NC}"
+	echo ""
 fi
 
 # Instalar hooks
@@ -51,29 +51,29 @@ echo -e "${CYAN}🔗 Instalando hooks...${NC}"
 INSTALLED_COUNT=0
 
 for hook_file in .githooks/*; do
-    # Ignorar arquivos auxiliares
-    if [[ "$hook_file" == *".md" ]] || [[ "$hook_file" == *".sample" ]]; then
-        continue
-    fi
-    
-    hook_name=$(basename "$hook_file")
-    target=".git/hooks/$hook_name"
-    
-    # Criar symlink ou copiar arquivo
-    if [ -L "$target" ]; then
-        # Já é um symlink, atualizar
-        rm "$target"
-    elif [ -f "$target" ]; then
-        # Arquivo existe, remover
-        rm "$target"
-    fi
-    
-    # Copiar hook (preferível a symlink para compatibilidade)
-    cp "$hook_file" "$target"
-    chmod +x "$target"
-    
-    echo -e "   ${GREEN}✓${NC} Instalado: $hook_name"
-    INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
+	# Ignorar arquivos auxiliares
+	if [[ "$hook_file" == *".md" ]] || [[ "$hook_file" == *".sample" ]]; then
+		continue
+	fi
+
+	hook_name=$(basename "$hook_file")
+	target=".git/hooks/$hook_name"
+
+	# Criar symlink ou copiar arquivo
+	if [ -L "$target" ]; then
+		# Já é um symlink, atualizar
+		rm "$target"
+	elif [ -f "$target" ]; then
+		# Arquivo existe, remover
+		rm "$target"
+	fi
+
+	# Copiar hook (preferível a symlink para compatibilidade)
+	cp "$hook_file" "$target"
+	chmod +x "$target"
+
+	echo -e "   ${GREEN}✓${NC} Instalado: $hook_name"
+	INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
 done
 
 echo ""

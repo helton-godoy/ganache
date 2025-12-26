@@ -130,4 +130,4 @@ development_status:
     name: "Automated Documentation Generation"
     status: done
     scrum_master_notes: "✅ COMPLETADO (2025-12-25). Sistema de geração automatizada de documentação implementado. Code Review Adversarial executado: 15 issues encontrados (8 CRITICAL, 5 MEDIUM, 2 LOW) e corrigidos automaticamente. Correções incluem: File List completo (21 arquivos), test_rust_doc_coverage.sh STRICT MODE (EXIT_CODE=1), generate-rust-docs.py filtra target/, bmad-validate.sh syntax fix. Implementação: 4 geradores (Rust/OpenAPI/React/Traceability) + 4 testes + integração bmad-sync/validate. 5 commits atômicos executados."
-  epic-6-retrospective: backlog
+  epic-6-retrospective: completed

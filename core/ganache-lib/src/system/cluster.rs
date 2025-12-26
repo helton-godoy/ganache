@@ -22,6 +22,13 @@ pub trait CommandExecutor {
     fn execute(&self, program: &str, args: &[&str]) -> Result<std::process::Output>;
 }
 
+/// Real system command executor implementation.
+///
+/// # Purpose
+/// Executes actual system commands (drbdadm, zpool, ip) for cluster operations.
+/// Implements the CommandExecutor trait for testability via dependency injection.
+///
+/// @REF Story-2.1 - Twin-node cluster initialization
 pub struct SystemCommandExecutor;
 
 impl CommandExecutor for SystemCommandExecutor {
@@ -33,6 +40,14 @@ impl CommandExecutor for SystemCommandExecutor {
     }
 }
 
+/// Service for managing twin-node HA cluster operations.
+///
+/// # Purpose
+/// Handles cluster configuration, DRBD replication, VIP failover,
+/// heartbeat monitoring, and automatic failover sequences.
+///
+/// @REF Story-2.1 - Twin-node cluster initialization
+/// @CRITICAL HA failover logic - handles production cluster operations
 pub struct ClusterService;
 
 impl ClusterService {
@@ -332,6 +347,14 @@ impl ClusterService {
     }
 }
 
+/// Heartbeat tracker for peer node liveness detection.
+///
+/// # Purpose
+/// Tracks the last seen timestamp of the peer node to detect failures
+/// and trigger automatic failover when heartbeat is lost.
+///
+/// @REF Story-2.1 - Twin-node cluster initialization
+/// @CRITICAL Determines when to trigger HA failover
 pub struct ClusterHeartbeat {
     pub last_seen: std::time::Instant,
     pub peer_ip: String,

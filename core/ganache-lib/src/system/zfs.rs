@@ -26,6 +26,13 @@ lazy_static! {
     ]);
 }
 
+/// Service for managing ZFS pools and datasets.
+///
+/// # Purpose
+/// Provides operations for creating, listing, and managing ZFS storage pools
+/// and datasets, including DRBD device support for HA configurations.
+///
+/// @REF Story-2.2 - ZFS pool creation on DRBD
 pub struct ZpoolService;
 
 impl ZpoolService {

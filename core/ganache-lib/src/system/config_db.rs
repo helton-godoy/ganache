@@ -3,6 +3,13 @@ use anyhow::Result;
 use serde::Serialize;
 use std::fs;
 
+/// Database abstraction for git-backed configuration persistence.
+///
+/// # Purpose
+/// Saves and deletes configuration files in a git-tracked directory,
+/// automatically creating commits for each change to maintain audit trail.
+///
+/// @REF Story-3.1 - Git-backed configuration engine
 pub struct ConfigDb;
 
 impl ConfigDb {

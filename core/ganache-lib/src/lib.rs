@@ -15,6 +15,13 @@ pub use system::security_event_service::SecurityEventService;
 pub use system::security_metrics::SecurityMetricsService;
 pub use system::zfs::ZpoolService;
 
+/// Service for detecting hardware capabilities, particularly RAID controllers.
+///
+/// # Purpose
+/// Detects legacy RAID hardware (PERC 6/i, H700, MegaRAID) to determine
+/// if the system should operate in compatibility mode.
+///
+/// @REF Story-1.1 - Detect RAID hardware and recommend mode
 pub struct HardwareService;
 
 impl HardwareService {

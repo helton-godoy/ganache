@@ -1,6 +1,13 @@
 use anyhow::{Ok, Result};
 use ganache_api::BootEnvironment;
 
+/// Service for managing ZFS Boot Environments (BEs).
+///
+/// # Purpose
+/// Lists and activates ZFS boot environments, enabling system rollback
+/// to previous known-good states before applying updates or changes.
+///
+/// @REF Story-1.4 - Boot environment rollback
 pub struct BootService;
 
 impl BootService {

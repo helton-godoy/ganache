@@ -2,6 +2,13 @@ use ganache_api::SystemResources;
 use sysinfo::System;
 use tracing::{info, warn};
 
+/// Service for system memory management and ZFS ARC tuning.
+///
+/// # Purpose
+/// Calculates and applies optimal ZFS Adaptive Replacement Cache (ARC) settings
+/// based on available system RAM, following safety policies to prevent OOM.
+///
+/// @REF Story-1.3 - System resource auto-tuning
 pub struct MemoryService;
 
 impl MemoryService {

@@ -8,8 +8,23 @@ lazy_static! {
     static ref GIT_LOCK: Mutex<()> = Mutex::new(());
 }
 
+/// Default path for the git-backed configuration repository.
+///
+/// # Purpose
+/// Defines the standard location where Ganache stores its versioned
+/// configuration files. Can be overridden via GANACHE_CONFIG_DIR env var.
+///
+/// @REF Story-3.1 - Git-backed configuration engine
 pub const DEFAULT_REPO_PATH: &str = "/etc/ganache";
 
+/// Service for git-based configuration version control.
+///
+/// # Purpose
+/// Manages a git repository for configuration files, providing init, commit,
+/// and rollback operations with full audit trail support.
+///
+/// @REF Story-3.1 - Git-backed configuration engine
+/// @REF Story-3.3 - One-click config rollback
 pub struct GitService;
 
 impl GitService {

@@ -44,7 +44,7 @@
 
 ### Sitemap
 
-```
+```yaml
 - Dashboard
   - Visão Geral
   - Status do Cluster

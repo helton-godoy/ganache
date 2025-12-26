@@ -26,16 +26,16 @@ Como um Desenvolvedor Frontend, eu quero testes automatizados para evitar regres
 
 ### E2E Tests - Priority P0
 
-| Test ID | Test File | Scenario | Status |
-|---------|-----------|----------|--------|
-| **6.4-E2E-001** | [ssr-failure-detection.atdd.spec.ts](file:///root/GANACHE/tests/ssr/atdd/ssr-failure-detection.atdd.spec.ts#L23) | Root Layout renderiza sem erros SSR | 🔴 FAIL |
-| **6.4-E2E-002** | [ssr-failure-detection.atdd.spec.ts](file:///root/GANACHE/tests/ssr/atdd/ssr-failure-detection.atdd.spec.ts#L73) | Dashboard renderiza dados iniciais SSR | 🔴 FAIL |
-| **6.4-E2E-003** | [ssr-failure-detection.atdd.spec.ts](file:///root/GANACHE/tests/ssr/atdd/ssr-failure-detection.atdd.spec.ts#L136) | Setup Wizard fluxo completo SSR | 🔴 FAIL |
-| **6.4-E2E-004** | [ssr-error-messages.atdd.spec.ts](file:///root/GANACHE/tests/ssr/atdd/ssr-error-messages.atdd.spec.ts#L22) | Security Dashboard renderiza logs | 🔴 FAIL |
-| **6.4-E2E-005** | [ssr-error-messages.atdd.spec.ts](file:///root/GANACHE/tests/ssr/atdd/ssr-error-messages.atdd.spec.ts#L77) | Detecção de client-only APIs | 🔴 FAIL |
-| **6.4-E2E-006** | [ssr-error-messages.atdd.spec.ts](file:///root/GANACHE/tests/ssr/atdd/ssr-error-messages.atdd.spec.ts#L124) | HTML não expõe dados sensíveis | 🔴 FAIL |
-| **6.4-INT-001** | [ssr-error-messages.atdd.spec.ts](file:///root/GANACHE/tests/ssr/atdd/ssr-error-messages.atdd.spec.ts#L185) | Error boundary captura erros SSR | 🔴 FAIL |
-| **6.4-E2E-007** | [ssr-error-messages.atdd.spec.ts](file:///root/GANACHE/tests/ssr/atdd/ssr-error-messages.atdd.spec.ts#L226) | CI/CD bloqueia deploy em falhas | ✅ META TEST |
+| Test ID         | Test File                                                                                                         | Scenario                               | Status       |
+| --------------- | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------- | ------------ |
+| **6.4-E2E-001** | [ssr-failure-detection.atdd.spec.ts](file:///root/GANACHE/tests/ssr/atdd/ssr-failure-detection.atdd.spec.ts#L23)  | Root Layout renderiza sem erros SSR    | 🔴 FAIL      |
+| **6.4-E2E-002** | [ssr-failure-detection.atdd.spec.ts](file:///root/GANACHE/tests/ssr/atdd/ssr-failure-detection.atdd.spec.ts#L73)  | Dashboard renderiza dados iniciais SSR | 🔴 FAIL      |
+| **6.4-E2E-003** | [ssr-failure-detection.atdd.spec.ts](file:///root/GANACHE/tests/ssr/atdd/ssr-failure-detection.atdd.spec.ts#L136) | Setup Wizard fluxo completo SSR        | 🔴 FAIL      |
+| **6.4-E2E-004** | [ssr-error-messages.atdd.spec.ts](file:///root/GANACHE/tests/ssr/atdd/ssr-error-messages.atdd.spec.ts#L22)        | Security Dashboard renderiza logs      | 🔴 FAIL      |
+| **6.4-E2E-005** | [ssr-error-messages.atdd.spec.ts](file:///root/GANACHE/tests/ssr/atdd/ssr-error-messages.atdd.spec.ts#L77)        | Detecção de client-only APIs           | 🔴 FAIL      |
+| **6.4-E2E-006** | [ssr-error-messages.atdd.spec.ts](file:///root/GANACHE/tests/ssr/atdd/ssr-error-messages.atdd.spec.ts#L124)       | HTML não expõe dados sensíveis         | 🔴 FAIL      |
+| **6.4-INT-001** | [ssr-error-messages.atdd.spec.ts](file:///root/GANACHE/tests/ssr/atdd/ssr-error-messages.atdd.spec.ts#L185)       | Error boundary captura erros SSR       | 🔴 FAIL      |
+| **6.4-E2E-007** | [ssr-error-messages.atdd.spec.ts](file:///root/GANACHE/tests/ssr/atdd/ssr-error-messages.atdd.spec.ts#L226)       | CI/CD bloqueia deploy em falhas        | ✅ META TEST |
 
 **Total**: 8 failing tests (7 runtime + 1 meta)
 
@@ -45,13 +45,13 @@ Como um Desenvolvedor Frontend, eu quero testes automatizados para evitar regres
 
 ### Data Factories & Mocks
 
-| File | Purpose | Functions |
-|------|---------|-----------|
+| File                                                                                    | Purpose                 | Functions                                                                                                                       |
+| --------------------------------------------------------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | [tests/ssr/**mocks**/fixtures.ts](file:///root/GANACHE/tests/ssr/__mocks__/fixtures.ts) | Mock data for SSR tests | `mockClusterStatus()`, `mockAuditLogs()`, `mockHardwareDetection()`, `mockSetupStatus()`, `mockUserSession()`, `mockAPIError()` |
 
 ### Test Structure
 
-```
+```shell
 tests/ssr/
 ├── atdd/
 │   ├── ssr-failure-detection.atdd.spec.ts   # Tests 1-3 (P0)
@@ -276,11 +276,11 @@ These failures are **EXPECTED** and guide implementation!
 
 ## 📊 Test Priority Breakdown
 
-| Priority | Test Count | Execution |
-|----------|------------|-----------|
-| P0 | 8 tests | Every commit |
-| P1 | 15 tests (future) | Every PR |
-| P2 | 12 tests (future) | Nightly |
+| Priority | Test Count        | Execution    |
+| -------- | ----------------- | ------------ |
+| P0       | 8 tests           | Every commit |
+| P1       | 15 tests (future) | Every PR     |
+| P2       | 12 tests (future) | Nightly      |
 
 **Current focus**: P0 tests only (critical SSR paths)
 

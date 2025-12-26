@@ -13,7 +13,14 @@ import {
 } from "@/components/ui/accordion";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-import { Activity, AlertTriangle, CheckCircle, Database, Server, ShieldCheck } from "lucide-react";
+import {
+  Activity,
+  AlertTriangle,
+  CheckCircle,
+  Database,
+  Server,
+  ShieldCheck,
+} from "lucide-react";
 import { DatasetManager } from "../storage/DatasetManager";
 
 interface StatusDashboardProps {
@@ -22,36 +29,45 @@ interface StatusDashboardProps {
 }
 
 // Poll system resources every 2 seconds via OpenAPI Client
-export function StatusDashboard({ initialResources, initialPools }: StatusDashboardProps) {
+export function StatusDashboard({
+  initialResources,
+  initialPools,
+}: StatusDashboardProps) {
   // Poll system resources every 2 seconds via OpenAPI Client
   const { data: axiosResponse, isLoading: isResourcesLoading } =
     useGetSystemResources({
       query: {
         refetchInterval: 2000,
-        initialData: initialResources ? {
-          data: initialResources.data,
-          status: 200,
-          statusText: 'OK',
-          headers: {},
-          config: {} as any
-        } : undefined,
+        initialData: initialResources
+          ? {
+              data: initialResources.data,
+              status: 200,
+              statusText: "OK",
+              headers: {},
+              config: {} as any,
+            }
+          : undefined,
       },
     });
 
   const { data: poolsResponse, isLoading: isPoolsLoading } = useGetPools({
     query: {
       refetchInterval: 5000,
-      initialData: initialPools ? {
-        data: initialPools.data,
-        status: 200,
-        statusText: 'OK',
-        headers: {},
-        config: {} as any
-      } : undefined,
+      initialData: initialPools
+        ? {
+            data: initialPools.data,
+            status: 200,
+            statusText: "OK",
+            headers: {},
+            config: {} as any,
+          }
+        : undefined,
     },
   });
 
-  const isLoading = (isResourcesLoading && !initialResources) || (isPoolsLoading && !initialPools);
+  const isLoading =
+    (isResourcesLoading && !initialResources) ||
+    (isPoolsLoading && !initialPools);
 
   const status = axiosResponse?.data || initialResources?.data;
 
@@ -77,9 +93,9 @@ export function StatusDashboard({ initialResources, initialPools }: StatusDashbo
               className={cn(
                 "w-8 h-8 rounded-full flex items-center justify-center bg-muted",
                 status.status === "HEALTHY" &&
-                "bg-emerald-100 text-emerald-600",
+                  "bg-emerald-100 text-emerald-600",
                 status.status !== "HEALTHY" &&
-                "bg-destructive/10 text-destructive",
+                  "bg-destructive/10 text-destructive",
               )}
             >
               {status.status === "HEALTHY" ? (
@@ -246,7 +262,11 @@ export function StatusDashboard({ initialResources, initialPools }: StatusDashbo
                   <span>Ponto de Montagem: {pool.mountpoint}</span>
                 </div>
 
-                <Accordion type="single" collapsible className="mt-4 border-t pt-2">
+                <Accordion
+                  type="single"
+                  collapsible
+                  className="mt-4 border-t pt-2"
+                >
                   <AccordionItem value="datasets" className="border-b-0">
                     <AccordionTrigger className="py-2 text-sm text-slate-600 hover:text-slate-900">
                       Manage Datasets & Shares

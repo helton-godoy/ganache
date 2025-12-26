@@ -7,25 +7,29 @@ Os modelos de dados do GANACHE são definidos em Rust (`core/ganache-api/`) e si
 ## Segurança
 
 ### SecurityEvent
+
 **Descrição:** Representa um evento de segurança no sistema
+
 ```typescript
 interface SecurityEvent {
-  id: string;              // ID único do evento
-  timestamp: Date;         // Quando ocorreu
+  id: string; // ID único do evento
+  timestamp: Date; // Quando ocorreu
   type: SecurityEventType; // Tipo: ssh, file, config
-  user?: string;           // Usuário envolvido
-  ip?: string;             // IP de origem
-  action: string;          // Ação realizada
+  user?: string; // Usuário envolvido
+  ip?: string; // IP de origem
+  action: string; // Ação realizada
   details: Record<string, any>; // Detalhes específicos
 }
 ```
 
 ### SecurityAlert
+
 **Descrição:** Alerta de segurança ativo
+
 ```typescript
 interface SecurityAlert {
   id: string;
-  type: string;            // Tipo de alerta
+  type: string; // Tipo de alerta
   severity: "low" | "medium" | "high" | "critical";
   message: string;
   timestamp: Date;
@@ -38,7 +42,9 @@ interface SecurityAlert {
 ## Cluster
 
 ### ClusterConfig
+
 **Descrição:** Configuração para junção ao cluster
+
 ```typescript
 interface ClusterConfig {
   primary_ip: string;
@@ -48,7 +54,9 @@ interface ClusterConfig {
 ```
 
 ### ClusterStatus
+
 **Descrição:** Status atual do cluster HA
+
 ```typescript
 interface ClusterStatus {
   primary_node: string;
@@ -62,21 +70,25 @@ interface ClusterStatus {
 ## Storage (ZFS)
 
 ### PoolInfo
+
 **Descrição:** Informações de um pool ZFS
+
 ```typescript
 interface PoolInfo {
   name: string;
-  size: number;           // Tamanho total em bytes
-  used: number;           // Espaço usado
-  available: number;      // Espaço disponível
-  status: string;         // Online, degraded, etc.
-  compression: string;    // Algoritmo de compressão
-  quota?: PoolQuota;      // Configuração de quota
+  size: number; // Tamanho total em bytes
+  used: number; // Espaço usado
+  available: number; // Espaço disponível
+  status: string; // Online, degraded, etc.
+  compression: string; // Algoritmo de compressão
+  quota?: PoolQuota; // Configuração de quota
 }
 ```
 
 ### DatasetInfo
+
 **Descrição:** Informações de um dataset ZFS
+
 ```typescript
 interface DatasetInfo {
   name: string;
@@ -91,11 +103,13 @@ interface DatasetInfo {
 ```
 
 ### PoolConfig / DatasetConfig
+
 **Descrição:** Configuração para criação de pool/dataset
+
 ```typescript
 interface PoolConfig {
   name: string;
-  disks: string[];        // Lista de dispositivos
+  disks: string[]; // Lista de dispositivos
   raid_type: "mirror" | "raidz" | "raidz2";
   compression: "lz4" | "gzip" | "zstd";
 }
@@ -112,7 +126,9 @@ interface DatasetConfig {
 ## Active Directory
 
 ### AdJoinRequest
+
 **Descrição:** Solicitação de junção ao domínio AD
+
 ```typescript
 interface AdJoinRequest {
   domain: string;
@@ -124,7 +140,9 @@ interface AdJoinRequest {
 ```
 
 ### AdPrincipal
+
 **Descrição:** Usuário ou grupo do Active Directory
+
 ```typescript
 interface AdPrincipal {
   sid: string;
@@ -138,7 +156,9 @@ interface AdPrincipal {
 ## ACL (Access Control List)
 
 ### Nfs4Ace
+
 **Descrição:** Entrada de controle de acesso NFSv4
+
 ```typescript
 interface Nfs4Ace {
   index: number;
@@ -150,18 +170,22 @@ interface Nfs4Ace {
 ```
 
 ### Nfs4Acl
+
 **Descrição:** Lista completa de controle de acesso
+
 ```typescript
 interface Nfs4Acl {
   aces: Nfs4Ace[];
-  raw_output?: string;     // Saída do getfacl
+  raw_output?: string; // Saída do getfacl
 }
 ```
 
 ## Configuração e Histórico
 
 ### GitCommit
+
 **Descrição:** Commit do Git representando mudança de configuração
+
 ```typescript
 interface GitCommit {
   hash: string;
@@ -174,7 +198,9 @@ interface GitCommit {
 ```
 
 ### GitDiff
+
 **Descrição:** Diff de mudanças em arquivos de configuração
+
 ```typescript
 interface GitDiff {
   files: GitFileDiff[];
@@ -189,7 +215,9 @@ interface GitDiff {
 ## Hardware
 
 ### HardwareInfo
+
 **Descrição:** Informações de hardware detectado
+
 ```typescript
 interface HardwareInfo {
   controller_name: string;
@@ -201,10 +229,12 @@ interface HardwareInfo {
 ```
 
 ### DiskInfo
+
 **Descrição:** Informações de um disco
+
 ```typescript
 interface DiskInfo {
-  device: string;         // /dev/sda
+  device: string; // /dev/sda
   model: string;
   size_gb: number;
   type: "hdd" | "ssd";
@@ -215,19 +245,23 @@ interface DiskInfo {
 ## Sistema
 
 ### SystemResources
+
 **Descrição:** Recursos atuais do sistema
+
 ```typescript
 interface SystemResources {
-  cpu_usage: number;      // Percentual
-  memory_used: number;    // MB
-  memory_total: number;   // MB
+  cpu_usage: number; // Percentual
+  memory_used: number; // MB
+  memory_total: number; // MB
   disk_usage: Record<string, number>; // Por mountpoint
   uptime_seconds: number;
 }
 ```
 
 ### SystemLog
+
 **Descrição:** Entrada de log do sistema
+
 ```typescript
 interface SystemLog {
   timestamp: Date;

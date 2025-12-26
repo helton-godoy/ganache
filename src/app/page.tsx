@@ -1,25 +1,26 @@
-import { BootEnvironmentBadge } from '@/components/features/BootEnvironmentBadge';
-import { StatusDashboard } from '@/components/features/dashboard/status-dashboard';
-import { Button } from '@/components/ui/button';
-import { serverFetch } from '@/lib/api-server';
+import { BootEnvironmentBadge } from "@/components/features/BootEnvironmentBadge";
+import { StatusDashboard } from "@/components/features/dashboard/status-dashboard";
+import { Button } from "@/components/ui/button";
+import { serverFetch } from "@/lib/api-server";
 import { AlertTriangle, Server, Settings } from "lucide-react";
-import Link from 'next/link';
+import Link from "next/link";
 
 // @ref Story-6.4 - Converted to Server Component for SSR support
 export default async function Home() {
   // Fetch initial data server-side for SSR
   const [resources, pools] = await Promise.all([
-    serverFetch<{ data: any }>('/api/v1/system/resources'),
-    serverFetch<{ data: any }>('/api/v1/storage/pools'),
+    serverFetch<{ data: any }>("/api/v1/system/resources"),
+    serverFetch<{ data: any }>("/api/v1/storage/pools"),
   ]);
 
   return (
     <div className="min-h-screen bg-slate-50 p-8 font-sans">
       <div className="max-w-5xl mx-auto space-y-8">
-
         <header className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Ganache Dashboard</h1>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
+              Ganache Dashboard
+            </h1>
             <p className="text-slate-500">System Monitoring & Control</p>
           </div>
           <div className="flex gap-3 items-center">
@@ -31,7 +32,11 @@ export default async function Home() {
               </Button>
             </Link>
             <Link href="/cluster">
-              <Button size="lg" variant="secondary" className="bg-slate-800 hover:bg-slate-700 text-white">
+              <Button
+                size="lg"
+                variant="secondary"
+                className="bg-slate-800 hover:bg-slate-700 text-white"
+              >
                 <Server className="w-5 h-5 mr-2" />
                 Cluster Management
               </Button>
@@ -49,8 +54,7 @@ export default async function Home() {
           initialResources={resources || undefined}
           initialPools={pools || undefined}
         />
-
       </div>
     </div>
-  )
+  );
 }

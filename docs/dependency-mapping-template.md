@@ -6,15 +6,15 @@
 
 ## 1. Dependências de Código (Entrada)
 
-| Componente/Arquivo | Origem (História/Épico) | Status (Done/WIP) | Criticidade |
-| ------------------ | ----------------------- | ----------------- | ----------- |
-| `path/to/file` | Story X.Y | Done | Alta/Média/Baixa |
+| Componente/Arquivo | Origem (História/Épico) | Status (Done/WIP) | Criticidade      |
+| ------------------ | ----------------------- | ----------------- | ---------------- |
+| `path/to/file`     | Story X.Y               | Done              | Alta/Média/Baixa |
 
 ## 2. Impactos (Saída)
 
-| Componente Afetado | Natureza da Mudança | Risco de Quebra |
-| ------------------ | ------------------- | --------------- |
-| `path/to/file` | Descrição da mudança | Alto/Médio/Baixo |
+| Componente Afetado | Natureza da Mudança  | Risco de Quebra  |
+| ------------------ | -------------------- | ---------------- |
+| `path/to/file`     | Descrição da mudança | Alto/Médio/Baixo |
 
 ## 3. Serviços Compartilhados
 

@@ -57,7 +57,7 @@
       - **When:** No results match the query
       - **Then:** Empty state message displayed with helpful text
       - **Validates:** Error handling ✅ | UX for empty results ✅
-  
+
   - **Unit/Integration Tests** (3 tests in `core/ganache-lib/tests/audit_search_tests.rs`):
     - `5.2-UNIT-001` - [audit_search_tests.rs:7](file:///root/GANACHE/core/ganache-lib/tests/audit_search_tests.rs#L7)
       - **Test**: "test_search_by_filename"
@@ -268,13 +268,13 @@ Consider adding performance tests for large result sets (e.g., 1000+ audit event
 
 #### P0 Criteria (Must ALL Pass)
 
-| Criterion             | Threshold | Actual | Status   |
-| --------------------- | --------- | ------ | -------- |
-| P0 Coverage           | 100%      | 100%   | ✅ PASS  |
-| P0 Test Pass Rate     | 100%      | 100%   | ✅ PASS  |
-| Security Issues       | 0         | 0      | ✅ PASS  |
-| Critical NFR Failures | 0         | 0      | ✅ PASS  |
-| Flaky Tests           | 0         | 0      | ✅ PASS  |
+| Criterion             | Threshold | Actual | Status  |
+| --------------------- | --------- | ------ | ------- |
+| P0 Coverage           | 100%      | 100%   | ✅ PASS |
+| P0 Test Pass Rate     | 100%      | 100%   | ✅ PASS |
+| Security Issues       | 0         | 0      | ✅ PASS |
+| Critical NFR Failures | 0         | 0      | ✅ PASS |
+| Flaky Tests           | 0         | 0      | ✅ PASS |
 
 **P0 Evaluation**: ✅ ALL PASS
 

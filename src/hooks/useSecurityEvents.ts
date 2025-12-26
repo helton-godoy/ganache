@@ -1,128 +1,133 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { SecurityAlert, SecurityEvent, SecurityMetrics, SecurityState } from '../types/security';
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  SecurityAlert,
+  SecurityEvent,
+  SecurityMetrics,
+  SecurityState,
+} from "../types/security";
 
-const API_BASE = '/api/v1/security';
+const API_BASE = "/api/v1/security";
 
 interface SecurityInitialData {
-    events?: SecurityEvent[];
-    metrics?: SecurityMetrics;
-    alerts?: SecurityAlert[];
+  events?: SecurityEvent[];
+  metrics?: SecurityMetrics;
+  alerts?: SecurityAlert[];
 }
 
 export const useSecurityEvents = (initialData?: SecurityInitialData) => {
-    const [state, setState] = useState<SecurityState>({
-        events: initialData?.events || [],
-        metrics: initialData?.metrics || {
-            events_per_minute: 0,
-            active_users: [],
-            suspicious_ips: [],
-            critical_alerts: 0,
-            failed_logins_1h: 0,
-            total_events_24h: 0,
-        },
-        alerts: initialData?.alerts || [],
-        isConnected: false,
-    });
+  const [state, setState] = useState<SecurityState>({
+    events: initialData?.events || [],
+    metrics: initialData?.metrics || {
+      events_per_minute: 0,
+      active_users: [],
+      suspicious_ips: [],
+      critical_alerts: 0,
+      failed_logins_1h: 0,
+      total_events_24h: 0,
+    },
+    alerts: initialData?.alerts || [],
+    isConnected: false,
+  });
 
-    const FETCH_LIMIT = 50;
+  const FETCH_LIMIT = 50;
 
-    const wsRef = useRef<WebSocket | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
 
-    const fetchData = useCallback(async () => {
-        try {
-            const [eventsRes, metricsRes, alertsRes] = await Promise.all([
-                fetch(`${API_BASE}/events?limit=${FETCH_LIMIT}`),
-                fetch(`${API_BASE}/metrics`),
-                fetch(`${API_BASE}/alerts`),
-            ]);
+  const fetchData = useCallback(async () => {
+    try {
+      const [eventsRes, metricsRes, alertsRes] = await Promise.all([
+        fetch(`${API_BASE}/events?limit=${FETCH_LIMIT}`),
+        fetch(`${API_BASE}/metrics`),
+        fetch(`${API_BASE}/alerts`),
+      ]);
 
-            const events = await eventsRes.json();
-            const metrics = await metricsRes.json();
-            const alerts = await alertsRes.json();
+      const events = await eventsRes.json();
+      const metrics = await metricsRes.json();
+      const alerts = await alertsRes.json();
 
-            setState(prev => ({
-                ...prev,
-                events,
-                metrics,
-                alerts,
-            }));
-        } catch (error) {
-            console.error('Failed to fetch security data:', error);
-        }
-    }, []);
+      setState((prev) => ({
+        ...prev,
+        events,
+        metrics,
+        alerts,
+      }));
+    } catch (error) {
+      console.error("Failed to fetch security data:", error);
+    }
+  }, []);
 
-    const connectWS = useCallback(() => {
-        if (wsRef.current?.readyState === WebSocket.OPEN) return;
+  const connectWS = useCallback(() => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
-        // Construct WS URL client-side to avoid SSR error
-        const WS_URL = `ws://${window.location.host}/api/v1/security/events/ws`;
-        const ws = new WebSocket(WS_URL);
-        wsRef.current = ws;
+    // Construct WS URL client-side to avoid SSR error
+    const WS_URL = `ws://${window.location.host}/api/v1/security/events/ws`;
+    const ws = new WebSocket(WS_URL);
+    wsRef.current = ws;
 
-        ws.onopen = () => {
-            console.log('Security WebSocket connected');
-            setState(prev => ({ ...prev, isConnected: true }));
-        };
-
-        ws.onmessage = (event) => {
-            try {
-                const newEvent: SecurityEvent = JSON.parse(event.data);
-                setState(prev => ({
-                    ...prev,
-                    events: [newEvent, ...prev.events].slice(0, 100)
-                }));
-                // Silently refresh metrics on new event
-                fetchData();
-            } catch (e) {
-                console.error('Failed to parse WS message:', e);
-            }
-        };
-
-        ws.onclose = () => {
-            console.log('Security WebSocket disconnected');
-            setState(prev => ({ ...prev, isConnected: false }));
-            // Attempt to reconnect after 5 seconds
-            setTimeout(connectWS, 5000);
-        };
-
-        ws.onerror = (error) => {
-            console.error('Security WebSocket error:', error);
-            ws.close();
-        };
-    }, [fetchData]);
-
-    useEffect(() => {
-        fetchData();
-        connectWS();
-
-        // Regular metrics polling every 10 seconds as fallback
-        const interval = setInterval(fetchData, 10000);
-
-        return () => {
-            clearInterval(interval);
-            wsRef.current?.close();
-        };
-    }, [fetchData, connectWS]);
-
-    const acknowledgeAlert = useCallback(async (alertId: string) => {
-        try {
-            await fetch(`${API_BASE}/alerts/${alertId}/acknowledge`, {
-                method: 'POST',
-            });
-            // Update local state to remove acknowledged alert
-            setState(prev => ({
-                ...prev,
-                alerts: prev.alerts.filter(a => a.id !== alertId)
-            }));
-        } catch (error) {
-            console.error('Failed to acknowledge alert:', error);
-        }
-    }, []);
-
-    return {
-        ...state,
-        acknowledgeAlert,
+    ws.onopen = () => {
+      console.log("Security WebSocket connected");
+      setState((prev) => ({ ...prev, isConnected: true }));
     };
+
+    ws.onmessage = (event) => {
+      try {
+        const newEvent: SecurityEvent = JSON.parse(event.data);
+        setState((prev) => ({
+          ...prev,
+          events: [newEvent, ...prev.events].slice(0, 100),
+        }));
+        // Silently refresh metrics on new event
+        fetchData();
+      } catch (e) {
+        console.error("Failed to parse WS message:", e);
+      }
+    };
+
+    ws.onclose = () => {
+      console.log("Security WebSocket disconnected");
+      setState((prev) => ({ ...prev, isConnected: false }));
+      // Attempt to reconnect after 5 seconds
+      setTimeout(connectWS, 5000);
+    };
+
+    ws.onerror = (error) => {
+      console.error("Security WebSocket error:", error);
+      ws.close();
+    };
+  }, [fetchData]);
+
+  useEffect(() => {
+    fetchData();
+    connectWS();
+
+    // Regular metrics polling every 10 seconds as fallback
+    const interval = setInterval(fetchData, 10000);
+
+    return () => {
+      clearInterval(interval);
+      wsRef.current?.close();
+    };
+  }, [fetchData, connectWS]);
+
+  const acknowledgeAlert = useCallback(async (alertId: string) => {
+    try {
+      await fetch(`${API_BASE}/alerts/${alertId}/acknowledge`, {
+        method: "POST",
+      });
+      // Update local state to remove acknowledged alert
+      setState((prev) => ({
+        ...prev,
+        alerts: prev.alerts.filter((a) => a.id !== alertId),
+      }));
+    } catch (error) {
+      console.error("Failed to acknowledge alert:", error);
+    }
+  }, []);
+
+  return {
+    ...state,
+    acknowledgeAlert,
+  };
 };

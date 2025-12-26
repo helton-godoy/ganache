@@ -52,11 +52,13 @@ Frontend (React) ↔ API Layer (Orval) ↔ Backend (Axum)
 ### Frontend State Management
 
 #### React Query (Server State)
+
 - **Uso:** Dados da API, cache inteligente
 - **Benefícios:** Sincronização automática, cache, retry
 - **Hooks:** `useQuery`, `useMutation`, `useInfiniteQuery`
 
 #### Zustand (Client State)
+
 - **Uso:** Estado local da UI (modais, filtros, formulários)
 - **Benefícios:** Simples, type-safe, middleware
 - **Padrão:** Stores por domínio
@@ -64,11 +66,13 @@ Frontend (React) ↔ API Layer (Orval) ↔ Backend (Axum)
 ### Backend State Management
 
 #### In-Memory Cache
+
 - **Tecnologia:** DashMap para concorrência
 - **Uso:** Cache de eventos de segurança, métricas
 - **Persistência:** Opcional via Redis (futuro)
 
 #### Database Layer
+
 - **Tecnologia:** ZFS datasets + arquivos
 - **Acesso:** Via `ganache-lib` com abstrações seguras
 - **Transações:** Git-based para configuração
@@ -80,8 +84,8 @@ Frontend (React) ↔ API Layer (Orval) ↔ Backend (Axum)
 ```typescript
 // Hook gerado automaticamente
 const { data: events, isLoading } = useSecurityEventsQuery({
-  type: 'ssh',
-  limit: 100
+  type: "ssh",
+  limit: 100,
 });
 
 // Mutation com otimistic updates
@@ -92,11 +96,13 @@ await acknowledgeAlert.mutateAsync({ id: alertId });
 ### Error Handling
 
 #### Frontend
+
 - **React Query:** Retry automático, error boundaries
 - **Zod:** Validação de responses
 - **User Feedback:** Toasts para erros
 
 #### Backend
+
 - **Axum:** Error responses estruturadas
 - **Tracing:** Logs detalhados com spans
 - **Validation:** Serde validation + custom validators
@@ -110,16 +116,19 @@ await acknowledgeAlert.mutateAsync({ id: alertId });
 ## Segurança da Integração
 
 ### Autenticação
+
 - **JWT Tokens:** Assinados com chaves RSA
 - **Refresh Tokens:** Rota dedicada para renovação
 - **Session Management:** Timeout configurável
 
 ### Autorização
+
 - **Role-Based Access:** sudo allow-list
 - **API Scopes:** Granular permissions
 - **Audit Logging:** Todas as operações logadas
 
 ### Transport Security
+
 - **HTTPS Only:** Em produção
 - **CORS:** Configurado para domínios específicos
 - **CSP Headers:** Content Security Policy
@@ -186,18 +195,22 @@ npm run generate-api  # Atualiza hooks TypeScript
 ### Problemas Comuns
 
 **Type Mismatch:**
+
 - Regenerar API: `npm run generate-api`
 - Verificar OpenAPI spec em `core/ganache-api/`
 
 **CORS Errors:**
+
 - Verificar configuração do Axum
 - Headers de preflight
 
 **WebSocket Disconnects:**
+
 - Verificar reconexão automática
 - Logs do backend para connection drops
 
 **Cache Issues:**
+
 - Invalidar React Query cache
 - Clear browser cache
 

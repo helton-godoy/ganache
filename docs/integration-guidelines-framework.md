@@ -8,14 +8,14 @@ Este framework define os padrões para integrar múltiplas histórias no projeto
 
 ### 2.1 Histórias Analisadas - Matriz Completa
 
-| História | Status | Componentes Principais | Arquivos Modificados |
-|----------|--------|------------------------|----------------------|
-| **6.1** | Done | Scripts de review, log parsing Rust | `analyze-review-readiness.sh`, `suggest-fixes.sh`, `security_event_service.rs` |
-| **6.2** | Review | Framework de integração | `integration-validator.sh`, `integration-guidelines-framework.md` |
-| **6.3** | Backlog | Robustez de parsing | `security_event_service.rs`, funções de parsing |
-| **6.4** | Backlog | Testes SSR Next.js | `tests/e2e/`, componentes React SSR |
-| **6.5** | Backlog | Guia troubleshooting | `docs/`, documentação de auditoria |
-| **6.6** | Backlog | Geração de docs | Scripts de automação, templates |
+| História | Status  | Componentes Principais              | Arquivos Modificados                                                           |
+| -------- | ------- | ----------------------------------- | ------------------------------------------------------------------------------ |
+| **6.1**  | Done    | Scripts de review, log parsing Rust | `analyze-review-readiness.sh`, `suggest-fixes.sh`, `security_event_service.rs` |
+| **6.2**  | Review  | Framework de integração             | `integration-validator.sh`, `integration-guidelines-framework.md`              |
+| **6.3**  | Backlog | Robustez de parsing                 | `security_event_service.rs`, funções de parsing                                |
+| **6.4**  | Backlog | Testes SSR Next.js                  | `tests/e2e/`, componentes React SSR                                            |
+| **6.5**  | Backlog | Guia troubleshooting                | `docs/`, documentação de auditoria                                             |
+| **6.6**  | Backlog | Geração de docs                     | Scripts de automação, templates                                                |
 
 ### 2.2 Áreas de Conflito Identificadas e Mitigações
 
@@ -150,6 +150,7 @@ Adicionar seção "Dependencies" no arquivo da história:
 
 ```markdown
 ## Dependencies (Story Integration)
+
 - **Blocks:** Lista de histórias que esta bloqueia
 - **Blocked By:** Histórias que devem estar concluídas antes
 - **Shared Components:** Arquivos/serviços compartilhados
@@ -213,6 +214,7 @@ pub fn decode_tty_data(hex: &str) -> Result<String, DecodeError> {
 
 ```markdown
 ## Integration Notes
+
 - **Reuses:** SecurityEventParser trait from Story 6.1
 - **Extends:** Adds malformed data handling (AC #2)
 - **Impacts:** Story 6.5 troubleshooting guide should reference this

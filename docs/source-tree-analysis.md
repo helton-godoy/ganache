@@ -35,6 +35,7 @@ src/
 ```
 
 **Pontos Críticos:**
+
 - `app/`: Estrutura App Router do Next.js 16
 - `components/features/`: Componentes específicos do domínio
 - `api/generated/`: SDK gerado automaticamente da API Rust
@@ -59,6 +60,7 @@ core/
 ```
 
 **Pontos Críticos:**
+
 - `ganache-core/`: Servidor HTTP e lógica de aplicação
 - `ganache-api/`: Contratos de API (fonte da verdade)
 - `ganache-lib/`: Abstrações de baixo nível do sistema

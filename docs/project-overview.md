@@ -14,6 +14,7 @@ O GANACHE é um Appliance de Storage de alta disponibilidade que implementa uma 
 ## Estrutura do Repositório
 
 Monorepo com duas partes principais:
+
 - Frontend (src/): Interface web baseada em Next.js
 - Backend (core/): API e serviços do sistema em Rust
 

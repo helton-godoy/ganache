@@ -39,22 +39,22 @@ None que sejam **bloqueadores**. Alguns aspectos poderiam ser enriquecidos:
 
 ## Quality Criteria Assessment
 
-| Criterion            | Status      | Score | Notes                                                                          |
-| -------------------- | ----------- | ----- | ------------------------------------------------------------------------------ |
-| BDD Format           | ✅ PASS     | 10/10 | E2E tests têm Given-When-Then comments claros                                  |
-| Test IDs             | ✅ PASS     | 10/10 | Todos os tests referenciam Story 5.2 explicitamente                            |
-| Priority Markers     | ⚠️ WARN     | 7/10  | Prioridades inferidas, mas não marcadas inline (e.g., P0 tag)                  |
-| Hard Waits           | ✅ PASS     | 10/10 | Zero hard waits detectados - usa waitForSelector                               |
-| Determinism          | ✅ PASS     | 10/10 | Sem conditionals, sem try/catch abuse, sem random values                       |
-| Isolation            | ✅ PASS     | 10/10 | UUID prefix strategy garante test isolation perfeita                           |
-| Fixture Patterns     | ✅ PASS     | 8/10  | Usa beforeEach para mocking - acceptable pattern para E2E                      |
-| Data Factories       | ⚠️ WARN     | 6/10  | Mock data inline (acceptable), mas poderia usar factories                      |
-| Network-First        | ✅ PASS     | 10/10 | page.route() ANTES de page.goto() - perfect pattern                           |
-| Assertions           | ✅ PASS     | 10/10 | Explicit assertions presente em TODOS os tests (toContainText, toBeVisible)    |
-| Test Length          | ✅ PASS     | 10/10 | E2E: 157 lines, Unit: 177 lines - ambos excelentes                             |
-| Test Duration        | ✅ PASS     | 9/10  | Estimado \u003c30 seconds per test (based on complexity)                           |
-| Flakiness Patterns   | ✅ PASS     | 10/10 | Zero flaky patterns detectados                                                 |
-| **Overall Quality**  | **✅ PASS** | **92  /100** | **Excellent (A)** |
+| Criterion           | Status      | Score       | Notes                                                                       |
+| ------------------- | ----------- | ----------- | --------------------------------------------------------------------------- |
+| BDD Format          | ✅ PASS     | 10/10       | E2E tests têm Given-When-Then comments claros                               |
+| Test IDs            | ✅ PASS     | 10/10       | Todos os tests referenciam Story 5.2 explicitamente                         |
+| Priority Markers    | ⚠️ WARN     | 7/10        | Prioridades inferidas, mas não marcadas inline (e.g., P0 tag)               |
+| Hard Waits          | ✅ PASS     | 10/10       | Zero hard waits detectados - usa waitForSelector                            |
+| Determinism         | ✅ PASS     | 10/10       | Sem conditionals, sem try/catch abuse, sem random values                    |
+| Isolation           | ✅ PASS     | 10/10       | UUID prefix strategy garante test isolation perfeita                        |
+| Fixture Patterns    | ✅ PASS     | 8/10        | Usa beforeEach para mocking - acceptable pattern para E2E                   |
+| Data Factories      | ⚠️ WARN     | 6/10        | Mock data inline (acceptable), mas poderia usar factories                   |
+| Network-First       | ✅ PASS     | 10/10       | page.route() ANTES de page.goto() - perfect pattern                         |
+| Assertions          | ✅ PASS     | 10/10       | Explicit assertions presente em TODOS os tests (toContainText, toBeVisible) |
+| Test Length         | ✅ PASS     | 10/10       | E2E: 157 lines, Unit: 177 lines - ambos excelentes                          |
+| Test Duration       | ✅ PASS     | 9/10        | Estimado \u003c30 seconds per test (based on complexity)                    |
+| Flakiness Patterns  | ✅ PASS     | 10/10       | Zero flaky patterns detectados                                              |
+| **Overall Quality** | **✅ PASS** | **92 /100** | **Excellent (A)**                                                           |
 
 ---
 
@@ -78,12 +78,12 @@ Zero critical issues encontrados. Todos os tests seguem rigorosamente test-quali
 
 ```typescript
 // Current (acceptable)
-test.describe('Audit Search E2E', () => {
+test.describe("Audit Search E2E", () => {
   // ...
 });
 
 // Recommended (explicit priority)
-test.describe('Audit Search E2E', { tag: '@P0' }, () => {
+test.describe("Audit Search E2E", { tag: "@P0" }, () => {
   // ...
 });
 ```
@@ -129,7 +129,7 @@ await page.route('**/api/v1/security/events*', async (route) => {
 
 ---
 
-### 3. Consider  Perf Test für Large Result Sets
+### 3. Consider Perf Test für Large Result Sets
 
 **Severity**: P2 (Medium) - **Já identificado em traceability**  
 **File**: New test recommended  
@@ -139,18 +139,18 @@ await page.route('**/api/v1/security/events*', async (route) => {
 
 ```typescript
 // Recommended (new test in e2e/ or separate perf suite)
-test('should handle large result sets performantly', async ({ page }) => {
+test("should handle large result sets performantly", async ({ page }) => {
   // Mock 1000+ events
-  await page.route('**/api/v1/security/events*', async (route) => {
+  await page.route("**/api/v1/security/events*", async (route) => {
     const events = Array.from({ length: 1500 }, (_, i) => createMockEvent(i));
     await route.fulfill({ status: 200, body: JSON.stringify(events) });
   });
 
   const startTime = Date.now();
-  await page.goto('/audit');
-  await page.fill('#filename', 'large_file.csv');
+  await page.goto("/audit");
+  await page.fill("#filename", "large_file.csv");
   await page.click('button[type="submit"]');
-  await page.waitForSelector('table tbody tr');
+  await page.waitForSelector("table tbody tr");
   const duration = Date.now() - startTime;
 
   expect(duration).toBeLessThan(2000); // P95 latency target
@@ -170,13 +170,13 @@ test('should handle large result sets performantly', async ({ page }) => {
 ```typescript
 test.beforeEach(async ({ page }) => {
   // ✅ CORRECT: Route interception BEFORE navigation
-  await page.route('**/api/v1/security/events*', async (route) => {
+  await page.route("**/api/v1/security/events*", async (route) => {
     // ... mocking logic
   });
 });
 
-test('should search by filename...', async ({ page }) => {
-  await page.goto('/audit'); // Navigation happens AFTER route setup
+test("should search by filename...", async ({ page }) => {
+  await page.goto("/audit"); // Navigation happens AFTER route setup
   // ...
 });
 ```
@@ -194,12 +194,12 @@ test('should search by filename...', async ({ page }) => {
 fn test_search_by_filename() {
     // ✅ CORRECT: UUID prefix ensures test isolation
     let test_id_prefix = uuid::Uuid::new_v4().to_string();
-    
+
     let event1 = SecurityEvent {
         details: serde_json::json!({"test_id": test_id_prefix}),
         // ...
     };
-    
+
     // Filter results to only OUR test events
     let our_results: Vec<_> = results
         .iter()
@@ -219,10 +219,10 @@ fn test_search_by_filename() {
 ```typescript
 // ✅ CORRECT: Explicit, specific assertions
 const firstRow = rows.nth(0);
-await expect(firstRow).toContainText('alice'); // User
-await expect(firstRow).toContainText('192.168.1.10'); // Client IP
-await expect(firstRow).toContainText('12/23/2025'); // Timestamp
-await expect(firstRow).toContainText('Read File'); // Action
+await expect(firstRow).toContainText("alice"); // User
+await expect(firstRow).toContainText("192.168.1.10"); // Client IP
+await expect(firstRow).toContainText("12/23/2025"); // Timestamp
+await expect(firstRow).toContainText("Read File"); // Action
 ```
 
 **Why Excellent**: Cada assertion valida uma parte específica da AC1. Não usa implicit waits ou truthy checks genéricos. Segue [test-quality.md](_bmad/bmm/testarch/knowledge/test-quality.md) assertion guidelines.

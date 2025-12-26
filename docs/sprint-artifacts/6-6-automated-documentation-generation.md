@@ -134,12 +134,12 @@ Este sistema implementa uma **pipeline multi-source de extração de documentaç
 
 #### Fontes de Documentação
 
-| Fonte | Localização | Formato de Entrada | Output |
-| ----- | ----------- | ------------------ | ------ |
-| **Rust Backend** | `core/ganache-*/**/*.rs` | Triple-slash (`///`) + tags obrigatórias | `docs/api/rust/*.md` |
-| **OpenAPI Spec** | `core/ganache-api/openapi.json` | JSON Schema | `docs/api/openapi/*.md` |
-| **React Components** | `src/components/**/*.tsx` | JSDoc (`/** */`) | `docs/components/*.md` |
-| **Traceability** | `**/*.{rs,ts,tsx}` | `@ref [Story-ID]` comments | `docs/traceability.md` |
+| Fonte                | Localização                     | Formato de Entrada                       | Output                  |
+| -------------------- | ------------------------------- | ---------------------------------------- | ----------------------- |
+| **Rust Backend**     | `core/ganache-*/**/*.rs`        | Triple-slash (`///`) + tags obrigatórias | `docs/api/rust/*.md`    |
+| **OpenAPI Spec**     | `core/ganache-api/openapi.json` | JSON Schema                              | `docs/api/openapi/*.md` |
+| **React Components** | `src/components/**/*.tsx`       | JSDoc (`/** */`)                         | `docs/components/*.md`  |
+| **Traceability**     | `**/*.{rs,ts,tsx}`              | `@ref [Story-ID]` comments               | `docs/traceability.md`  |
 
 ### Detalhes Técnicos por Componente
 
@@ -181,7 +181,7 @@ pub fn create_zfs_pool(pool_name: &str, drbd_device: &str) -> Result<PoolInfo, Z
 
 **Output Esperado**:
 
-```markdown
+````markdown
 # API Endpoints - ZFS Storage Management
 
 ## POST /api/v1/storage/pool
@@ -189,6 +189,7 @@ pub fn create_zfs_pool(pool_name: &str, drbd_device: &str) -> Result<PoolInfo, Z
 Cria um novo ZFS pool.
 
 **Request Body** (`CreatePoolRequest`):
+
 ```json
 {
   "name": "mainpool",
@@ -196,6 +197,7 @@ Cria um novo ZFS pool.
   "compression": "lz4"
 }
 ```
+````
 
 **Response** (`PoolInfo`):
 
@@ -210,10 +212,10 @@ Cria um novo ZFS pool.
 **TypeScript SDK Usage**:
 
 ```typescript
-import { useCreatePoolMutation } from '@/api/generated';
+import { useCreatePoolMutation } from "@/api/generated";
 
 const { mutate } = useCreatePoolMutation();
-mutate({ name: 'mainpool', drbd_device: '/dev/drbd0' });
+mutate({ name: "mainpool", drbd_device: "/dev/drbd0" });
 ```
 
 **Script**: `scripts/generate-api-docs.sh`
@@ -233,16 +235,16 @@ mutate({ name: 'mainpool', drbd_device: '/dev/drbd0' });
 /**
  * @description Exibe o status de saúde do cluster DRBD em tempo real.
  * Implementa polling via React Query para atualização automática (2-5s).
- * 
+ *
  * @param onNodeClick - Callback acionado ao clicar em um nó do cluster
  * @param refreshInterval - Intervalo de polling em ms (padrão: 3000)
  * @returns Componente visual de status do cluster
- * 
+ *
  * @ref Story-2.1 - Visualização de saúde do cluster HA
  */
-export function ClusterHealthCard({ 
-  onNodeClick, 
-  refreshInterval = 3000 
+export function ClusterHealthCard({
+  onNodeClick,
+  refreshInterval = 3000,
 }: ClusterHealthCardProps) {
   // ...
 }
@@ -270,11 +272,13 @@ export function ClusterHealthCard({
 ## Story 2.2: ZFS Pool Creation on DRBD
 
 **Implementação**:
+
 - `core/ganache-lib/src/zfs/pool.rs` - `create_zfs_pool()` (linha 45)
 - `core/ganache-core/src/routes/storage.rs` - `POST /storage/pool` handler (linha 120)
 - `src/components/features/StorageWizard.tsx` - Pool creation UI (linha 78)
 
 **Testes**:
+
 - `core/ganache-lib/tests/zfs_pool_tests.rs` - `test_create_pool_on_drbd()` (linha 12)
 ```
 
@@ -352,11 +356,11 @@ missing_docs=()
 
 for file in core/ganache-*/src/**/*.rs; do
   pub_fns=$(grep -n "^pub fn" "$file" | cut -d: -f1)
-  
+
   for line_num in $pub_fns; do
     prev_line=$((line_num - 1))
     comment=$(sed -n "${prev_line}p" "$file")
-    
+
     if [[ ! "$comment" =~ ^///.*# Purpose ]]; then
       missing_docs+=("$file:$line_num - função sem /// # Purpose")
     fi
@@ -475,7 +479,7 @@ Este código DEVE seguir rigorosamente:
 
 - **[project-context.md](file:///root/GANACHE/project-context.md)** - Seção 10: Semantic Documentation Strategy
   - Formato de comentários Rust: Triple-slash `///` com seções obrigatórias
-  - Formato JSDoc TypeScript: `/** */` com tags obrigatórias  
+  - Formato JSDoc TypeScript: `/** */` com tags obrigatórias
   - Pattern `@ref [Story-ID]` para rastreabilidade
   - Goal: Preparar código para RAG system (Vector DB indexing)
 
@@ -634,7 +638,7 @@ gemini-2.0-flash-exp
 
 ### Change Log
 
-**2025-12-25 - Code Review Adversarial & Remediação (Dev Agent: gemini-2.0-flash-exp)**
+**2025-12-25 - Code Review Adversarial & Remediação (Dev Agent: gemini-2.0-flash-exp):**
 
 - **CODE REVIEW EXECUTADO**: 15 issues identificados (8 CRITICAL, 5 MEDIUM, 2 LOW)
 - **CORREÇÕES AUTOMÁTICAS APLICADAS**:

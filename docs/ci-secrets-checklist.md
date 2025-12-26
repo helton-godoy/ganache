@@ -43,7 +43,7 @@ O pipeline CI/CD atual não requer nenhum secret configurado. Os testes executam
   uses: 8398a7/action-slack@v3
   with:
     status: ${{ job.status }}
-    text: 'Test failures detected in PR #${{ github.event.pull_request.number }}'
+    text: "Test failures detected in PR #${{ github.event.pull_request.number }}"
     webhook_url: ${{ secrets.SLACK_WEBHOOK }}
 ```
 
@@ -222,7 +222,7 @@ Error: The secret `SLACK_WEBHOOK` is not set
 
 # NUNCA faça isso:
 - name: Debug (UNSAFE!)
-  run: echo ${{ secrets.API_KEY }}  # ❌ NUNCA!
+  run: echo ${{ secrets.API_KEY }} # ❌ NUNCA!
 ```
 
 ---

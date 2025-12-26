@@ -94,7 +94,7 @@ docs/
 - **robust_log_parsing_tests.rs**: 11 testes para validação de parsing robusto
 - **Resultado**: 100% de cobertura de testes, 39/39 testes passando
 
-### Métricas de Qualidade
+**Métricas de Qualidade:**
 
 - **Sem regressões**: Todas as funcionalidades existentes continuam operacionais
 - **Performance**: Verificações executadas em menos de 30 segundos
@@ -104,7 +104,7 @@ docs/
 
 ### 1. Guia de Processo Otimizado
 
-**docs/adversarial-review-optimized-guide.md**
+**docs/adversarial-review-optimized-guide.md:**
 
 - Fluxo de processo otimizado passo-a-passo
 - Checklist de revisão atualizado
@@ -113,7 +113,7 @@ docs/
 
 ### 2. Materiais de Treinamento
 
-**docs/adversarial-review-training-examples.md**
+**docs/adversarial-review-training-examples.md:**
 
 - Exemplos práticos de problemas e correções
 - Como usar o motor de sugestões
@@ -145,7 +145,7 @@ docs/
 3. **Qualidade do Código**: Manter ou melhorar cobertura de testes
 4. **Adoção da Equipe**: 100% dos desenvolvedores utilizando o novo processo
 
-### Métricas de Qualidade
+**Métricas de Qualidade:**
 
 - **Taxa de Problemas Detectados**: % de problemas identificados nas verificações automatizadas
 - **Tempo de Feedback**: Tempo médio entre commit e feedback de verificações

@@ -4,7 +4,7 @@
 
 **Report Date:** 2025-12-24  
 **Test Architect:** Murat (TEA Agent)  
-**Objective:** Validate AC #1 of Story 6-1: "Identificar problemas de forma mais eficaz na primeira passagem"  
+**Objective:** Validate AC #1 of Story 6-1: "Identificar problemas de forma mais eficaz na primeira passagem"
 
 ---
 
@@ -31,14 +31,14 @@ Este relatório documenta os resultados de **3 revisões piloto** aplicando as f
 
 ## 1. Pilot Review #1: Story 5.2 (Visual Audit Manager)
 
-### Story Context
+**Story Context:**
 
 - **Status:** Done
 - **Code Reviews Realizados:** 2 rodadas
 - **Issues Encontrados (Manual):** 10 issues (1 CRITICAL, 5 MEDIUM, 4 LOW)
 - **Iterações até Aprovação:** 2 iterações
 
-### Manual Code Review Findings (Baseline)
+**Manual Code Review Findings (Baseline):**
 
 **Rodada 1 (2025-12-23):**
 
@@ -58,36 +58,36 @@ Este relatório documenta os resultados de **3 revisões piloto** aplicando as f
 - Todos os 10 issues corrigidos
 - Status: ✅ APPROVED
 
-### Automated Detection Analysis (Story 6-1 Tools)
+**Automated Detection Analysis (Story 6-1 Tools):**
 
 #### ✅ Would Detect (8/10 = 80%)
 
-| Issue | Tool | Detection Method | Evidence |
-| ----- | ---- | ---------------- | -------- |
-| **CRITICAL-1** | `cargo build` | Compilation check | Duplicate static var → compiler error |
-| **MEDIUM-1** | `analyze-review-readiness.sh` | File List consistency check | Modified files vs. documented files diff |
-| **MEDIUM-4** | `git status` hook | Untracked files check | Files in working tree not staged |
-| **MEDIUM-5** | `suggest-fixes.sh` | Fragile parsing heuristic | `split()` without limit detected |
-| **LOW-1** | `suggest-fixes.sh` | Hardcoded strings pattern | "event_type" hardcoded strings |
-| **LOW-2** | `suggest-fixes.sh` | Duplicate comment detection | Identical comment blocks |
-| **LOW-4** | `git-classify.sh` | Unstaged dependency check | `package-lock.json` modified but unstaged |
-| **MEDIUM-2** | `cargo/npm test` | Test execution check | Skeleton tests would fail or be empty |
+| Issue          | Tool                          | Detection Method            | Evidence                                  |
+| -------------- | ----------------------------- | --------------------------- | ----------------------------------------- |
+| **CRITICAL-1** | `cargo build`                 | Compilation check           | Duplicate static var → compiler error     |
+| **MEDIUM-1**   | `analyze-review-readiness.sh` | File List consistency check | Modified files vs. documented files diff  |
+| **MEDIUM-4**   | `git status` hook             | Untracked files check       | Files in working tree not staged          |
+| **MEDIUM-5**   | `suggest-fixes.sh`            | Fragile parsing heuristic   | `split()` without limit detected          |
+| **LOW-1**      | `suggest-fixes.sh`            | Hardcoded strings pattern   | "event_type" hardcoded strings            |
+| **LOW-2**      | `suggest-fixes.sh`            | Duplicate comment detection | Identical comment blocks                  |
+| **LOW-4**      | `git-classify.sh`             | Unstaged dependency check   | `package-lock.json` modified but unstaged |
+| **MEDIUM-2**   | `cargo/npm test`              | Test execution check        | Skeleton tests would fail or be empty     |
 
 #### ❌ Would NOT Detect (2/10 = 20%)
 
-| Issue | Reason Not Detectable | Detection Requires |
-| ----- | --------------------- | ------------------ |
-| **MEDIUM-3** | PDF export placeholder (semantic) | Manual code review or functional test |
-| **LOW-3** | Code style preference (module placement) | ESLint custom rule (not in current scope) |
+| Issue        | Reason Not Detectable                    | Detection Requires                        |
+| ------------ | ---------------------------------------- | ----------------------------------------- |
+| **MEDIUM-3** | PDF export placeholder (semantic)        | Manual code review or functional test     |
+| **LOW-3**    | Code style preference (module placement) | ESLint custom rule (not in current scope) |
 
-### Metrics Comparison
+**Metrics Comparison:**
 
-| Metric | Manual Review | Automated Tools |
-| ------ | ------------- | --------------- |
-| **Time to First Detection** | ~35 min | <2 seconds |
-| **Detection Rate** | 10/10 (100%) | 8/10 (80%) |
-| **False Positives** | 0 | 1 (module placement warning) |
-| **Iterations Required** | 2 | 1 (automated run) |
+| Metric                      | Manual Review | Automated Tools              |
+| --------------------------- | ------------- | ---------------------------- |
+| **Time to First Detection** | ~35 min       | <2 seconds                   |
+| **Detection Rate**          | 10/10 (100%)  | 8/10 (80%)                   |
+| **False Positives**         | 0             | 1 (module placement warning) |
+| **Iterations Required**     | 2             | 1 (automated run)            |
 
 ### Conclusion for Pilot #1
 
@@ -97,14 +97,14 @@ Este relatório documenta os resultados de **3 revisões piloto** aplicando as f
 
 ## 2. Pilot Review #2: Story 5.3 (Break-Glass Emergency Admin)
 
-### Story Context
+**Story Context:**
 
 - **Status:** Done
 - **Code Reviews Realizados:** 2 rodadas (Adversarial Review + Remediação)
 - **Issues Encontrados (Manual):** 3 issues críticos de design
 - **Iterações até Aprovação:** 2 iterações
 
-### Manual Code Review Findings (Baseline)
+**Manual Code Review Findings (Baseline):**
 
 **Remediação 1 (Design Flaws):**
 
@@ -112,35 +112,33 @@ Este relatório documenta os resultados de **3 revisões piloto** aplicando as f
 2. **CRITICAL-D2**: State Persistence Missing - Estado apenas in-memory, perdido em restarts
 3. **MEDIUM-D1**: Test Isolation Issues - Testes afetavam production config
 
-**Remediação 2 (Code Review):**
-4. **LOW-1**: Test count documentation error (13 vs. 9)
-5. **LOW-2**: 8 unused Break-Glass imports em `main.rs`
+**Remediação 2 (Code Review):** 4. **LOW-1**: Test count documentation error (13 vs. 9) 5. **LOW-2**: 8 unused Break-Glass imports em `main.rs`
 
-### Automated Detection Analysis (Story 6-1 Tools)
+**Automated Detection Analysis (Story 6-1 Tools):**
 
 #### ✅ Would Detect (3/5 = 60%)
 
-| Issue | Tool | Detection Method | Evidence |
-| ----- | ---- | ---------------- | -------- |
-| **LOW-1** | `suggest-fixes.sh` | Documentation consistency | Test file has 9 tests, doc says 13 |
-| **LOW-2** | `clippy` (pre-commit) | Unused imports lint | `dead_code` / `unused_imports` warnings |
-| **MEDIUM-D1** | `cargo test` | Test failures/pollution | Tests would fail without env var isolation |
+| Issue         | Tool                  | Detection Method          | Evidence                                   |
+| ------------- | --------------------- | ------------------------- | ------------------------------------------ |
+| **LOW-1**     | `suggest-fixes.sh`    | Documentation consistency | Test file has 9 tests, doc says 13         |
+| **LOW-2**     | `clippy` (pre-commit) | Unused imports lint       | `dead_code` / `unused_imports` warnings    |
+| **MEDIUM-D1** | `cargo test`          | Test failures/pollution   | Tests would fail without env var isolation |
 
 #### ❌ Would NOT Detect (2/5 = 40%)
 
-| Issue | Reason Not Detectable | Detection Requires |
-| ----- | --------------------- | ------------------ |
-| **CRITICAL-D1** | Semantic gap (AC vs Implementation) | Human review of AC alignment |
+| Issue           | Reason Not Detectable                      | Detection Requires                       |
+| --------------- | ------------------------------------------ | ---------------------------------------- |
+| **CRITICAL-D1** | Semantic gap (AC vs Implementation)        | Human review of AC alignment             |
 | **CRITICAL-D2** | Architectural decision (persistence layer) | Manual verification or integration tests |
 
-### Metrics Comparison
+**Metrics Comparison:**
 
-| Metric | Manual Review | Automated Tools |
-| ------ | ------------- | --------------- |
-| **Time to First Detection** | ~40 min | <2 seconds (for detectable) |
-| **Detection Rate** | 5/5 (100%) | 3/5 (60%) |
-| **False Positives** | 0 | 0 |
-| **Iterations Required** | 2 | 1 (automated), 1 (manual for CRITICAL) |
+| Metric                      | Manual Review | Automated Tools                        |
+| --------------------------- | ------------- | -------------------------------------- |
+| **Time to First Detection** | ~40 min       | <2 seconds (for detectable)            |
+| **Detection Rate**          | 5/5 (100%)    | 3/5 (60%)                              |
+| **False Positives**         | 0             | 0                                      |
+| **Iterations Required**     | 2             | 1 (automated), 1 (manual for CRITICAL) |
 
 ### Conclusion for Pilot #2
 
@@ -150,14 +148,14 @@ Este relatório documenta os resultados de **3 revisões piloto** aplicando as f
 
 ## 3. Pilot Review #3: Story 5.4 (Security Dashboard)
 
-### Story Context
+**Story Context:**
 
 - **Status:** Done
 - **Code Reviews Realizados:** 3 rodadas
 - **Issues Encontrados (Manual):** 9 issues (2 HIGH, 5 MEDIUM, 2 LOW)
 - **Iterações até Aprovação:** 3 iterações
 
-### Manual Code Review Findings (Baseline)
+**Manual Code Review Findings (Baseline):**
 
 **Code Review #1:**
 
@@ -165,50 +163,44 @@ Este relatório documenta os resultados de **3 revisões piloto** aplicando as f
 2. **LOW-1**: Rota Frontend faltando - Sem `/security` route
 3. **LOW-2**: Acknowledge Alert não implementado
 
-**Code Review #2:**
-4. **MEDIUM-2**: E2E Test validava mock, não backend real
-5. **MEDIUM-3**: Rate Limiting não documentado
+**Code Review #2:** 4. **MEDIUM-2**: E2E Test validava mock, não backend real 5. **MEDIUM-3**: Rate Limiting não documentado
 
-**Adversarial Review #3:**
-6. **HIGH-1**: Deduplicação de Eventos ausente - Eventos SSH duplicados
-7. **HIGH-2**: Estabilidade de Alertas - IDs de alerta não persistiam
-8. **MEDIUM-4**: Higiene Git - Arquivos uncommitted
-9. **MEDIUM-5**: Dependências faltantes - `uuid` features
+**Adversarial Review #3:** 6. **HIGH-1**: Deduplicação de Eventos ausente - Eventos SSH duplicados 7. **HIGH-2**: Estabilidade de Alertas - IDs de alerta não persistiam 8. **MEDIUM-4**: Higiene Git - Arquivos uncommitted 9. **MEDIUM-5**: Dependências faltantes - `uuid` features
 
-### Automated Detection Analysis (Story 6-1 Tools)
+**Automated Detection Analysis (Story 6-1 Tools):**
 
 #### ✅ Would Detect (6/9 = 67%)
 
-| Issue | Tool | Detection Method | Evidence |
-| ----- | ---- | ---------------- | -------- |
-| **LOW-1** | E2E test | Route not found | 404 error in test execution |
-| **MEDIUM-2** | Test review | Mock detection | Tests using `vi.mock()` without real integration |
-| **MEDIUM-3** | Documentation check | TODO/FIXME grep | Comments reference rate limiting without implementation |
-| **MEDIUM-4** | `git-classify.sh` | Uncommitted files check | Working tree dirty |
-| **MEDIUM-5** | `cargo build` | Missing dependency features | Compilation error |
-| **HIGH-2** | Unit test | Alert ID instability | Tests would fail due to non-deterministic IDs |
+| Issue        | Tool                | Detection Method            | Evidence                                                |
+| ------------ | ------------------- | --------------------------- | ------------------------------------------------------- |
+| **LOW-1**    | E2E test            | Route not found             | 404 error in test execution                             |
+| **MEDIUM-2** | Test review         | Mock detection              | Tests using `vi.mock()` without real integration        |
+| **MEDIUM-3** | Documentation check | TODO/FIXME grep             | Comments reference rate limiting without implementation |
+| **MEDIUM-4** | `git-classify.sh`   | Uncommitted files check     | Working tree dirty                                      |
+| **MEDIUM-5** | `cargo build`       | Missing dependency features | Compilation error                                       |
+| **HIGH-2**   | Unit test           | Alert ID instability        | Tests would fail due to non-deterministic IDs           |
 
 #### ❌ Would NOT Detect (3/9 = 33%)
 
-| Issue | Reason Not Detectable | Detection Requires |
-| ----- | --------------------- | ------------------ |
-| **MEDIUM-1** | Stub vs. Real implementation (semantic) | Functional test or manual review |
-| **LOW-2** | Missing API endpoint (semantic) | API contract validation or manual review |
-| **HIGH-1** | Logic bug (deduplication algorithm) | Integration test with real data or manual inspection |
+| Issue        | Reason Not Detectable                   | Detection Requires                                   |
+| ------------ | --------------------------------------- | ---------------------------------------------------- |
+| **MEDIUM-1** | Stub vs. Real implementation (semantic) | Functional test or manual review                     |
+| **LOW-2**    | Missing API endpoint (semantic)         | API contract validation or manual review             |
+| **HIGH-1**   | Logic bug (deduplication algorithm)     | Integration test with real data or manual inspection |
 
 ### False Positives Detected
 
 1. **FP-1**: Warning sobre `TODO: WebSocket implementation` em comment educacional (não bloqueante)
 2. **FP-2**: Alert sobre log parsing pattern em test fixture (falso positivo - é mock data intencional)
 
-### Metrics Comparison
+**Metrics Comparison:**
 
-| Metric | Manual Review | Automated Tools |
-| ------ | ------------- | --------------- |
-| **Time to First Detection** | ~45 min (por rodada) | <2 seconds |
-| **Detection Rate** | 9/9 (100%) | 6/9 (67%) |
-| **False Positives** | 0 | 2 (avisos não-críticos) |
-| **Iterations Required** | 3 | 1-2 (1 automated, 1 manual) |
+| Metric                      | Manual Review        | Automated Tools             |
+| --------------------------- | -------------------- | --------------------------- |
+| **Time to First Detection** | ~45 min (por rodada) | <2 seconds                  |
+| **Detection Rate**          | 9/9 (100%)           | 6/9 (67%)                   |
+| **False Positives**         | 0                    | 2 (avisos não-críticos)     |
+| **Iterations Required**     | 3                    | 1-2 (1 automated, 1 manual) |
 
 ### Conclusion for Pilot #3
 
@@ -220,7 +212,7 @@ Este relatório documenta os resultados de **3 revisões piloto** aplicando as f
 
 ### Overall Detection Effectiveness
 
-**Total Issues Across 3 Stories:** 24 issues  
+**Total Issues Across 3 Stories:** 24 issues
 
 - **Critical/High Severity:** 7 issues (29%)
 - **Medium Severity:** 11 issues (46%)
@@ -228,25 +220,25 @@ Este relatório documenta os resultados de **3 revisões piloto** aplicando as f
 
 **Automated Detection Performance:**
 
-| Severity | Total | Detected | Rate | Notes |
-| -------- | ----- | -------- | ---- | ----- |
-| **Critical/High** | 7 | 2 | **29%** | Compilation errors, test failures |
-| **Medium** | 11 | 8 | **73%** | Git hygiene, file list, dependencies |
-| **Low** | 6 | 4 | **67%** | Code style, documentation |
-| **TOTAL** | 24 | 14 | **58%** | - |
+| Severity          | Total | Detected | Rate    | Notes                                |
+| ----------------- | ----- | -------- | ------- | ------------------------------------ |
+| **Critical/High** | 7     | 2        | **29%** | Compilation errors, test failures    |
+| **Medium**        | 11    | 8        | **73%** | Git hygiene, file list, dependencies |
+| **Low**           | 6     | 4        | **67%** | Code style, documentation            |
+| **TOTAL**         | 24    | 14       | **58%** | -                                    |
 
 ### Breakdown by Issue Category
 
-| Category | Total | Detected | Detection Rate | Automated Tool |
-| -------- | ----- | -------- | -------------- | -------------- |
-| **Compilation Errors** | 2 | 2 | **100%** ✅ | `cargo build` / `npm build` |
-| **Git Hygiene** | 4 | 4 | **100%** ✅ | `git-classify.sh`, hooks |
-| **File List Consistency** | 1 | 1 | **100%** ✅ | `analyze-review-readiness.sh` |
-| **Code Anti-Patterns** | 3 | 3 | **100%** ✅ | `suggest-fixes.sh` |
-| **Test Quality** | 3 | 2 | **67%** ⚠️ | Test execution, coverage checks |
-| **Documentation** | 2 | 2 | **100%** ✅ | TODO/FIXME detection |
-| **Semantic Gaps** | 6 | 0 | **0%** ❌ | Manual review required |
-| **Logic Bugs** | 3 | 0 | **0%** ❌ | Integration tests / manual review |
+| Category                  | Total | Detected | Detection Rate | Automated Tool                    |
+| ------------------------- | ----- | -------- | -------------- | --------------------------------- |
+| **Compilation Errors**    | 2     | 2        | **100%** ✅    | `cargo build` / `npm build`       |
+| **Git Hygiene**           | 4     | 4        | **100%** ✅    | `git-classify.sh`, hooks          |
+| **File List Consistency** | 1     | 1        | **100%** ✅    | `analyze-review-readiness.sh`     |
+| **Code Anti-Patterns**    | 3     | 3        | **100%** ✅    | `suggest-fixes.sh`                |
+| **Test Quality**          | 3     | 2        | **67%** ⚠️     | Test execution, coverage checks   |
+| **Documentation**         | 2     | 2        | **100%** ✅    | TODO/FIXME detection              |
+| **Semantic Gaps**         | 6     | 0        | **0%** ❌      | Manual review required            |
+| **Logic Bugs**            | 3     | 0        | **0%** ❌      | Integration tests / manual review |
 
 ### Key Insights
 
@@ -288,21 +280,21 @@ Este relatório documenta os resultados de **3 revisões piloto** aplicando as f
 
 ### Manual Review Baseline (Epic 5)
 
-| Story | Rodadas | Tempo por Rodada | Tempo Total |
-| ----- | ------- | ---------------- | ----------- |
-| **5.2** | 2 | ~35 min | **70 min** |
-| **5.3** | 2 | ~40 min | **80 min** |
-| **5.4** | 3 | ~45 min | **135 min** |
-| **TOTAL** | **7 rodadas** | ~40 min avg | **285 min** (4.75 horas) |
+| Story     | Rodadas       | Tempo por Rodada | Tempo Total              |
+| --------- | ------------- | ---------------- | ------------------------ |
+| **5.2**   | 2             | ~35 min          | **70 min**               |
+| **5.3**   | 2             | ~40 min          | **80 min**               |
+| **5.4**   | 3             | ~45 min          | **135 min**              |
+| **TOTAL** | **7 rodadas** | ~40 min avg      | **285 min** (4.75 horas) |
 
 ### Automated Review Performance
 
-| Story | Automated Execution | Manual Follow-up | Total Time |
-| ----- | ------------------- | ---------------- | ---------- |
-| **5.2** | <2 sec | ~15 min (semantic) | **~15 min** |
-| **5.3** | <2 sec | ~20 min (design) | **~20 min** |
-| **5.4** | <2 sec | ~20 min (logic bugs) | **~20 min** |
-| **TOTAL** | **<6 sec** | **~55 min** | **~55 min** |
+| Story     | Automated Execution | Manual Follow-up     | Total Time  |
+| --------- | ------------------- | -------------------- | ----------- |
+| **5.2**   | <2 sec              | ~15 min (semantic)   | **~15 min** |
+| **5.3**   | <2 sec              | ~20 min (design)     | **~20 min** |
+| **5.4**   | <2 sec              | ~20 min (logic bugs) | **~20 min** |
+| **TOTAL** | **<6 sec**          | **~55 min**          | **~55 min** |
 
 ### Time Savings
 
@@ -322,7 +314,7 @@ Este relatório documenta os resultados de **3 revisões piloto** aplicando as f
 ## 6. Validation of Story 6-1 AC #1
 
 ### Acceptance Criterion
->
+
 > "Quando o processo de revisão adversarial é executado  
 > Então ele deve identificar problemas de forma mais eficaz na primeira passagem"
 

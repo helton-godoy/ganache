@@ -83,25 +83,25 @@
 
 ## 📋 Recommended Actions
 
-1. **[PERF - HIGH]** Refatorar `get_events` para evitar clonagem massiva de vetores. - *Target: Sprint 5 Final*
+1. **[PERF - HIGH]** Refatorar `get_events` para evitar clonagem massiva de vetores. - _Target: Sprint 5 Final_
 2. **[SEC - MEDIUM]** Implementar rotação de logs journald específica para o `audit` para evitar fragmentação de disco.
 
 ## 🚀 Gate YAML Snippet
 
 ```yaml
 nfr_assessment:
-  date: '2025-12-23'
-  story_id: 'Epic-5'
+  date: "2025-12-23"
+  story_id: "Epic-5"
   categories:
-    performance: 'CONCERNS'
-    security: 'PASS'
-    reliability: 'PASS'
-    maintainability: 'PASS'
-  overall_status: 'CONCERNS'
+    performance: "CONCERNS"
+    security: "PASS"
+    reliability: "PASS"
+    maintainability: "PASS"
+  overall_status: "CONCERNS"
   critical_issues: 0
   high_priority_issues: 1
   concerns: 1
   blockers: false
   recommendations:
-    - 'Optimize get_events filtering to avoid O(N) memory spikes (HIGH)'
+    - "Optimize get_events filtering to avoid O(N) memory spikes (HIGH)"
 ```

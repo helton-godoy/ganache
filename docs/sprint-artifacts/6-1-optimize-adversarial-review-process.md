@@ -15,10 +15,10 @@ Para que possamos alcançar alta qualidade com menos rodadas de revisão.
 ## Critérios de Aceitação
 
 1. Dado uma mudança de código pronta para revisão
-Quando o processo de revisão adversarial é executado
-Então ele deve identificar problemas de forma mais eficaz na primeira passagem
-E fornecer sugestões automatizadas para correções comuns
-E reduzir o número médio de iterações de revisão por história
+   Quando o processo de revisão adversarial é executado
+   Então ele deve identificar problemas de forma mais eficaz na primeira passagem
+   E fornecer sugestões automatizadas para correções comuns
+   E reduzir o número médio de iterações de revisão por história
 
 ## Tarefas / Subtarefas
 
@@ -58,25 +58,25 @@ E reduzir o número médio de iterações de revisão por história
     git add scripts/analyze-review-readiness.sh scripts/suggest-fixes.sh
     git add tests/scripts/test_*.sh
     git commit -m "feat(governance): add adversarial review automation scripts"
-    
+
     # 2. Melhorias Rust
     git add core/ganache-lib/src/system/security_event_service.rs
     git add core/ganache-lib/tests/robust_log_parsing_tests.rs
     git commit -m "feat(backend): improve log parsing robustness"
-    
+
     # 3. CI/CD Workflow
     git add .github/workflows/adversarial-review-checks.yml
     git commit -m "ci(workflows): add adversarial review checks"
-    
+
     # 4. Documentação
     git add docs/adversarial-review-optimized-guide.md docs/adversarial-review-training-examples.md docs/6-1-implementation-summary.md
     git commit -m "docs(governance): add adversarial review documentation"
-    
+
     # 5. File List e Story Updates
     git add docs/sprint-artifacts/6-1-optimize-adversarial-review-process.md
     git add core/ganache-core/src/security_handlers.rs
     git commit -m "docs(story): update file list and fix code formatting"
-    
+
     # 6. Verificar compliance
     ./scripts/force-agent-compliance.sh
     ```
@@ -124,7 +124,7 @@ E reduzir o número médio de iterações de revisão por história
 ## Notas de Desenvolvimento
 
 - Padrões e restrições de arquitetura relevantes: Seguir a arquitetura do fluxo de trabalho BMAD, integrar com git hooks existentes (`pre-commit`, `pre-push`), utilizar `bmad-validate.sh` para verificações automatizadas
-- Componentes da árvore de origem a serem modificados: _bmad/bmm/workflows/4-implementation/code-review/, scripts/git-classify.sh, scripts/bmad-validate.sh
+- Componentes da árvore de origem a serem modificados: \_bmad/bmm/workflows/4-implementation/code-review/, scripts/git-classify.sh, scripts/bmad-validate.sh
 - Resumo dos padrões de teste: Incluir testes unitários para novas verificações automatizadas, testes de integração com fluxo de trabalho git, medir métricas de processo (ex.: redução nas iterações de revisão)
 - Requisitos de estrutura de arquivos: Manter padrões de documentação BMAD, atualizar docs/ com novas diretrizes, garantir documentação semântica para geração automatizada
 - Integração com CI/CD: Garantir que verificações automatizadas sejam executadas no pipeline de CI/CD e validar integração com fluxos de trabalho existentes

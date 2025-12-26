@@ -42,11 +42,11 @@ graph LR
 
 ### Quando Cada Stage Executa
 
-| Stage | Triggers | Tempo Alvo | Bloqueia Merge |
-|-------|----------|------------|----------------|
-| Lint | Push, PR | < 2 min | ✅ Sim |
-| E2E Sharded | Push, PR | < 10 min/shard | ✅ Sim |
-| Burn-in | PR to main/develop | < 30 min | ✅ Sim |
+| Stage       | Triggers           | Tempo Alvo     | Bloqueia Merge |
+| ----------- | ------------------ | -------------- | -------------- |
+| Lint        | Push, PR           | < 2 min        | ✅ Sim         |
+| E2E Sharded | Push, PR           | < 10 min/shard | ✅ Sim         |
+| Burn-in     | PR to main/develop | < 30 min       | ✅ Sim         |
 
 ### Parallel Sharding
 
@@ -116,7 +116,7 @@ echo "20" > .nvmrc
 Depois atualize o workflow para usar:
 
 ```yaml
-node-version-file: '.nvmrc'
+node-version-file: ".nvmrc"
 ```
 
 ### Caching Strategy
@@ -127,7 +127,7 @@ O pipeline utiliza cache nativo do GitHub Actions:
 - uses: actions/setup-node@v4
   with:
     node-version: 20
-    cache: 'npm'
+    cache: "npm"
 ```
 
 **O que é cacheado**:
@@ -266,12 +266,12 @@ git diff --name-only main...HEAD | grep -E '\.spec\.ts$' | xargs npx playwright 
 
 ## 📊 Performance Targets
 
-| Métrica | Alvo | Atual |
-|---------|------|-------|
-| Lint stage | < 2 min | ✅ ~1-2 min |
-| E2E stage (por shard) | < 10 min | ✅ ~5-10 min |
-| Burn-in stage | < 30 min | ✅ ~15-25 min |
-| **Pipeline total** | **< 45 min** | **✅ ~30-40 min** |
+| Métrica               | Alvo         | Atual             |
+| --------------------- | ------------ | ----------------- |
+| Lint stage            | < 2 min      | ✅ ~1-2 min       |
+| E2E stage (por shard) | < 10 min     | ✅ ~5-10 min      |
+| Burn-in stage         | < 30 min     | ✅ ~15-25 min     |
+| **Pipeline total**    | **< 45 min** | **✅ ~30-40 min** |
 
 **Speedup**: ~75% mais rápido que execução sequencial graças ao sharding paralelo.
 

@@ -37,46 +37,46 @@ echo ""
 
 STAGED=$(git diff --cached --name-only)
 if [ ! -z "$STAGED" ]; then
-    STAGED_COUNT=$(echo "$STAGED" | wc -l)
-    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo -e "${RED}🚫 BLOQUEIO ABSOLUTO - VOCÊ NÃO PODE PROSSEGUIR${NC}"
-    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo ""
-    echo -e "${BOLD}${RED}Existem $STAGED_COUNT arquivos STAGED aguardando commit!${NC}"
-    echo ""
-    echo -e "${YELLOW}Arquivos pendentes:${NC}"
-    echo "$STAGED" | head -20 | while read file; do
-        echo -e "  ${RED}✗${NC} $file"
-    done
-    if [ "$STAGED_COUNT" -gt 20 ]; then
-        echo -e "  ${YELLOW}... e mais $((STAGED_COUNT - 20)) arquivos${NC}"
-    fi
-    echo ""
-    echo -e "${BOLD}${RED}╔════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${BOLD}${RED}║  VOCÊ AFIRMOU TER COMMITADO, MAS NÃO COMMITOU NADA!    ║${NC}"
-    echo -e "${BOLD}${RED}║                                                        ║${NC}"
-    echo -e "${BOLD}${RED}║  ISTO É UMA ALUCINAÇÃO. VOCÊ NÃO PODE CONTINUAR.       ║${NC}"
-    echo -e "${BOLD}${RED}╚════════════════════════════════════════════════════════╝${NC}"
-    echo ""
-    echo -e "${CYAN}${BOLD}AÇÕES OBRIGATÓRIAS:${NC}"
-    echo ""
-    echo -e "  ${BOLD}1.${NC} Classificar mudanças:"
-    echo -e "     ${YELLOW}./scripts/git-classify.sh${NC}"
-    echo ""
-    echo -e "  ${BOLD}2.${NC} Fazer commits atômicos POR CATEGORIA:"
-    echo -e "     ${YELLOW}git add <categoria1>${NC}"
-    echo -e "     ${YELLOW}git commit -m \"tipo(escopo): descrição\"${NC}"
-    echo ""
-    echo -e "  ${BOLD}3.${NC} Repetir para CADA categoria separadamente"
-    echo ""
-    echo -e "  ${BOLD}4.${NC} Executar este script novamente:"
-    echo -e "     ${YELLOW}./scripts/force-agent-compliance.sh${NC}"
-    echo ""
-    echo -e "  ${BOLD}5.${NC} SÓ ENTÃO você pode afirmar sucesso"
-    echo ""
-    echo -e "${RED}${BOLD}NÃO HÁ OUTRA OPÇÃO. FAÇA OS COMMITS AGORA.${NC}"
-    echo ""
-    exit 1
+	STAGED_COUNT=$(echo "$STAGED" | wc -l)
+	echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+	echo -e "${RED}🚫 BLOQUEIO ABSOLUTO - VOCÊ NÃO PODE PROSSEGUIR${NC}"
+	echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+	echo ""
+	echo -e "${BOLD}${RED}Existem $STAGED_COUNT arquivos STAGED aguardando commit!${NC}"
+	echo ""
+	echo -e "${YELLOW}Arquivos pendentes:${NC}"
+	echo "$STAGED" | head -20 | while read file; do
+		echo -e "  ${RED}✗${NC} $file"
+	done
+	if [ "$STAGED_COUNT" -gt 20 ]; then
+		echo -e "  ${YELLOW}... e mais $((STAGED_COUNT - 20)) arquivos${NC}"
+	fi
+	echo ""
+	echo -e "${BOLD}${RED}╔════════════════════════════════════════════════════════╗${NC}"
+	echo -e "${BOLD}${RED}║  VOCÊ AFIRMOU TER COMMITADO, MAS NÃO COMMITOU NADA!    ║${NC}"
+	echo -e "${BOLD}${RED}║                                                        ║${NC}"
+	echo -e "${BOLD}${RED}║  ISTO É UMA ALUCINAÇÃO. VOCÊ NÃO PODE CONTINUAR.       ║${NC}"
+	echo -e "${BOLD}${RED}╚════════════════════════════════════════════════════════╝${NC}"
+	echo ""
+	echo -e "${CYAN}${BOLD}AÇÕES OBRIGATÓRIAS:${NC}"
+	echo ""
+	echo -e "  ${BOLD}1.${NC} Classificar mudanças:"
+	echo -e "     ${YELLOW}./scripts/git-classify.sh${NC}"
+	echo ""
+	echo -e "  ${BOLD}2.${NC} Fazer commits atômicos POR CATEGORIA:"
+	echo -e "     ${YELLOW}git add <categoria1>${NC}"
+	echo -e "     ${YELLOW}git commit -m \"tipo(escopo): descrição\"${NC}"
+	echo ""
+	echo -e "  ${BOLD}3.${NC} Repetir para CADA categoria separadamente"
+	echo ""
+	echo -e "  ${BOLD}4.${NC} Executar este script novamente:"
+	echo -e "     ${YELLOW}./scripts/force-agent-compliance.sh${NC}"
+	echo ""
+	echo -e "  ${BOLD}5.${NC} SÓ ENTÃO você pode afirmar sucesso"
+	echo ""
+	echo -e "${RED}${BOLD}NÃO HÁ OUTRA OPÇÃO. FAÇA OS COMMITS AGORA.${NC}"
+	echo ""
+	exit 1
 fi
 
 echo -e "${GREEN}✓ Nenhum arquivo staged - commits foram feitos${NC}"
@@ -90,22 +90,22 @@ echo ""
 
 RECENT_COMMITS=$(git log --oneline --since="2 hours ago" | wc -l)
 if [ "$RECENT_COMMITS" -eq 0 ]; then
-    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo -e "${RED}🚫 BLOQUEIO ABSOLUTO - VOCÊ NÃO PODE PROSSEGUIR${NC}"
-    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo ""
-    echo -e "${BOLD}${RED}ZERO commits nas últimas 2 horas!${NC}"
-    echo ""
-    echo -e "${YELLOW}Últimos commits do repositório:${NC}"
-    git log --oneline -5 --format="%C(yellow)%h%Creset %C(cyan)%ar%Creset - %s"
-    echo ""
-    echo -e "${BOLD}${RED}╔════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${BOLD}${RED}║  VOCÊ AFIRMOU TER COMMITADO, MAS NÃO HÁ COMMITS!       ║${NC}"
-    echo -e "${BOLD}${RED}║                                                        ║${NC}"
-    echo -e "${BOLD}${RED}║  ISTO É UMA ALUCINAÇÃO TOTAL.                          ║${NC}"
-    echo -e "${BOLD}${RED}╚════════════════════════════════════════════════════════╝${NC}"
-    echo ""
-    exit 1
+	echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+	echo -e "${RED}🚫 BLOQUEIO ABSOLUTO - VOCÊ NÃO PODE PROSSEGUIR${NC}"
+	echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+	echo ""
+	echo -e "${BOLD}${RED}ZERO commits nas últimas 2 horas!${NC}"
+	echo ""
+	echo -e "${YELLOW}Últimos commits do repositório:${NC}"
+	git log --oneline -5 --format="%C(yellow)%h%Creset %C(cyan)%ar%Creset - %s"
+	echo ""
+	echo -e "${BOLD}${RED}╔════════════════════════════════════════════════════════╗${NC}"
+	echo -e "${BOLD}${RED}║  VOCÊ AFIRMOU TER COMMITADO, MAS NÃO HÁ COMMITS!       ║${NC}"
+	echo -e "${BOLD}${RED}║                                                        ║${NC}"
+	echo -e "${BOLD}${RED}║  ISTO É UMA ALUCINAÇÃO TOTAL.                          ║${NC}"
+	echo -e "${BOLD}${RED}╚════════════════════════════════════════════════════════╝${NC}"
+	echo ""
+	exit 1
 fi
 
 echo -e "${GREEN}✓ Commits recentes encontrados: $RECENT_COMMITS${NC}"
@@ -122,15 +122,15 @@ UNSTAGED=$(git diff --name-only | wc -l)
 UNTRACKED=$(git ls-files --others --exclude-standard | wc -l)
 
 if [ "$UNSTAGED" -gt 0 ]; then
-    echo -e "${YELLOW}⚠️  AVISO: $UNSTAGED arquivo(s) unstaged${NC}"
+	echo -e "${YELLOW}⚠️  AVISO: $UNSTAGED arquivo(s) unstaged${NC}"
 fi
 
 if [ "$UNTRACKED" -gt 0 ]; then
-    echo -e "${YELLOW}⚠️  AVISO: $UNTRACKED arquivo(s) untracked${NC}"
+	echo -e "${YELLOW}⚠️  AVISO: $UNTRACKED arquivo(s) untracked${NC}"
 fi
 
 if [ "$UNSTAGED" -eq 0 ] && [ "$UNTRACKED" -eq 0 ]; then
-    echo -e "${GREEN}✓ Working tree completamente limpo${NC}"
+	echo -e "${GREEN}✓ Working tree completamente limpo${NC}"
 fi
 echo ""
 

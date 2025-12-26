@@ -13,10 +13,10 @@ Para que problemas de renderização no lado do servidor do Next.js sejam detect
 ## Acceptance Criteria
 
 1. **Dado** uma alteração no frontend que afeta o SSR
-    **Quando** os testes automatizados são executados
-    **Então** eles devem detectar falhas de SSR
-    **E** fornecer mensagens de erro claras sobre o que quebrou
-    **E** impedir a implantação de funcionalidades de SSR quebradas
+   **Quando** os testes automatizados são executados
+   **Então** eles devem detectar falhas de SSR
+   **E** fornecer mensagens de erro claras sobre o que quebrou
+   **E** impedir a implantação de funcionalidades de SSR quebradas
 
 ## Tasks / Subtasks
 
@@ -88,8 +88,6 @@ Para que problemas de renderização no lado do servidor do Next.js sejam detect
   - [x] Criar processos para manutenção de testes de regressão
 
 ## Dev Notes
-
-### Estratégia de Testes SSR
 
 ### Estratégia de Testes SSR
 

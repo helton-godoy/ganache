@@ -29,24 +29,24 @@
 
 ### High-Priority Risks (Score ≥6)
 
-| Risk ID | Category | Description | Probability | Impact | Score | Mitigation | Owner | Timeline |
-| ------- | -------- | ----------- | ----------- | ------ | ----- | ---------- | ----- | -------- |
-| R-001   | SEC      | Captura incompleta de comandos (sub-shells, scripts) | 2 | 3 | 6 | Validar `pam_tty_audit` com scripts aninhados e sessões complexas | QA | 2025-12-24 |
-| R-002   | DATA     | Perda de logs por race condition ou rotação agressiva | 2 | 3 | 6 | Validar cursor persistente e verificação de integridade pós-coleta | DEV | 2025-12-24 |
-| R-003   | PERF     | Dashboard trava com alto volume de eventos (10k+) | 2 | 3 | 6 | Teste de carga com streaming massivo de eventos via WebSocket | QA | 2025-12-25 |
+| Risk ID | Category | Description                                           | Probability | Impact | Score | Mitigation                                                         | Owner | Timeline   |
+| ------- | -------- | ----------------------------------------------------- | ----------- | ------ | ----- | ------------------------------------------------------------------ | ----- | ---------- |
+| R-001   | SEC      | Captura incompleta de comandos (sub-shells, scripts)  | 2           | 3      | 6     | Validar `pam_tty_audit` com scripts aninhados e sessões complexas  | QA    | 2025-12-24 |
+| R-002   | DATA     | Perda de logs por race condition ou rotação agressiva | 2           | 3      | 6     | Validar cursor persistente e verificação de integridade pós-coleta | DEV   | 2025-12-24 |
+| R-003   | PERF     | Dashboard trava com alto volume de eventos (10k+)     | 2           | 3      | 6     | Teste de carga com streaming massivo de eventos via WebSocket      | QA    | 2025-12-25 |
 
 ### Medium-Priority Risks (Score 3-4)
 
-| Risk ID | Category | Description | Probability | Impact | Score | Mitigation | Owner |
-| ------- | -------- | ----------- | ----------- | ------ | ----- | ---------- | ----- |
-| R-004   | TECH     | Drift entre especificação OpenAPI e implementação Rust | 2 | 2 | 4 | Validação automática via `bmad-validate.sh` e testes de contrato | DEV |
-| R-005   | BUS      | Notificações de alerta não são visualizadas a tempo | 2 | 2 | 4 | Testes de UX com notificações sonoras/visuais no dashboard | QA |
+| Risk ID | Category | Description                                            | Probability | Impact | Score | Mitigation                                                       | Owner |
+| ------- | -------- | ------------------------------------------------------ | ----------- | ------ | ----- | ---------------------------------------------------------------- | ----- |
+| R-004   | TECH     | Drift entre especificação OpenAPI e implementação Rust | 2           | 2      | 4     | Validação automática via `bmad-validate.sh` e testes de contrato | DEV   |
+| R-005   | BUS      | Notificações de alerta não são visualizadas a tempo    | 2           | 2      | 4     | Testes de UX com notificações sonoras/visuais no dashboard       | QA    |
 
 ### Low-Priority Risks (Score 1-2)
 
-| Risk ID | Category | Description | Probability | Impact | Score | Action |
-| ------- | -------- | ----------- | ----------- | ------ | ----- | ------- |
-| R-006   | OPS      | Log de auditoria consome todo espaço em disco | 1 | 2 | 2 | Monitorar quota de disco e alertas de sistema | Monitor |
+| Risk ID | Category | Description                                   | Probability | Impact | Score | Action                                        |
+| ------- | -------- | --------------------------------------------- | ----------- | ------ | ----- | --------------------------------------------- | ------- |
+| R-006   | OPS      | Log de auditoria consome todo espaço em disco | 1           | 2      | 2     | Monitorar quota de disco e alertas de sistema | Monitor |
 
 ---
 
@@ -56,12 +56,12 @@
 
 **Criteria**: Blocks core journey + High risk (≥6) + No workaround
 
-| Requirement | Test Level | Risk Link | Test Count | Owner | Notes |
-| ------------- | ---------- | --------- | ---------- | ----- | ------- |
-| Captura profunda SSH | E2E | R-001 | 3 | QA | Validar `sudo`, `scripts` e `sub-shells` |
-| Integridade de Logs | API | R-002 | 2 | QA | Validar persistência e não-duplicação |
-| Streaming Dashboard | E2E | R-003 | 2 | QA | Validar atualização em tempo real < 1s |
-| Alertas Críticos UI | Component | R-005 | 2 | DEV | Validar triggers visuais de alertas |
+| Requirement          | Test Level | Risk Link | Test Count | Owner | Notes                                    |
+| -------------------- | ---------- | --------- | ---------- | ----- | ---------------------------------------- |
+| Captura profunda SSH | E2E        | R-001     | 3          | QA    | Validar `sudo`, `scripts` e `sub-shells` |
+| Integridade de Logs  | API        | R-002     | 2          | QA    | Validar persistência e não-duplicação    |
+| Streaming Dashboard  | E2E        | R-003     | 2          | QA    | Validar atualização em tempo real < 1s   |
+| Alertas Críticos UI  | Component  | R-005     | 2          | DEV   | Validar triggers visuais de alertas      |
 
 **Total P0**: 9 tests, 8 hours
 
@@ -69,11 +69,11 @@
 
 **Criteria**: Important features + Medium risk (3-4) + Common workflows
 
-| Requirement | Test Level | Risk Link | Test Count | Owner | Notes |
-| ------------- | ---------- | --------- | ---------- | ----- | ------- |
-| Filtros do Dashboard | API | - | 4 | QA | Validar filtros por IP, User, Período |
-| Sincronia OpenAPI | API | R-004 | 2 | DEV | Validar compatibilidade frontend/backend |
-| Reconexão WS | Component | - | 2 | DEV | Validar auto-reconnect do WebSocket |
+| Requirement          | Test Level | Risk Link | Test Count | Owner | Notes                                    |
+| -------------------- | ---------- | --------- | ---------- | ----- | ---------------------------------------- |
+| Filtros do Dashboard | API        | -         | 4          | QA    | Validar filtros por IP, User, Período    |
+| Sincronia OpenAPI    | API        | R-004     | 2          | DEV   | Validar compatibilidade frontend/backend |
+| Reconexão WS         | Component  | -         | 2          | DEV   | Validar auto-reconnect do WebSocket      |
 
 **Total P1**: 8 tests, 3 hours
 

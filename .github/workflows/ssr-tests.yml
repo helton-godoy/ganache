@@ -2,13 +2,13 @@ name: SSR Regression Tests
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
     paths:
-      - 'src/**'
-      - 'tests/ssr/**'
-      - 'package.json'
+      - "src/**"
+      - "tests/ssr/**"
+      - "package.json"
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
 
 jobs:
   ssr-quality-gate:
@@ -21,8 +21,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install Dependencies
         run: npm ci

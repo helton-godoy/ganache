@@ -1,6 +1,6 @@
 ---
 stepsCompleted: [1, 2]
-inputDocuments: 
+inputDocuments:
   - docs/analysis/prd.md
   - docs/architecture.md
   - docs/ux-design-specification.md
@@ -123,7 +123,7 @@ Como um SysAdmin Júnior,
 Eu quero que o sistema detecte se estou executando em qualquer Controlador RAID,
 Para que eu seja guiado automaticamente para o "Modo de Compatibilidade" seguro sem precisar conhecer especificações de hardware.
 
-#### Critérios de Aceitação
+**Critérios de Aceitação:**
 
 **Dado** que o sistema está iniciando pela primeira vez
 **Quando** a varredura de hardware detecta QUALQUER controlador RAID suportado (ex: PERC 6/i, H700, etc.)
@@ -137,7 +137,7 @@ Como um Administrador de Sistemas,
 Eu quero uma explicação guiada da arquitetura do "Modo de Compatibilidade",
 Para que eu entenda e confie na segurança do ZFS-over-DRBD antes de confirmar.
 
-#### Critérios de Aceitação
+**Critérios de Aceitação:**
 
 **Dado** que o usuário seleciona o "Modo de Compatibilidade"
 **Quando** prosseguindo pelas etapas de configuração
@@ -151,7 +151,7 @@ Como um Administrador de Sistemas,
 Eu quero que o sistema ajuste automaticamente os limites do ZFS ARC com base na minha RAM instalada,
 Para que o sistema permaneça estável sem ajuste manual de memória.
 
-#### Critérios de Aceitação
+**Critérios de Aceitação:**
 
 **Dado** o processo de inicialização do sistema
 **Quando** a RAM é detectada
@@ -165,7 +165,7 @@ Como um Administrador de Sistemas,
 Eu quero selecionar versões anteriores do sistema no menu de inicialização,
 Para que eu possa me recuperar de uma atualização com falha imediatamente.
 
-#### Critérios de Aceitação
+**Critérios de Aceitação:**
 
 **Dado** uma atualização de sistema ou configuração com falha
 **Quando** o servidor reinicia e o menu do GRUB aparece
@@ -183,7 +183,7 @@ Como um Administrador de Sistemas,
 Eu quero inicializar o link de replicação entre meus dois nós,
 Para que eles comecem a se comportar como um único cluster de Alta Disponibilidade.
 
-#### Critérios de Aceitação
+**Critérios de Aceitação:**
 
 **Dado** dois nós provisionados com IPs estáticos
 **Quando** eu inicio o processo de "Ingresso no Cluster"
@@ -197,7 +197,7 @@ Como um Administrador de Sistemas,
 Eu quero que o pool de armazenamento ZFS seja criado sobre o dispositivo replicado,
 Para que todos os meus dados sejam automaticamente espelhados para o segundo nó.
 
-#### Critérios de Aceitação
+**Critérios de Aceitação:**
 
 **Dado** que o recurso DRBD está em estado 'UpToDate'
 **Quando** o sistema inicia a "Formatação de Armazenamento"
@@ -211,7 +211,7 @@ Como um Administrador de Sistemas,
 Eu quero que o sistema me impeça de preencher o disco acima de 90%,
 Para que a lógica de Copy-on-Write do ZFS nunca falhe por falta de espaço (Espiral da Morte).
 
-#### Critérios de Aceitação
+**Critérios de Aceitação:**
 
 **Dado** que o pool ZFS está ativo
 **Quando** o pool é criado ou redimensionado
@@ -224,7 +224,7 @@ Como um Administrador de Armazenamento,
 Eu quero criar, renomear e destruir datasets ZFS,
 Para que eu possa organizar meus dados logicamente (ex: separando Departamentos ou Backups).
 
-#### Critérios de Aceitação
+**Critérios de Aceitação:**
 
 **Dado** um pool de armazenamento ativo
 **Quando** eu crio um novo "Compartilhamento" na UI
@@ -237,7 +237,7 @@ Como um Proprietário de Negócio,
 Eu quero que o sistema mude automaticamente para o nó de backup se o primário falhar,
 Para que meus funcionários possam continuar trabalhando com o mínimo de interrupção (<30s).
 
-#### Critérios de Aceitação
+**Critérios de Aceitação:**
 
 **Dado** um estado de cluster saudável
 **Quando** o nó Primário perde energia (Simulação de "Puxar o Cabo")
@@ -257,7 +257,7 @@ Como um Desenvolvedor/Administrador de Sistemas,
 Eu quero que o sistema faça commit automático de cada alteração de configuração em um repositório Git local,
 Para que eu tenha um histórico imutável de quem alterou o quê e quando, sem esforço manual.
 
-#### Critérios de Aceitação
+**Critérios de Aceitação:**
 
 **Dado** que o middleware do sistema está em execução
 **Quando** qualquer arquivo de configuração em `/etc/ganache` ou entrada de banco de dados é modificado via UI/API
@@ -271,7 +271,7 @@ Como um Administrador de Sistemas,
 Eu quero visualizar uma linha do tempo cronológica de todas as mudanças do sistema,
 Para que eu possa auditar atividades recentes ou diagnosticar onde um problema começou.
 
-#### Critérios de Aceitação
+**Critérios de Aceitação:**
 
 **Dado** a página do painel de "Histórico"
 **Quando** eu carrego a visualização
@@ -285,7 +285,7 @@ Como um Administrador de Sistemas,
 Eu quero reverter a configuração do sistema para um ponto anterior no tempo,
 Para que eu possa me recuperar instantaneamente de uma alteração de configuração que quebrou algo (ex: configuração de rede ruim).
 
-#### Critérios de Aceitação
+**Critérios de Aceitação:**
 
 **Dado** um commit selecionado na UI da Linha do Tempo
 **Quando** eu clico no botão "Reverter para este Ponto" e confirmo
@@ -304,7 +304,7 @@ Como um SysAdmin,
 Eu quero ingressar o appliance Ganache em um domínio Active Directory existente via UI,
 Para que eu possa atribuir usuários e grupos existentes do AD a compartilhamentos SMB sem gestão manual de usuários.
 
-#### Critérios de Aceitação
+**Critérios de Aceitação:**
 
 **Dado** credenciais válidas de Controlador de Domínio e configurações de DNS
 **Quando** eu envio o formulário "Ingressar no Domínio"
@@ -320,7 +320,7 @@ Como um SysAdmin,
 Eu quero navegar pelos grupos do Active Directory ao configurar permissões de compartilhamento,
 Para que eu possa restringir facilmente o acesso a departamentos específicos (ex: "Grupo-Financeiro").
 
-#### Critérios de Aceitação
+**Critérios de Aceitação:**
 
 **Dado** um domínio AD ingressado com sucesso
 **Quando** eu configuro o "Gestor de ACL" de um Dataset
@@ -335,7 +335,7 @@ Como um Administrador de Sistemas,
 Eu quero aplicar permissões compatíveis com Windows (ACLs) aos meus datasets,
 Para que o controle de acesso funcione exatamente como um Windows Server nativo.
 
-#### Critérios de Aceitação
+**Critérios de Aceitação:**
 
 **Dado** um dataset compartilhado via SMB
 **Quando** eu edito permissões na UI
@@ -353,7 +353,7 @@ Como um Oficial de Segurança,
 Eu quero que o sistema registre cada comando executado no terminal (SSH/Console), não apenas eventos de login,
 Para que eu possa realizar uma análise forense completa em caso de violação ou acidente.
 
-#### Critérios de Aceitação
+**Critérios de Aceitação:**
 
 **Dado** uma sessão SSH ativa por qualquer usuário
 **Quando** um comando é executado (ex: `rm -rf`, `sudo vi`)
@@ -367,7 +367,7 @@ Como um Auditor,
 Eu quero um motor de busca para logs de acesso a arquivos para responder "Quem acessou o arquivo sensível X?",
 Para que eu possa responder rapidamente a solicitações de conformidade sem usar grep em arquivos de texto.
 
-#### Critérios de Aceitação
+**Critérios de Aceitação:**
 
 **Dado** a página do painel de "Auditoria"
 **Quando** eu pesquiso por um nome de arquivo (ex: "registros_pacientes.xls")
@@ -381,7 +381,7 @@ Como um CIO/Diretor de TI,
 Eu quero uma conta de administrador local segura que fique normalmente desativada, mas possa ser ativada se o Active Directory estiver fora do ar,
 Para que nunca fiquemos bloqueados de nosso próprio sistema de armazenamento durante um desastre.
 
-#### Critérios de Aceitação
+**Critérios de Aceitação:**
 
 **Dado** que o controlador do AD está inacessível
 **Quando** um administrador aciona a ativação "Break-Glass" (console físico ou URL secreta específica)
@@ -400,7 +400,7 @@ Como uma Equipe de Desenvolvimento,
 Eu quero que o processo de revisão de código adversarial seja mais eficiente,
 Para que possamos atingir alta qualidade com menos rodadas de revisão.
 
-#### Critérios de Aceitação
+**Critérios de Aceitação:**
 
 **Dado** uma alteração de código pronta para revisão
 **Quando** o processo de revisão adversarial é executado
@@ -414,7 +414,7 @@ Como uma Equipe de Desenvolvimento,
 Eu quero diretrizes claras para integrar múltiplas histórias,
 Para que evitemos sobreposição de funcionalidades e garantamos uma implementação coesa.
 
-#### Critérios de Aceitação
+**Critérios de Aceitação:**
 
 **Dado** múltiplas histórias em um épico que compartilham funcionalidades
 **Quando** planejando a implementação
@@ -428,7 +428,7 @@ Como um Desenvolvedor Backend,
 Eu quero robustez aprimorada nas funções de análise de logs (parsing),
 Para que casos de borda sejam tratados graciosamente sem quebrar o sistema.
 
-#### Critérios de Aceitação
+**Critérios de Aceitação:**
 
 **Dado** dados de log malformados ou inesperados
 **Quando** as funções de análise os processam
@@ -442,7 +442,7 @@ Como um Desenvolvedor Frontend,
 Eu quero testes automatizados para evitar regressões de SSR,
 Para que problemas de renderização no lado do servidor do Next.js sejam detectados precocemente.
 
-#### Critérios de Aceitação
+**Critérios de Aceitação:**
 
 **Dado** uma alteração no frontend que afeta o SSR
 **Quando** os testes automatizados são executados
@@ -456,7 +456,7 @@ Como um Engenheiro de QA,
 Eu quero um guia abrangente de solução de problemas para recursos de auditoria,
 Para que eu possa diagnosticar e resolver rapidamente problemas relacionados à auditoria.
 
-#### Critérios de Aceitação
+**Critérios de Aceitação:**
 
 **Dado** um problema com o registro de auditoria ou monitoramento
 **Quando** eu consulto o guia de solução de problemas
@@ -470,7 +470,7 @@ Como uma Equipe de Desenvolvimento,
 Eu quero um sistema de geração automatizada de documentação,
 Para que possamos manter uma documentação consistente e atualizada com o mínimo esforço manual.
 
-#### Critérios de Aceitação
+**Critérios de Aceitação:**
 
 **Dado** alterações de código com comentários semânticos e anotações apropriadas
 **Quando** o processo de geração de documentação é executado

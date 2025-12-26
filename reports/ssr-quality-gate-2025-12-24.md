@@ -5,10 +5,10 @@ Executor: Tea Agent (Murat)
 
 ## Resumo da Execução
 
-| Tipo de Teste | Total | Passou | Falhou | Taxa de Sucesso |
-|---|---|---|---|---|
-| Unit / Integration (Vitest) | 12 | 12 | 0 | 100% |
-| E2E / ATDD (Playwright) | 8 | 3 | 5 | 37.5% |
+| Tipo de Teste               | Total | Passou | Falhou | Taxa de Sucesso |
+| --------------------------- | ----- | ------ | ------ | --------------- |
+| Unit / Integration (Vitest) | 12    | 12     | 0      | 100%            |
+| E2E / ATDD (Playwright)     | 8     | 3      | 5      | 37.5%           |
 
 ## Decisão: 🔴 FAIL
 

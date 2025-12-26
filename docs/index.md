@@ -48,4 +48,4 @@
 
 ---
 
-*Documentação gerada automaticamente pelo workflow document-project (varredura rápida)*
+_Documentação gerada automaticamente pelo workflow document-project (varredura rápida)_

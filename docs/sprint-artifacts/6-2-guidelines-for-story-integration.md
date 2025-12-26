@@ -15,10 +15,10 @@ Para que evitemos sobreposição de funcionalidades e garantamos uma implementa�
 ## Critérios de Aceitação
 
 1. Dado múltiplas histórias em um épico que compartilham funcionalidades
-Quando planejando a implementação
-Então as diretrizes devem fornecer padrões para serviços compartilhados
-E definir limites claros entre as responsabilidades de cada história
-E incluir pontos de verificação de coordenação durante o desenvolvimento
+   Quando planejando a implementação
+   Então as diretrizes devem fornecer padrões para serviços compartilhados
+   E definir limites claros entre as responsabilidades de cada história
+   E incluir pontos de verificação de coordenação durante o desenvolvimento
 
 ## Tarefas / Subtarefas
 
@@ -64,7 +64,7 @@ E incluir pontos de verificação de coordenação durante o desenvolvimento
 ## Notas de Desenvolvimento
 
 - Padrões e restrições de arquitetura relevantes: Seguir a arquitetura do fluxo de trabalho BMAD, garantir que serviços compartilhados sigam princípios de coesão e acoplamento, integrar com git hooks existentes, integrar componentes Rust e Next.js via contratos OpenAPI, implementar testes de integração entre frontend e backend
-- Componentes da árvore de origem a serem modificados: _bmad/bmm/workflows/4-implementation/, scripts/, docs/
+- Componentes da árvore de origem a serem modificados: \_bmad/bmm/workflows/4-implementation/, scripts/, docs/
 - Resumo dos padrões de teste: Incluir testes de integração entre serviços, testes de validação de dependências, testes de comunicação entre componentes, testes de integração Rust/Next.js via OpenAPI
 - Requisitos de estrutura de arquivos: Manter padrões de documentação BMAD, criar templates reutilizáveis, garantir documentação semântica para geração automatizada
 - Integração com CI/CD: Garantir que validações de integração sejam executadas no pipeline de CI/CD

@@ -6,20 +6,20 @@
 
 ## 1. Dependências de Código (Entrada)
 
-| Componente/Arquivo | Origem (História/Épico) | Status (Done/WIP) | Criticidade |
-| ------------------ | ----------------------- | ----------------- | ----------- |
-| `core/ganache-lib/src/security_event_service.rs` | Story 6.1 | Done | Alta |
-| Funções: `decode_tty_data`, `parse_samba_audit_log` | Story 6.1 | Done | Alta |
-| Tipos: `SecurityEvent`, `AuditLogEntry`, `ParseError` | Story 6.1 | Done | Média |
-| `scripts/git-classify.sh` | Story 6.1 | Done | Baixa |
+| Componente/Arquivo                                    | Origem (História/Épico) | Status (Done/WIP) | Criticidade |
+| ----------------------------------------------------- | ----------------------- | ----------------- | ----------- |
+| `core/ganache-lib/src/security_event_service.rs`      | Story 6.1               | Done              | Alta        |
+| Funções: `decode_tty_data`, `parse_samba_audit_log`   | Story 6.1               | Done              | Alta        |
+| Tipos: `SecurityEvent`, `AuditLogEntry`, `ParseError` | Story 6.1               | Done              | Média       |
+| `scripts/git-classify.sh`                             | Story 6.1               | Done              | Baixa       |
 
 ## 2. Impactos (Saída)
 
-| Componente Afetado | Natureza da Mudança | Risco de Quebra |
-| ------------------ | ------------------- | --------------- |
-| `security_event_service.rs` | Adicionar validações UTF-8 | Baixo (apenas extends) |
-| Testes de 6.1 | Pode exigir ajustes se casos novos cobrem mesma área | Médio |
-| Story 6.5 (Troubleshooting Guide) | Deve documentar novos edge cases | Baixo |
+| Componente Afetado                | Natureza da Mudança                                  | Risco de Quebra        |
+| --------------------------------- | ---------------------------------------------------- | ---------------------- |
+| `security_event_service.rs`       | Adicionar validações UTF-8                           | Baixo (apenas extends) |
+| Testes de 6.1                     | Pode exigir ajustes se casos novos cobrem mesma área | Médio                  |
+| Story 6.5 (Troubleshooting Guide) | Deve documentar novos edge cases                     | Baixo                  |
 
 ## 3. Serviços Compartilhados
 

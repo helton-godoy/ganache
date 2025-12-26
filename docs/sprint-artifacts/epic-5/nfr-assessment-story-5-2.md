@@ -281,28 +281,28 @@
 
 ```typescript
 // Add to e2e/audit_search.spec.ts
-test('should handle moderately large result sets', async ({ page }) => {
+test("should handle moderately large result sets", async ({ page }) => {
   // Mock 100 events (realistic for daily audit)
-  await page.route('**/api/v1/security/events*', async (route) => {
+  await page.route("**/api/v1/security/events*", async (route) => {
     const events = Array.from({ length: 100 }, (_, i) => ({
       id: `evt-${i}`,
       timestamp: new Date().toISOString(),
-      event_type: 'file_access',
+      event_type: "file_access",
       user: `user${i % 10}`,
       source_ip: `192.168.1.${i % 255}`,
-      action: 'Read',
-      resource: '/shares/file.txt',
+      action: "Read",
+      resource: "/shares/file.txt",
     }));
     await route.fulfill({ status: 200, body: JSON.stringify(events) });
   });
-  
+
   const start = Date.now();
-  await page.goto('/audit');
-  await page.fill('#filename', 'file.txt');
+  await page.goto("/audit");
+  await page.fill("#filename", "file.txt");
   await page.click('button[type="submit"]');
-  await page.waitForSelector('table tbody tr');
+  await page.waitForSelector("table tbody tr");
   const duration = Date.now() - start;
-  
+
   expect(duration).toBeLessThan(2000); // 2s threshold
 });
 ```
@@ -407,37 +407,37 @@ test('should handle moderately large result sets', async ({ page }) => {
 
 ```yaml
 nfr_assessment:
-  date: '2025-12-23'
-  story_id: '5.2'
-  feature: 'Visual Audit Manager'
+  date: "2025-12-23"
+  story_id: "5.2"
+  feature: "Visual Audit Manager"
   categories:
-    performance: 'CONCERNS'       # Missing evidence for large datasets
-    security: 'PASS'              # Robust implementation, no vulnerabilities
-    reliability: 'CONCERNS'       # No burn-in validation
-    maintainability: 'PASS'       # 92/100 quality score, 100% coverage
-  
-  overall_status: 'CONCERNS'
-  
+    performance: "CONCERNS" # Missing evidence for large datasets
+    security: "PASS" # Robust implementation, no vulnerabilities
+    reliability: "CONCERNS" # No burn-in validation
+    maintainability: "PASS" # 92/100 quality score, 100% coverage
+
+  overall_status: "CONCERNS"
+
   issues:
     critical: 0
     high: 0
-    medium: 2                      # Performance gap, burn-in gap
-    low: 3                         # Throughput unknown, availability unknown, resource usage unknown
-  
+    medium: 2 # Performance gap, burn-in gap
+    low: 3 # Throughput unknown, availability unknown, resource usage unknown
+
   blockers: false
-  
-  pass_count: 6                    # Security (3/3), Maintainability (3/3)
-  concerns_count: 6                # Performance (3/3), Reliability (3/3)
+
+  pass_count: 6 # Security (3/3), Maintainability (3/3)
+  concerns_count: 6 # Performance (3/3), Reliability (3/3)
   fail_count: 0
-  
+
   recommendations:
-    - 'Add performance smoke test for 100 events (MEDIUM - 2h)'
-    - 'Integrate burn-in test into CI pipeline (MEDIUM - 3h)'
-    - 'Define performance thresholds in tech-spec (LOW - 1h)'
-  
+    - "Add performance smoke test for 100 events (MEDIUM - 2h)"
+    - "Integrate burn-in test into CI pipeline (MEDIUM - 3h)"
+    - "Define performance thresholds in tech-spec (LOW - 1h)"
+
   evidence_gaps: 3
-  
-  deployment_recommendation: 'SAFE TO DEPLOY - CONCERNS are validation gaps, not failures'
+
+  deployment_recommendation: "SAFE TO DEPLOY - CONCERNS are validation gaps, not failures"
 ```
 
 ---

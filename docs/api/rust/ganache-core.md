@@ -34,6 +34,20 @@ pub struct AuthenticatedUser
 
 ## File: `src/services/git_service.rs`
 
+High-level wrapper for git operations in the core daemon.
+
+# Purpose
+Provides a simplified interface for git-backed configuration management,
+handling initialization and commit operations with proper error logging.
+
+@REF Story-3.1 - Git-backed configuration engine
+
+```rust
+pub struct GitServiceIntegration;
+```
+
+---
+
 Initialize the git repository
 
 ```rust

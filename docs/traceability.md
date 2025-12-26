@@ -39,8 +39,8 @@ Generated automatically. Do not edit manually.
 | `core/ganache-api/src/models/rollback.rs` | 9 | Implements rollback request model for one-click config rollback |
 | `core/ganache-api/src/models/rollback.rs` | 23 | Rollback success response |
 | `core/ganache-core/src/main.rs` | 669 | Implements rollback endpoint for configuration time-machine |
-| `core/ganache-lib/src/git.rs` | 132 | Implements git-based configuration rollback |
-| `core/ganache-lib/src/git.rs` | 148 | Implements git-based configuration rollback with validation |
+| `core/ganache-lib/src/git.rs` | 147 | Implements git-based configuration rollback |
+| `core/ganache-lib/src/git.rs` | 163 | Implements git-based configuration rollback with validation |
 
 ## Story 4.1
 
@@ -223,10 +223,4 @@ Generated automatically. Do not edit manually.
 | `src/app/page.tsx` | 8 | Converted to Server Component for SSR support |
 | `src/app/setup/page.tsx` | 4 | Converted to Server Component for SSR |
 | `src/app/security/page.tsx` | 8 | Converted to Server Component for SSR |
-
-## Story 9.9
-
-| File | Line | Context |
-| --- | --- | --- |
-| `core/ganache-test-trace/src/lib.rs` | 1 | Test Traceability |
 

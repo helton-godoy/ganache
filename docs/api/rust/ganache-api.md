@@ -1,5 +1,176 @@
 # Documentation: ganache-api
 
+## File: `src/lib.rs`
+
+Hardware detection information for RAID controller identification.
+
+# Purpose
+Used to detect legacy RAID hardware (PERC 6/i, H700) and determine
+if the system should run in compatibility mode.
+
+@REF Story-1.1 - Detect RAID hardware and recommend mode
+
+```rust
+pub struct HardwareInfo
+```
+
+---
+
+Configuration for twin-node HA cluster setup.
+
+# Purpose
+Defines the cluster topology including node identification, peer networking,
+virtual IP configuration, and DRBD replication settings.
+
+@REF Story-2.1 - Twin-node cluster initialization
+
+```rust
+pub struct ClusterConfig
+```
+
+---
+
+Real-time status of the HA cluster.
+
+# Purpose
+Provides current cluster state, synchronization progress, and status messages
+for monitoring and UI display.
+
+@REF Story-2.1 - Twin-node cluster initialization
+
+```rust
+pub struct ClusterStatus
+```
+
+---
+
+System resource metrics including memory and ZFS ARC configuration.
+
+# Purpose
+Reports system memory usage and ZFS Adaptive Replacement Cache (ARC) tuning
+parameters for auto-tuning and monitoring.
+
+@REF Story-1.3 - System resource auto-tuning
+
+```rust
+pub struct SystemResources
+```
+
+---
+
+ZFS Boot Environment metadata.
+
+# Purpose
+Represents a ZFS boot environment (BE) snapshot, enabling system rollback
+to previous known-good states.
+
+@REF Story-1.4 - Boot environment rollback
+
+```rust
+pub struct BootEnvironment
+```
+
+---
+
+Request to activate a specific boot environment.
+
+# Purpose
+Used to request activation of a boot environment for next reboot.
+
+@REF Story-1.4 - Boot environment rollback
+
+```rust
+pub struct BootEnvironmentActivation
+```
+
+---
+
+Configuration for creating a new ZFS pool.
+
+# Purpose
+Specifies the pool name, target device, and compression settings
+for ZFS pool creation on DRBD devices.
+
+@REF Story-2.2 - ZFS pool creation on DRBD
+
+```rust
+pub struct PoolConfig
+```
+
+---
+
+ZFS pool status and capacity information.
+
+# Purpose
+Reports pool health, capacity usage, and quota configuration
+for monitoring and management UI.
+
+@REF Story-2.2 - ZFS pool creation on DRBD
+
+```rust
+pub struct PoolInfo
+```
+
+---
+
+Storage device information (DRBD or disk).
+
+# Purpose
+Describes available storage devices for pool creation,
+distinguishing between DRBD replicated devices and local disks.
+
+@REF Story-2.2 - ZFS pool creation on DRBD
+
+```rust
+pub struct StorageDevice
+```
+
+---
+
+Configuration for creating a new ZFS dataset.
+
+# Purpose
+Specifies dataset name, compression, and quota settings
+for creating child datasets within a ZFS pool.
+
+@REF Story-2.2 - ZFS pool creation on DRBD
+
+```rust
+pub struct DatasetConfig
+```
+
+---
+
+ZFS dataset status and capacity information.
+
+# Purpose
+Reports dataset usage, mount point, and configuration
+for management UI and monitoring.
+
+@REF Story-2.2 - ZFS pool creation on DRBD
+
+```rust
+pub struct DatasetInfo
+```
+
+---
+
+## File: `src/models/config_change.rs`
+
+Represents a configuration change event for audit logging.
+
+# Purpose
+Tracks all configuration modifications in the git-backed config system,
+providing a complete audit trail of who changed what and when.
+
+@REF Story-3.1 - Git-backed configuration engine audit trail
+
+```rust
+pub struct ConfigChange
+```
+
+---
+
 ## File: `src/models/git_commit.rs`
 
 GitCommit represents a single commit in the configuration repository

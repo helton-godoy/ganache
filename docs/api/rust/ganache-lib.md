@@ -2,6 +2,20 @@
 
 ## File: `src/lib.rs`
 
+Service for detecting hardware capabilities, particularly RAID controllers.
+
+# Purpose
+Detects legacy RAID hardware (PERC 6/i, H700, MegaRAID) to determine
+if the system should operate in compatibility mode.
+
+@REF Story-1.1 - Detect RAID hardware and recommend mode
+
+```rust
+pub struct HardwareService;
+```
+
+---
+
 Detects if the system is running on Legacy RAID hardware (PERC 6/i, H700, etc)
 This implementation calls `lspci` and parses the output.
 
@@ -12,6 +26,35 @@ pub fn detect_raid_controller() -> Result<HardwareInfo>
 ---
 
 ## File: `src/git.rs`
+
+Default path for the git-backed configuration repository.
+
+# Purpose
+Defines the standard location where Ganache stores its versioned
+configuration files. Can be overridden via GANACHE_CONFIG_DIR env var.
+
+@REF Story-3.1 - Git-backed configuration engine
+
+```rust
+pub const DEFAULT_REPO_PATH: &str = "/etc/ganache";
+```
+
+---
+
+Service for git-based configuration version control.
+
+# Purpose
+Manages a git repository for configuration files, providing init, commit,
+and rollback operations with full audit trail support.
+
+@REF Story-3.1 - Git-backed configuration engine
+@REF Story-3.3 - One-click config rollback
+
+```rust
+pub struct GitService;
+```
+
+---
 
 Get the current repository path (respects GANACHE_CONFIG_DIR env var)
 
@@ -87,6 +130,20 @@ pub fn rollback_config_to<P: AsRef<Path>>(
 
 ## File: `src/system/memory.rs`
 
+Service for system memory management and ZFS ARC tuning.
+
+# Purpose
+Calculates and applies optimal ZFS Adaptive Replacement Cache (ARC) settings
+based on available system RAM, following safety policies to prevent OOM.
+
+@REF Story-1.3 - System resource auto-tuning
+
+```rust
+pub struct MemoryService;
+```
+
+---
+
 Calculate the target ZFS ARC size based on system RAM rules.
 
 Policies:
@@ -101,6 +158,20 @@ pub fn calculate_arc_target(total_ram_bytes: u64) -> u64
 ---
 
 ## File: `src/system/boot.rs`
+
+Service for managing ZFS Boot Environments (BEs).
+
+# Purpose
+Lists and activates ZFS boot environments, enabling system rollback
+to previous known-good states before applying updates or changes.
+
+@REF Story-1.4 - Boot environment rollback
+
+```rust
+pub struct BootService;
+```
+
+---
 
 Lists available ZFS Boot Environments
 In a real system, would parse `zfs list` or `beadm list`.
@@ -131,7 +202,65 @@ pub trait CommandExecutor
 
 ---
 
+Real system command executor implementation.
+
+# Purpose
+Executes actual system commands (drbdadm, zpool, ip) for cluster operations.
+Implements the CommandExecutor trait for testability via dependency injection.
+
+@REF Story-2.1 - Twin-node cluster initialization
+
+```rust
+pub struct SystemCommandExecutor;
+```
+
+---
+
+Service for managing twin-node HA cluster operations.
+
+# Purpose
+Handles cluster configuration, DRBD replication, VIP failover,
+heartbeat monitoring, and automatic failover sequences.
+
+@REF Story-2.1 - Twin-node cluster initialization
+@CRITICAL HA failover logic - handles production cluster operations
+
+```rust
+pub struct ClusterService;
+```
+
+---
+
+Heartbeat tracker for peer node liveness detection.
+
+# Purpose
+Tracks the last seen timestamp of the peer node to detect failures
+and trigger automatic failover when heartbeat is lost.
+
+@REF Story-2.1 - Twin-node cluster initialization
+@CRITICAL Determines when to trigger HA failover
+
+```rust
+pub struct ClusterHeartbeat
+```
+
+---
+
 ## File: `src/system/zfs.rs`
+
+Service for managing ZFS pools and datasets.
+
+# Purpose
+Provides operations for creating, listing, and managing ZFS storage pools
+and datasets, including DRBD device support for HA configurations.
+
+@REF Story-2.2 - ZFS pool creation on DRBD
+
+```rust
+pub struct ZpoolService;
+```
+
+---
 
 Calcula o alvo ARC (Adaptive Replacement Cache) baseado na RAM do sistema
 
@@ -150,6 +279,20 @@ pub fn calculate_90_percent(size_str: &str) -> Result<String>
 ---
 
 ## File: `src/system/config_db.rs`
+
+Database abstraction for git-backed configuration persistence.
+
+# Purpose
+Saves and deletes configuration files in a git-tracked directory,
+automatically creating commits for each change to maintain audit trail.
+
+@REF Story-3.1 - Git-backed configuration engine
+
+```rust
+pub struct ConfigDb;
+```
+
+---
 
 Save configuration to a JSON file in the git-backed directory and commit
 

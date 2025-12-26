@@ -13,7 +13,7 @@
 ### 📋 Sprint Atual
 
 | Métrica            | Valor                       |
-|--------------------|-----------------------------|
+| ------------------ | --------------------------- |
 | **Sprint**         | 5 - Compliance Shield       |
 | **História Ativa** | 5.4: Dashboard de Segurança |
 | **Progresso**      | 🔄 60%                      |
@@ -31,7 +31,7 @@
 ## 📚 Documentação Essencial
 
 | Documento                | Descrição                    | Link                          |
-|--------------------------|------------------------------|-------------------------------|
+| ------------------------ | ---------------------------- | ----------------------------- |
 | **README.md**            | Introdução e visão geral     | [Abrir](README.md)            |
 | **project-context.md**   | Contexto e regras do projeto | [Abrir](project-context.md)   |
 | **docs/architecture.md** | Arquitetura do sistema       | [Abrir](docs/architecture.md) |
@@ -45,7 +45,7 @@
 ### Epic 5 - Compliance Shield
 
 | História                        | Status         | Progresso | Artefato                                                                                            |
-|---------------------------------|----------------|-----------|-----------------------------------------------------------------------------------------------------|
+| ------------------------------- | -------------- | --------- | --------------------------------------------------------------------------------------------------- |
 | **5.4: Dashboard de Segurança** | 🔄 in-progress | 60%       | [Detalhes](docs/sprint-artifacts/5-4-real-time-security-monitoring-dashboard.md)                    |
 | **5.4: Validação**              | ⏳ pending     | 0%        | [Relatório](docs/sprint-artifacts/validation-report-5-4-real-time-security-monitoring-dashboard.md) |
 
@@ -65,7 +65,7 @@ scripts/      - Ferramentas de automação
 ### 🚀 Comandos Rápidos
 
 | Comando                      | Descrição               |
-|------------------------------|-------------------------|
+| ---------------------------- | ----------------------- |
 | `make dev`                   | Modo desenvolvimento    |
 | `make build`                 | Compilar projeto        |
 | `make test`                  | Executar testes         |
@@ -74,7 +74,7 @@ scripts/      - Ferramentas de automação
 ### 📋 Ferramentas de Desenvolvimento
 
 | Ferramenta               | Descrição               |
-|--------------------------|-------------------------|
+| ------------------------ | ----------------------- |
 | **BMAD Scripts**         | Automação e validação   |
 | **Githooks**             | Controle de qualidade   |
 | **Conventional Commits** | Padronização de commits |
@@ -162,12 +162,12 @@ scripts/      - Ferramentas de automação
 
 ### Status Detalhado
 
-| Etapa         | Status           | Comentário                        |
-|---------------|------------------|-----------------------------------|
-| **Backend**   | 🔄 Em progresso  | Endpoints de API em tempo real    |
-| **Frontend**  | ✅ Concluído     | Interface e updates em tempo real |
-| **Testes**    | ⏳ Pendente      | Verificação e validação           |
-| **Segurança** | ⏳ Pendente      | Conformidade e auditoria          |
+| Etapa         | Status          | Comentário                        |
+| ------------- | --------------- | --------------------------------- |
+| **Backend**   | 🔄 Em progresso | Endpoints de API em tempo real    |
+| **Frontend**  | ✅ Concluído    | Interface e updates em tempo real |
+| **Testes**    | ⏳ Pendente     | Verificação e validação           |
+| **Segurança** | ⏳ Pendente     | Conformidade e auditoria          |
 
 ### Próximos Passos
 
@@ -178,4 +178,4 @@ scripts/      - Ferramentas de automação
 
 ---
 
-*Menu atualizado em: 2025-12-21T15:27:25.739Z*
+_Menu atualizado em: 2025-12-21T15:27:25.739Z_

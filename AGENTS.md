@@ -13,12 +13,12 @@ Este repositório segue o **BMAD-METHOD**. Antes de agir:
 1. **Leia [project-context.md](./project-context.md)** - Contrato técnico mandatório
 2. **Consulte workflows em [.agent/workflows/](./.agent/workflows/)** para tasks complexas
 
-| Informação | Documento |
-|------------|-----------|
-| Regras Técnicas | [project-context.md](./project-context.md) |
-| Arquitetura | [docs/architecture.md](./docs/architecture.md) |
-| Requisitos (PRD) | [docs/analysis/prd.md](./docs/analysis/prd.md) |
-| Stories Atuais | [docs/sprint-artifacts/](./docs/sprint-artifacts/) |
+| Informação       | Documento                                          |
+| ---------------- | -------------------------------------------------- |
+| Regras Técnicas  | [project-context.md](./project-context.md)         |
+| Arquitetura      | [docs/architecture.md](./docs/architecture.md)     |
+| Requisitos (PRD) | [docs/analysis/prd.md](./docs/analysis/prd.md)     |
+| Stories Atuais   | [docs/sprint-artifacts/](./docs/sprint-artifacts/) |
 
 ---
 
@@ -31,12 +31,12 @@ Este repositório segue o **BMAD-METHOD**. Antes de agir:
 
 ### Comandos Principais
 
-| Comando | Propósito |
-|---------|-----------|
-| `npm run dev` | Inicia servidor Next.js |
-| `cargo test` | Executa testes Rust |
+| Comando          | Propósito                       |
+| ---------------- | ------------------------------- |
+| `npm run dev`    | Inicia servidor Next.js         |
+| `cargo test`     | Executa testes Rust             |
 | `make check-all` | Valida lint + format + security |
-| `make help` | Lista todos os targets |
+| `make help`      | Lista todos os targets          |
 
 ---
 
@@ -76,14 +76,14 @@ O pre-commit hook fará isso automaticamente.
 
 ## 🏷️ Semantic Tags (USE EM COMENTÁRIOS)
 
-| Tag | Uso |
-|-----|-----|
+| Tag               | Uso                     |
+| ----------------- | ----------------------- |
 | `@REF: Story-X.Y` | Referência a Story/Epic |
-| `@FUNC` | Função-chave do sistema |
-| `@TODO` | Tarefa pendente |
-| `@FIXME` | Código quebrado |
-| `@SECURITY` | Código de segurança |
-| `@CRITICAL` | Código crítico |
+| `@FUNC`           | Função-chave do sistema |
+| `@TODO`           | Tarefa pendente         |
+| `@FIXME`          | Código quebrado         |
+| `@SECURITY`       | Código de segurança     |
+| `@CRITICAL`       | Código crítico          |
 
 **Formato**: `@TAG: [contexto] - [descrição]`
 
@@ -131,4 +131,4 @@ Antes de marcar tarefa como completa:
 
 ---
 
-*Última atualização: 2025-12-25*
+_Última atualização: 2025-12-25_

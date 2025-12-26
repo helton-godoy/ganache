@@ -13,13 +13,12 @@ Defines the action type for an ACE (allow, deny, audit)
 
 @ref Story-4.2 - ACE type enum
  */
-export type AceType = typeof AceType[keyof typeof AceType];
-
+export type AceType = (typeof AceType)[keyof typeof AceType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const AceType = {
-  allow: 'allow',
-  deny: 'deny',
-  audit: 'audit',
-  alarm: 'alarm',
+  allow: "allow",
+  deny: "deny",
+  audit: "audit",
+  alarm: "alarm",
 } as const;

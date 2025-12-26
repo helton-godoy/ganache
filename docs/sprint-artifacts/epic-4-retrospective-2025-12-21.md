@@ -67,17 +67,20 @@
 **Epic 5: Compliance Shield**
 
 Dependências estabelecidas com sucesso:
+
 - Sistema de ACL maduro e funcional
 - Integração AD estável
 - Infraestrutura de auditoria via git
 - Base sólida para compliance e logging
 
 Preparação Necessária:
+
 - Mapear requisitos de compliance para funcionalidades existentes
 - Estender sistema de logging para auditoria
 - Implementar controles de acesso granulares
 
 Pré-requisitos Técnicos:
+
 - Sistema de logs estruturado
 - Mecanismos de backup e retenção
 - Controles de acesso já implementados

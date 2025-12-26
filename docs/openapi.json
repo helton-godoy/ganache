@@ -357,10 +357,7 @@
             "description": "Filter commits by author name",
             "required": false,
             "schema": {
-              "type": [
-                "string",
-                "null"
-              ]
+              "type": ["string", "null"]
             }
           },
           {
@@ -369,10 +366,7 @@
             "description": "Filter commits from this date (ISO 8601)",
             "required": false,
             "schema": {
-              "type": [
-                "string",
-                "null"
-              ]
+              "type": ["string", "null"]
             }
           },
           {
@@ -381,10 +375,7 @@
             "description": "Filter commits until this date (ISO 8601)",
             "required": false,
             "schema": {
-              "type": [
-                "string",
-                "null"
-              ]
+              "type": ["string", "null"]
             }
           }
         ],
@@ -610,9 +601,7 @@
     },
     "/api/v1/security/events/ws": {
       "get": {
-        "tags": [
-          "websocket_security"
-        ],
+        "tags": ["websocket_security"],
         "summary": "WebSocket upgrade handler",
         "description": "# Purpose\nHandles WebSocket upgrade and starts event streaming\n\n@ref Story-5.4 - WebSocket endpoint",
         "operationId": "ws_security_events",
@@ -997,30 +986,22 @@
           {
             "type": "string",
             "description": "File/directory owner (owner@)",
-            "enum": [
-              "owner"
-            ]
+            "enum": ["owner"]
           },
           {
             "type": "string",
             "description": "Owning group (group@)",
-            "enum": [
-              "group"
-            ]
+            "enum": ["group"]
           },
           {
             "type": "string",
             "description": "Everyone else (everyone@)",
-            "enum": [
-              "everyone"
-            ]
+            "enum": ["everyone"]
           },
           {
             "type": "object",
             "description": "Specific user by name or UID (user:name)",
-            "required": [
-              "user"
-            ],
+            "required": ["user"],
             "properties": {
               "user": {
                 "type": "string",
@@ -1031,9 +1012,7 @@
           {
             "type": "object",
             "description": "Specific group by name or GID (group:name)",
-            "required": [
-              "named_group"
-            ],
+            "required": ["named_group"],
             "properties": {
               "named_group": {
                 "type": "string",
@@ -1047,22 +1026,12 @@
       "AceType": {
         "type": "string",
         "description": "Type of Access Control Entry (ACE)\n\n# Purpose\nDefines the action type for an ACE (allow, deny, audit)\n\n@ref Story-4.2 - ACE type enum",
-        "enum": [
-          "allow",
-          "deny",
-          "audit",
-          "alarm"
-        ]
+        "enum": ["allow", "deny", "audit", "alarm"]
       },
       "AdJoinRequest": {
         "type": "object",
         "description": "Request payload for joining an Active Directory domain\n\n# Purpose\nContains all necessary information to join a Ganache appliance to an AD domain\n\n@ref Story-4.1 - Active Directory domain join request model",
-        "required": [
-          "domain_name",
-          "username",
-          "password",
-          "dns_servers"
-        ],
+        "required": ["domain_name", "username", "password", "dns_servers"],
         "properties": {
           "dns_servers": {
             "type": "string",
@@ -1073,10 +1042,7 @@
             "description": "Active Directory domain name (e.g., \"corp.example.com\")"
           },
           "organizational_unit": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": ["string", "null"],
             "description": "Optional organizational unit for computer account (e.g., \"OU=Servers,DC=corp,DC=example,DC=com\")"
           },
           "password": {
@@ -1092,16 +1058,10 @@
       "AdJoinResponse": {
         "type": "object",
         "description": "Response after joining AD domain\n\n# Purpose\nProvides feedback about AD join operation success/failure\n\n@ref Story-4.1 - Active Directory domain join response model",
-        "required": [
-          "success",
-          "message"
-        ],
+        "required": ["success", "message"],
         "properties": {
           "current_domain": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": ["string", "null"],
             "description": "Current AD domain name if successfully joined"
           },
           "message": {
@@ -1117,11 +1077,7 @@
       "AdPrincipal": {
         "type": "object",
         "description": "Active Directory user or group principal\n\n# Purpose\nRepresents an AD principal (user or group) for ACL assignment\n\n@ref Story-4.2 - ACL principal model",
-        "required": [
-          "name",
-          "principal_type",
-          "distinguished_name"
-        ],
+        "required": ["name", "principal_type", "distinguished_name"],
         "properties": {
           "distinguished_name": {
             "type": "string",
@@ -1136,10 +1092,7 @@
             "description": "Principal type (user or group)"
           },
           "sid": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": ["string", "null"],
             "description": "Security Identifier (SID) for the principal"
           }
         }
@@ -1147,10 +1100,7 @@
       "AdPrincipalType": {
         "type": "string",
         "description": "Type of AD principal (user or group)\n\n# Purpose\nDistinguishes between user and group principals in ACL management\n\n@ref Story-4.2 - ACL principal type enum",
-        "enum": [
-          "user",
-          "group"
-        ]
+        "enum": ["user", "group"]
       },
       "AdSearchRequest": {
         "type": "object",
@@ -1180,10 +1130,7 @@
             ]
           },
           "query": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": ["string", "null"],
             "description": "Search query (filters by name, case-insensitive substring match)"
           }
         }
@@ -1233,16 +1180,10 @@
       "AdStatus": {
         "type": "object",
         "description": "Active Directory status information\n\n# Purpose\nProvides current AD join state and service health\n\n@ref Story-4.1 - Active Directory status model",
-        "required": [
-          "is_joined",
-          "service_status"
-        ],
+        "required": ["is_joined", "service_status"],
         "properties": {
           "domain_name": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": ["string", "null"],
             "description": "Current domain name if joined"
           },
           "is_joined": {
@@ -1250,10 +1191,7 @@
             "description": "Whether the system is currently joined to a domain"
           },
           "last_sync": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": ["string", "null"],
             "description": "Last successful sync timestamp (ISO 8601 format)"
           },
           "service_status": {
@@ -1264,13 +1202,7 @@
       },
       "BootEnvironment": {
         "type": "object",
-        "required": [
-          "name",
-          "active",
-          "created",
-          "space",
-          "keep"
-        ],
+        "required": ["name", "active", "created", "space", "keep"],
         "properties": {
           "active": {
             "type": "string"
@@ -1291,9 +1223,7 @@
       },
       "BootEnvironmentActivation": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "name": {
             "type": "string"
@@ -1336,11 +1266,7 @@
       },
       "ClusterStatus": {
         "type": "object",
-        "required": [
-          "state",
-          "progress",
-          "message"
-        ],
+        "required": ["state", "progress", "message"],
         "properties": {
           "message": {
             "type": "string"
@@ -1356,16 +1282,10 @@
       },
       "DatasetConfig": {
         "type": "object",
-        "required": [
-          "pool_name",
-          "name"
-        ],
+        "required": ["pool_name", "name"],
         "properties": {
           "compression": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "name": {
             "type": "string"
@@ -1374,10 +1294,7 @@
             "type": "string"
           },
           "quota": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           }
         }
       },
@@ -1418,10 +1335,7 @@
       },
       "DeleteDatasetPayload": {
         "type": "object",
-        "required": [
-          "pool",
-          "name"
-        ],
+        "required": ["pool", "name"],
         "properties": {
           "name": {
             "type": "string"
@@ -1433,13 +1347,7 @@
       },
       "DiskInfo": {
         "type": "object",
-        "required": [
-          "id",
-          "serial",
-          "size",
-          "status",
-          "node_id"
-        ],
+        "required": ["id", "serial", "size", "status", "node_id"],
         "properties": {
           "id": {
             "type": "string"
@@ -1463,17 +1371,11 @@
         "description": "Filtros para consulta de eventos de segurança\n\n# Purpose\nPermite filtrar e paginar consultas de eventos\n\n# Fields\n* `event_type` - Filtrar por tipo de evento\n* `user` - Filtrar por nome de usuário\n* `source_ip` - Filtrar por IP de origem\n* `severity` - Filtrar por nível de severidade\n* `date_from` - Data inicial (ISO 8601)\n* `date_to` - Data final (ISO 8601)\n* `limit` - Número máximo de resultados (padrão: 100, max: 1000)\n* `offset` - Paginação: número de registros a pular\n\n@ref Story-5.4 - Event filtering and pagination",
         "properties": {
           "date_from": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": ["string", "null"],
             "description": "Data inicial (ISO 8601)"
           },
           "date_to": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": ["string", "null"],
             "description": "Data final (ISO 8601)"
           },
           "event_type": {
@@ -1511,17 +1413,11 @@
             ]
           },
           "source_ip": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": ["string", "null"],
             "description": "Filtrar por IP de origem"
           },
           "user": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": ["string", "null"],
             "description": "Filtrar por usuário"
           }
         }
@@ -1529,19 +1425,14 @@
       "GetAclResponse": {
         "type": "object",
         "description": "Response containing ACL information\n\n# Purpose\nReturns parsed ACL data in structured format\n\n@ref Story-4.2 - ACL get response",
-        "required": [
-          "acl"
-        ],
+        "required": ["acl"],
         "properties": {
           "acl": {
             "$ref": "#/components/schemas/Nfs4Acl",
             "description": "Structured ACL data"
           },
           "raw_output": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": ["string", "null"],
             "description": "Raw output from nfs4xdr_getfacl (for debugging)"
           }
         }
@@ -1549,13 +1440,7 @@
       "GitCommit": {
         "type": "object",
         "description": "GitCommit represents a single commit in the configuration repository\n\n# Purpose\nProvides commit metadata for the configuration timeline UI\n\n@ref Story-3.2 - Implements GitCommit model for configuration audit timeline",
-        "required": [
-          "id",
-          "author",
-          "date",
-          "message",
-          "files_changed"
-        ],
+        "required": ["id", "author", "date", "message", "files_changed"],
         "properties": {
           "author": {
             "type": "string",
@@ -1584,10 +1469,7 @@
       "GitDiff": {
         "type": "object",
         "description": "GitDiff represents the diff content for a specific commit\n\n# Purpose\nProvides unified diff view for commit changes in the UI\n\n@ref Story-3.2 - Implements GitDiff model for visual comparison of configuration changes",
-        "required": [
-          "commit_id",
-          "files"
-        ],
+        "required": ["commit_id", "files"],
         "properties": {
           "commit_id": {
             "type": "string",
@@ -1605,12 +1487,7 @@
       "GitFileDiff": {
         "type": "object",
         "description": "GitFileDiff represents changes to a single file\n\n# Purpose\nContains file-level diff metadata and content\n\n@ref Story-3.2 - File-level diff details for expandable sections in CommitDiffModal",
-        "required": [
-          "filename",
-          "additions",
-          "deletions",
-          "diff_content"
-        ],
+        "required": ["filename", "additions", "deletions", "diff_content"],
         "properties": {
           "additions": {
             "type": "integer",
@@ -1636,15 +1513,10 @@
       },
       "HardwareInfo": {
         "type": "object",
-        "required": [
-          "has_raid"
-        ],
+        "required": ["has_raid"],
         "properties": {
           "controller_name": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": ["string", "null"],
             "description": "Name of the detected controller, if any"
           },
           "has_raid": {
@@ -1656,22 +1528,14 @@
       "Nfs4Ace": {
         "type": "object",
         "description": "Single Access Control Entry (ACE)\n\n# Purpose\nRepresents one permission rule in an NFSv4 ACL\n\n@ref Story-4.2 - NFSv4 ACE implementation",
-        "required": [
-          "principal",
-          "permissions",
-          "inherit_flags",
-          "ace_type"
-        ],
+        "required": ["principal", "permissions", "inherit_flags", "ace_type"],
         "properties": {
           "ace_type": {
             "$ref": "#/components/schemas/AceType",
             "description": "Type of ACE (allow/deny/audit)"
           },
           "index": {
-            "type": [
-              "integer",
-              "null"
-            ],
+            "type": ["integer", "null"],
             "format": "int32",
             "description": "Index in the ACL list (optional, for parsing verbose format)",
             "minimum": 0
@@ -1693,10 +1557,7 @@
       "Nfs4Acl": {
         "type": "object",
         "description": "Complete ACL for a file or directory\n\n# Purpose\nRepresents the full ACL (list of ACEs) for a filesystem object\n\n@ref Story-4.2 - NFSv4 ACL container",
-        "required": [
-          "path",
-          "aces"
-        ],
+        "required": ["path", "aces"],
         "properties": {
           "aces": {
             "type": "array",
@@ -1791,11 +1652,7 @@
       },
       "PoolConfig": {
         "type": "object",
-        "required": [
-          "name",
-          "device",
-          "compression"
-        ],
+        "required": ["name", "device", "compression"],
         "properties": {
           "compression": {
             "type": "boolean"
@@ -1810,14 +1667,7 @@
       },
       "PoolInfo": {
         "type": "object",
-        "required": [
-          "name",
-          "size",
-          "alloc",
-          "free",
-          "health",
-          "mountpoint"
-        ],
+        "required": ["name", "size", "alloc", "free", "health", "mountpoint"],
         "properties": {
           "alloc": {
             "type": "string"
@@ -1835,10 +1685,7 @@
             "type": "string"
           },
           "quota": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "size": {
             "type": "string"
@@ -1848,10 +1695,7 @@
       "RollbackRequest": {
         "type": "object",
         "description": "Rollback request payload\n\n# Purpose\nRequest to rollback configuration to a specific git commit\n\n@ref Story-3.3 - Implements rollback request model for one-click config rollback",
-        "required": [
-          "commit_id",
-          "reason"
-        ],
+        "required": ["commit_id", "reason"],
         "properties": {
           "commit_id": {
             "type": "string",
@@ -1866,11 +1710,7 @@
       "RollbackResponse": {
         "type": "object",
         "description": "Rollback response payload\n\n# Purpose\nConfirmation of successful rollback operation\n\n@ref Story-3.3 - Rollback success response",
-        "required": [
-          "success",
-          "rollback_commit_id",
-          "message"
-        ],
+        "required": ["success", "rollback_commit_id", "message"],
         "properties": {
           "message": {
             "type": "string",
@@ -1961,10 +1801,7 @@
             "description": "UUID único do evento"
           },
           "resource": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": ["string", "null"],
             "description": "Recurso afetado (opcional)"
           },
           "severity": {
@@ -1972,10 +1809,7 @@
             "description": "Nível de severidade"
           },
           "source_ip": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": ["string", "null"],
             "description": "IP de origem (opcional)"
           },
           "timestamp": {
@@ -2054,10 +1888,7 @@
       "SetAclRequest": {
         "type": "object",
         "description": "Request to set/modify ACL\n\n# Purpose\nApplies new ACL to a filesystem path\n\n@ref Story-4.2 - ACL set request",
-        "required": [
-          "path",
-          "acl"
-        ],
+        "required": ["path", "acl"],
         "properties": {
           "acl": {
             "$ref": "#/components/schemas/Nfs4Acl",
@@ -2076,10 +1907,7 @@
       "SetAclResponse": {
         "type": "object",
         "description": "Response after setting ACL\n\n# Purpose\nConfirms ACL modification success\n\n@ref Story-4.2 - ACL set response",
-        "required": [
-          "success",
-          "message"
-        ],
+        "required": ["success", "message"],
         "properties": {
           "message": {
             "type": "string",
@@ -2094,20 +1922,11 @@
       "SeverityLevel": {
         "type": "string",
         "description": "Nível de severidade do evento\n\n# Purpose\nIndica a criticidade de um evento de segurança\n\n@ref Story-5.4 - Security severity levels",
-        "enum": [
-          "info",
-          "warning",
-          "critical"
-        ]
+        "enum": ["info", "warning", "critical"]
       },
       "StorageDevice": {
         "type": "object",
-        "required": [
-          "path",
-          "name",
-          "size",
-          "device_type"
-        ],
+        "required": ["path", "name", "size", "device_type"],
         "properties": {
           "device_type": {
             "type": "string"
@@ -2126,12 +1945,7 @@
       "SuspiciousIp": {
         "type": "object",
         "description": "IP suspeito com métricas de atividade\n\n# Purpose\nRepresenta um endereço IP identificado como suspeito pelo sistema\n\n@ref Story-5.4 - Suspicious IP tracking",
-        "required": [
-          "ip",
-          "failed_attempts",
-          "last_attempt",
-          "reason"
-        ],
+        "required": ["ip", "failed_attempts", "last_attempt", "reason"],
         "properties": {
           "failed_attempts": {
             "type": "integer",
@@ -2155,12 +1969,7 @@
       },
       "SystemLog": {
         "type": "object",
-        "required": [
-          "id",
-          "timestamp",
-          "level",
-          "message"
-        ],
+        "required": ["id", "timestamp", "level", "message"],
         "properties": {
           "id": {
             "type": "string"

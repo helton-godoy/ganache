@@ -205,4 +205,4 @@ core/ganache.log    - Log do core Rust
 
 ---
 
-*Atalhos atualizados: 2025-12-21T15:09:22.070Z*
+_Atalhos atualizados: 2025-12-21T15:09:22.070Z_

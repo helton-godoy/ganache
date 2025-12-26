@@ -97,4 +97,5 @@ Localizado em `.github/workflows/test.yml`, composto por:
 - `./scripts/burn-in.sh [N] [TEST_FILE]`: Executa um teste N vezes para validar estabilidade.
 
 ---
-*Documento consolidado em conformidade com o BMAD 6.*
+
+_Documento consolidado em conformidade com o BMAD 6._

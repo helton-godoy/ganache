@@ -21,19 +21,19 @@ CURRENT_MSG=$(cat "$COMMIT_MSG_FILE")
 if [ ! -z "$CURRENT_MSG" ] && [ "$CURRENT_MSG" != "" ]; then
     # Mensagem já existe, não sobrescrever
     # Mas podemos adicionar rodapé com refs
-    
+
     # Detectar Story ID do branch
     BRANCH=$(git rev-parse --abbrev-ref HEAD)
     if echo "$BRANCH" | grep -qE "[0-9]+-[0-9]+"; then
         STORY_ID=$(echo "$BRANCH" | grep -oE "[0-9]+-[0-9]+" | head -1)
-        
+
         # Adicionar Refs se não existir
         if ! grep -q "Refs:" "$COMMIT_MSG_FILE"; then
-            echo "" >> "$COMMIT_MSG_FILE"
-            echo "Refs: #$STORY_ID" >> "$COMMIT_MSG_FILE"
+            echo "" >>"$COMMIT_MSG_FILE"
+            echo "Refs: #$STORY_ID" >>"$COMMIT_MSG_FILE"
         fi
     fi
-    
+
     exit 0
 fi
 
@@ -70,7 +70,7 @@ if echo "$BRANCH" | grep -qE "[0-9]+-[0-9]+"; then
 fi
 
 # Criar template
-cat > "$COMMIT_MSG_FILE" << EOF
+cat >"$COMMIT_MSG_FILE" <<EOF
 # ${STORY_REF}Digite sua mensagem de commit seguindo Conventional Commits
 # 
 # Formato: type(scope): description
@@ -89,7 +89,7 @@ cat > "$COMMIT_MSG_FILE" << EOF
 EOF
 
 if [ ! -z "$SCOPE" ]; then
-    cat >> "$COMMIT_MSG_FILE" << EOF
+    cat >>"$COMMIT_MSG_FILE" <<EOF
 # Escopo detectado automaticamente: $SCOPE
 # Exemplo: feat($SCOPE): adicionar funcionalidade X
 #
@@ -97,29 +97,29 @@ EOF
 fi
 
 if [ ! -z "$STORY_ID" ]; then
-    cat >> "$COMMIT_MSG_FILE" << EOF
+    cat >>"$COMMIT_MSG_FILE" <<EOF
 # Story detectada: $STORY_ID (baseado no branch)
 # O sistema adicionará "Refs: #$STORY_ID" automaticamente ao rodapé
 #
 EOF
 fi
 
-cat >> "$COMMIT_MSG_FILE" << EOF
+cat >>"$COMMIT_MSG_FILE" <<EOF
 # ────────────────────────────────────────────────────────────
 # Arquivos staged neste commit:
 EOF
 
 # Listar arquivos staged (primeiras 10 linhas)
 git diff --cached --name-status | head -10 | while read -r line; do
-    echo "#   $line" >> "$COMMIT_MSG_FILE"
+    echo "#   $line" >>"$COMMIT_MSG_FILE"
 done
 
 STAGED_COUNT=$(git diff --cached --name-only | wc -l)
 if [ "$STAGED_COUNT" -gt 10 ]; then
-    echo "#   ... e mais $((STAGED_COUNT - 10)) arquivos" >> "$COMMIT_MSG_FILE"
+    echo "#   ... e mais $((STAGED_COUNT - 10)) arquivos" >>"$COMMIT_MSG_FILE"
 fi
 
-cat >> "$COMMIT_MSG_FILE" << EOF
+cat >>"$COMMIT_MSG_FILE" <<EOF
 # ────────────────────────────────────────────────────────────
 #
 # Dicas:

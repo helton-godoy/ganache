@@ -59,9 +59,9 @@ STORY_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD | grep "docs/spri
 if [ ! -z "$STORY_FILES" ]; then
     echo -e "${CYAN}📋 Story file modificado detectado!${NC}"
     echo -e "   Verificando sincronização com sprint-status.yaml..."
-    
+
     # Executar validação (mas não bloquear - é post-commit)
-    if ./scripts/bmad-validate.sh > /dev/null 2>&1; then
+    if ./scripts/bmad-validate.sh >/dev/null 2>&1; then
         echo -e "   ${GREEN}✓ sprint-status.yaml está sincronizado${NC}"
     else
         echo -e "   ${YELLOW}⚠  AVISO: sprint-status.yaml pode estar dessincronizado${NC}"
@@ -74,11 +74,11 @@ fi
 API_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD | grep "core/ganache-api/" || true)
 if [ ! -z "$API_FILES" ]; then
     echo -e "${CYAN}🔄 Mudanças em ganache-api detectadas!${NC}"
-    
+
     if [ -f "./scripts/bmad-sync.sh" ]; then
         echo -e "   Executando bmad-sync.sh..."
-        
-        if ./scripts/bmad-sync.sh > /dev/null 2>&1; then
+
+        if ./scripts/bmad-sync.sh >/dev/null 2>&1; then
             echo -e "   ${GREEN}✓ Sincronização OpenAPI completa${NC}"
         else
             echo -e "   ${YELLOW}⚠  AVISO: bmad-sync.sh falhou${NC}"

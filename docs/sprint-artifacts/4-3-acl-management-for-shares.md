@@ -284,4 +284,4 @@ Dev (BMad)
 
 ---
 
-*Contexto abrangente criado pelo SM Agent. Análise exaustiva concluída - o desenvolvedor tem tudo necessário para implementação perfeita.*
+_Contexto abrangente criado pelo SM Agent. Análise exaustiva concluída - o desenvolvedor tem tudo necessário para implementação perfeita._

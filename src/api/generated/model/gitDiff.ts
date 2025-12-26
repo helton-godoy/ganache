@@ -4,7 +4,7 @@
  * ganache-core
  * OpenAPI spec version: 0.1.0
  */
-import type { GitFileDiff } from './gitFileDiff';
+import type { GitFileDiff } from "./gitFileDiff";
 
 /**
  * GitDiff represents the diff content for a specific commit

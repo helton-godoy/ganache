@@ -67,7 +67,7 @@ NC='\033[0m' # No Color
 
 # Check if a command exists
 command_exists() {
-    command -v "$1" &> /dev/null
+    command -v "$1" &>/dev/null
 }
 
 # Print success message

@@ -86,7 +86,7 @@ nfs4xdr_setfacl -s "ace_spec" /path/to/dataset
 # Listar usuários AD
 wbinfo -u
 
-# Listar grupos AD  
+# Listar grupos AD
 wbinfo -g
 
 # Testar conectividade com DC
@@ -98,12 +98,12 @@ klist -ke
 
 ### Pré-Requisitos Críticos (TrueNAS Best Practices)
 
-| Requisito | Descrição | Impacto se Falhar |
-|-----------|-----------|-------------------|
-| **DNS correto** | Nameservers apontam para DCs AD | Join falha completamente |
-| **NTP sincronizado** | Diferença < 5 minutos | Kerberos falha |
-| **Hostname FQDN** | Hostname configurado corretamente | Join pode falhar |
-| **Firewall** | Portas AD abertas (88, 389, 445, etc) | Timeouts |
+| Requisito            | Descrição                             | Impacto se Falhar        |
+| -------------------- | ------------------------------------- | ------------------------ |
+| **DNS correto**      | Nameservers apontam para DCs AD       | Join falha completamente |
+| **NTP sincronizado** | Diferença < 5 minutos                 | Kerberos falha           |
+| **Hostname FQDN**    | Hostname configurado corretamente     | Join pode falhar         |
+| **Firewall**         | Portas AD abertas (88, 389, 445, etc) | Timeouts                 |
 
 ### Configuração Samba (smb.conf)
 
@@ -113,13 +113,13 @@ klist -ke
    security = ADS
    realm = DOMAIN.LOCAL
    encrypt passwords = yes
-   
+
    # ID Mapping (CRÍTICO)
    idmap config * : backend = tdb
    idmap config * : range = 10000-20000
    idmap config WORKGROUP : backend = rid
    idmap config WORKGROUP : range = 20001-30000
-   
+
    # Winbind
    winbind use default domain = yes
    winbind enum users = yes    # ATENÇÃO: pode ser lento em ADs grandes
@@ -239,13 +239,13 @@ f d i n S F I
 
 ### Problemas Comuns e Soluções
 
-| Problema | Causa Raiz | Solução TrueNAS |
-|----------|-----------|-----------------|
-| "Winbind daemon not available" | AD join falhou ou winbind parado | Rebuild directory service cache |
-| Usuários/grupos não aparecem | Cache desatualizado | UI: Directory Services > Rebuild Cache |
-| Timeouts em AD grande | Enumeração de 100k+ usuários | `winbind enum users/groups = no` |
-| "Invalid tag" em setfacl | Sintaxe ACE incorreta | Usar UI ou validar formato rigorosamente |
-| ACLs "desaparecem" após chmod | `aclmode=discard` (default) | `zfs set aclmode=passthrough` |
+| Problema                       | Causa Raiz                       | Solução TrueNAS                          |
+| ------------------------------ | -------------------------------- | ---------------------------------------- |
+| "Winbind daemon not available" | AD join falhou ou winbind parado | Rebuild directory service cache          |
+| Usuários/grupos não aparecem   | Cache desatualizado              | UI: Directory Services > Rebuild Cache   |
+| Timeouts em AD grande          | Enumeração de 100k+ usuários     | `winbind enum users/groups = no`         |
+| "Invalid tag" em setfacl       | Sintaxe ACE incorreta            | Usar UI ou validar formato rigorosamente |
+| ACLs "desaparecem" após chmod  | `aclmode=discard` (default)      | `zfs set aclmode=passthrough`            |
 
 ### ZFS ACL Properties (Tuning)
 

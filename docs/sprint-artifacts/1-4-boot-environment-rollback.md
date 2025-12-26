@@ -24,5 +24,6 @@ As a System Administrator, I want to select previous system versions from the bo
 - The system correctly determines the current BE and allows activation of previous snapshots.
 
 ---
+
 **Finalized on:** 2025-12-18
 **Compliance:** 100% BMAD Standard

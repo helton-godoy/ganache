@@ -37,6 +37,7 @@ pub struct AuthenticatedUser
 High-level wrapper for git operations in the core daemon.
 
 # Purpose
+
 Provides a simplified interface for git-backed configuration management,
 handling initialization and commit operations with proper error logging.
 
@@ -77,6 +78,7 @@ pub fn commit_system(action: &str, resource: &str)
 GitHistoryService provides read-only operations for git repository history
 
 # Purpose
+
 Enables configuration timeline UI by exposing commit log and diff capabilities
 
 @ref Story-3.2 - Git history service for configuration audit timeline
@@ -90,20 +92,24 @@ pub struct GitHistoryService;
 Read commit log with pagination and filtering
 
 # Purpose
+
 Fetches paginated list of commits from the configuration repository
 
 # Arguments
-* `repo_path` - Path to git repository (typically /etc/ganache)
-* `limit` - Maximum commits to return (default 50, max 200)
-* `offset` - Number of commits to skip
-* `author_filter` - Optional author name filter
-* `date_from` - Optional start date (ISO 8601)
-* `date_to` - Optional end date (ISO 8601)
+
+- `repo_path` - Path to git repository (typically /etc/ganache)
+- `limit` - Maximum commits to return (default 50, max 200)
+- `offset` - Number of commits to skip
+- `author_filter` - Optional author name filter
+- `date_from` - Optional start date (ISO 8601)
+- `date_to` - Optional end date (ISO 8601)
 
 # Returns
+
 Vec of GitCommit structs with metadata
 
 # Errors
+
 Returns error if repository doesn't exist or is corrupted
 
 @ref Story-3.2 - Server-side filtering and pagination for commit history
@@ -117,16 +123,20 @@ pub fn read_commit_log<P: AsRef<Path>>(
 Get diff for a specific commit
 
 # Purpose
+
 Retrieves unified diff showing changes in a specific commit
 
 # Arguments
-* `repo_path` - Path to git repository
-* `commit_id` - SHA-1 commit hash
+
+- `repo_path` - Path to git repository
+- `commit_id` - SHA-1 commit hash
 
 # Returns
+
 GitDiff struct with file-level diffs
 
 # Errors
+
 Returns error if commit doesn't exist or repository is corrupted
 
 @ref Story-3.2 - Visual comparison of configuration changes
@@ -136,4 +146,3 @@ pub fn get_commit_diff<P: AsRef<Path>>(repo_path: P, commit_id: &str) -> Result<
 ```
 
 ---
-

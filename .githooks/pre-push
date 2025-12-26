@@ -61,7 +61,7 @@ echo -e "${GREEN}✓ Working tree limpo${NC}"
 echo -e "${CYAN}[3/6] Executando validação BMAD...${NC}"
 
 if [ -f "./scripts/bmad-validate.sh" ]; then
-    if ! ./scripts/bmad-validate.sh > /tmp/bmad-push.log 2>&1; then
+    if ! ./scripts/bmad-validate.sh >/tmp/bmad-push.log 2>&1; then
         echo -e "${RED}❌ Validação BMAD falhou!${NC}"
         echo -e "${YELLOW}Últimos erros:${NC}"
         tail -15 /tmp/bmad-push.log
@@ -76,7 +76,7 @@ fi
 # ----------------------------------------------------------------
 if [ "${GANACHE_PRE_PUSH_TESTS:-0}" = "1" ]; then
     echo -e "${CYAN}[4/6] Executando testes de integração...${NC}"
-    
+
     # Rust integration tests
     if [ -d "core" ]; then
         cd core
@@ -97,7 +97,7 @@ fi
 echo -e "${CYAN}[5/6] Verificando builds de produção...${NC}"
 
 # Rust build check (não precisa compilar tudo, apenas verificar)
-if [ -d "core" ] && ls core/**/*.rs 1> /dev/null 2>&1; then
+if [ -d "core" ] && ls core/**/*.rs 1>/dev/null 2>&1; then
     cd core
     if ! cargo check --release --quiet 2>&1; then
         echo -e "${RED}❌ Build Rust (release) falhou!${NC}"
@@ -122,7 +122,7 @@ while read local_ref local_sha remote_ref remote_sha; do
         FEAT_COUNT=$(echo "$COMMIT_CHANGES" | grep -c "src/\|core/")
         TEST_COUNT=$(echo "$COMMIT_CHANGES" | grep -c "tests/")
         DOCS_COUNT=$(echo "$COMMIT_CHANGES" | grep -c "docs/")
-        echo "$(date): $local_sha - FEAT:$FEAT_COUNT, TEST:$TEST_COUNT, DOCS:$DOCS_COUNT" >> "$LOG_FILE"
+        echo "$(date): $local_sha - FEAT:$FEAT_COUNT, TEST:$TEST_COUNT, DOCS:$DOCS_COUNT" >>"$LOG_FILE"
     fi
 done
 

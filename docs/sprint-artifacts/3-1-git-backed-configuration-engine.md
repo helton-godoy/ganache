@@ -165,22 +165,22 @@ Completion note: "Refactoring GitService for testability and implementing real t
 ### Critical Findings
 
 1. **Authentication Context Missing (AC 1.4, Task 3.3):**
-    - **Issue:** The Acceptance Criteria requires "Extract authenticated user from request context". The implementation in `main.rs` hardcodes the username to `"system"` in all calls (`configure_cluster`, `create_pool`, etc.).
-    - **Evidence:** `core/ganache-core/src/main.rs` lines 178, 233, 375, 401. `core/ganache-core/src/services/git_service.rs` explicitly states `// Commit changes with a specific username (mocked for now until auth context is ready)`.
-    - **Violation:** Task "Extract authenticated user from request context" is marked `[x]` but is NOT implemented. This defeats the purpose of "immutable history of *who* changed what".
+   - **Issue:** The Acceptance Criteria requires "Extract authenticated user from request context". The implementation in `main.rs` hardcodes the username to `"system"` in all calls (`configure_cluster`, `create_pool`, etc.).
+   - **Evidence:** `core/ganache-core/src/main.rs` lines 178, 233, 375, 401. `core/ganache-core/src/services/git_service.rs` explicitly states `// Commit changes with a specific username (mocked for now until auth context is ready)`.
+   - **Violation:** Task "Extract authenticated user from request context" is marked `[x]` but is NOT implemented. This defeats the purpose of "immutable history of _who_ changed what".
 
 ### Major Findings
 
 1. **Incomplete File List:**
-    - The following files were modified or created but are missing from the Story File List:
-        - `core/ganache-core/src/main.rs`
-        - `core/ganache-lib/src/system/config_db.rs`
-        - `core/ganache-lib/src/system/mod.rs`
-    - **Action:** Update the File List to reflect the actual scope of changes.
+   - The following files were modified or created but are missing from the Story File List:
+     - `core/ganache-core/src/main.rs`
+     - `core/ganache-lib/src/system/config_db.rs`
+     - `core/ganache-lib/src/system/mod.rs`
+   - **Action:** Update the File List to reflect the actual scope of changes.
 
 2. **Untracked Files:**
-    - Multiple files are currently untracked in git (`core/ganache-api/src/models/`, `core/ganache-core/src/services/`, etc.).
-    - **Action:** Stage and commit these files.
+   - Multiple files are currently untracked in git (`core/ganache-api/src/models/`, `core/ganache-core/src/services/`, etc.).
+   - **Action:** Stage and commit these files.
 
 ### Action Items
 
@@ -234,12 +234,12 @@ Story 3.1 implements git-backed configuration versioning with partial completion
 
 ### Acceptance Criteria Status
 
-| Criterion | Status | Evidence |
-| --------- | ------ | -------- |
-| AC 1.1: Automatic git commit on config changes | ✅ PASS | `ConfigDb::save_and_commit` integrated in all config endpoints |
-| AC 1.2: Include username in commit message | ⚠️ PARTIAL | Username included but hardcoded to "system" |
-| AC 1.3: Include timestamp in commit message | ✅ PASS | Timestamp in format `%Y-%m-%dT%H:%M:%S` |
-| AC 1.4: Concurrent edit safety | ✅ PASS | Mutex-based locking in `GitService::commit_changes_at` |
+| Criterion                                      | Status     | Evidence                                                       |
+| ---------------------------------------------- | ---------- | -------------------------------------------------------------- |
+| AC 1.1: Automatic git commit on config changes | ✅ PASS    | `ConfigDb::save_and_commit` integrated in all config endpoints |
+| AC 1.2: Include username in commit message     | ⚠️ PARTIAL | Username included but hardcoded to "system"                    |
+| AC 1.3: Include timestamp in commit message    | ✅ PASS    | Timestamp in format `%Y-%m-%dT%H:%M:%S`                        |
+| AC 1.4: Concurrent edit safety                 | ✅ PASS    | Mutex-based locking in `GitService::commit_changes_at`         |
 
 **Overall AC Status:** 3/4 fully met, 1/4 partially met with documented blocker
 

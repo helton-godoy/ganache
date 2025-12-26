@@ -4,8 +4,8 @@
  * ganache-core
  * OpenAPI spec version: 0.1.0
  */
-import type { AdPrincipalType } from './adPrincipalType';
-import type { AdPrincipalSid } from './adPrincipalSid';
+import type { AdPrincipalType } from "./adPrincipalType";
+import type { AdPrincipalSid } from "./adPrincipalSid";
 
 /**
  * Active Directory user or group principal

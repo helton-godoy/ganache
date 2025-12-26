@@ -3,7 +3,7 @@
 **Gerado**: 2025-12-24  
 **Epic**: Epic 6 - Melhorias no Processo de Qualidade  
 **Story**: 6.4 - Testes de Regressão SSR Automatizados  
-**Test Architect**: Murat (TEA Agent)  
+**Test Architect**: Murat (TEA Agent)
 
 ---
 
@@ -28,11 +28,11 @@ Este documento fornece o design completo de testes para prevenir regressões de 
 
 ## 🎯 Acceptance Criteria Review
 
-**AC #1**: *Dado* uma alteração no frontend que afeta o SSR  
-*Quando* os testes automatizados são executados  
-*Então* eles devem detectar falhas de SSR  
-*E* fornecer mensagens de erro claras sobre o que quebrou  
-*E* impedir a implantação de funcionalidades de SSR quebradas
+**AC #1**: _Dado_ uma alteração no frontend que afeta o SSR  
+_Quando_ os testes automatizados são executados  
+_Então_ eles devem detectar falhas de SSR  
+_E_ fornecer mensagens de erro claras sobre o que quebrou  
+_E_ impedir a implantação de funcionalidades de SSR quebradas
 
 **Validação**:
 
@@ -46,26 +46,26 @@ Este documento fornece o design completo de testes para prevenir regressões de 
 
 ### Riscos Identificados
 
-| Risk ID | Categoria | Descrição | Probabilidade | Impacto | Score | Mitigation |
-|---------|-----------|-----------|---------------|---------|-------|------------|
-| **R-SSR-001** | TECH | **Componente usa client-only API no servidor** (window, localStorage, navigator) | 3 (Likely) | 3 (Critical) | **9** | Testes E2E + guards de runtime |
-| **R-SSR-002** | TECH | **Falha de hidratação** (mismatch server vs client) | 2 (Possible) | 3 (Critical) | **6** | Testes de hidratação + snapshots |
-| **R-SSR-003** | PERF | **Timeout de renderização SSR** (\>30s) | 2 (Possible) | 2 (Degraded) | **4** | Testes de performance + métricas |
-| **R-SSR-004** | DATA | **Dados sensíveis vazam no HTML inicial** | 1 (Unlikely) | 3 (Critical) | **3** | Testes de security + content validation |
-| **R-SSR-005** | TECH | **Erro em Server Component não capturado** | 2 (Possible) | 3 (Critical) | **6** | Testes de error boundary + logs |
-| **R-SSR-006** | PERF | **Tamanho excessivo do HTML inicial** (\>500kb) | 2 (Possible) | 2 (Degraded) | **4** | Testes de performance + budget |
-| **R-SSR-007** | BUS | **Setup Wizard quebrado impede onboarding** | 3 (Likely) | 3 (Critical) | **9** | Testes E2E críticos + smoke tests |
-| **R-SSR-008** | SEC | **Security Dashboard falha ao renderizar logs** | 2 (Possible) | 3 (Critical) | **6** | Testes de integração + mocks |
+| Risk ID       | Categoria | Descrição                                                                        | Probabilidade | Impacto      | Score | Mitigation                              |
+| ------------- | --------- | -------------------------------------------------------------------------------- | ------------- | ------------ | ----- | --------------------------------------- |
+| **R-SSR-001** | TECH      | **Componente usa client-only API no servidor** (window, localStorage, navigator) | 3 (Likely)    | 3 (Critical) | **9** | Testes E2E + guards de runtime          |
+| **R-SSR-002** | TECH      | **Falha de hidratação** (mismatch server vs client)                              | 2 (Possible)  | 3 (Critical) | **6** | Testes de hidratação + snapshots        |
+| **R-SSR-003** | PERF      | **Timeout de renderização SSR** (\>30s)                                          | 2 (Possible)  | 2 (Degraded) | **4** | Testes de performance + métricas        |
+| **R-SSR-004** | DATA      | **Dados sensíveis vazam no HTML inicial**                                        | 1 (Unlikely)  | 3 (Critical) | **3** | Testes de security + content validation |
+| **R-SSR-005** | TECH      | **Erro em Server Component não capturado**                                       | 2 (Possible)  | 3 (Critical) | **6** | Testes de error boundary + logs         |
+| **R-SSR-006** | PERF      | **Tamanho excessivo do HTML inicial** (\>500kb)                                  | 2 (Possible)  | 2 (Degraded) | **4** | Testes de performance + budget          |
+| **R-SSR-007** | BUS       | **Setup Wizard quebrado impede onboarding**                                      | 3 (Likely)    | 3 (Critical) | **9** | Testes E2E críticos + smoke tests       |
+| **R-SSR-008** | SEC       | **Security Dashboard falha ao renderizar logs**                                  | 2 (Possible)  | 3 (Critical) | **6** | Testes de integração + mocks            |
 
 ### Riscos Críticos (Score = 9) - BLOQUEADORES
 
-**R-SSR-001**: Componente usa client-only API no servidor  
+**R-SSR-001**: Componente usa client-only API no servidor
 
 - **Exemplo**: `window.matchMedia()` em componente SSR
 - **Impacto**: Erro 500, aplicação quebrada
 - **Mitigation**: Wrapper com `typeof window !== 'undefined'` + testes E2E
 
-**R-SSR-007**: Setup Wizard quebrado impede onboarding  
+**R-SSR-007**: Setup Wizard quebrado impede onboarding
 
 - **Exemplo**: Falha ao buscar dados iniciais no servidor
 - **Impacto**: Usuário não consegue configurar o appliance
@@ -73,15 +73,15 @@ Este documento fornece o design completo de testes para prevenir regressões de 
 
 ### Riscos Altos (Score 6-8) - REQUEREM MITIGATION
 
-**R-SSR-002**: Falha de hidratação (mismatch)  
+**R-SSR-002**: Falha de hidratação (mismatch)
 
 - **Mitigation**: Snapshot tests + React Strict Mode
 
-**R-SSR-005**: Erro em Server Component não capturado  
+**R-SSR-005**: Erro em Server Component não capturado
 
 - **Mitigation**: Error boundaries + structured logging
 
-**R-SSR-008**: Security Dashboard falha ao renderizar logs  
+**R-SSR-008**: Security Dashboard falha ao renderizar logs
 
 - **Mitigation**: Integration tests com mocks + fallback UI
 
@@ -94,11 +94,11 @@ Este documento fornece o design completo de testes para prevenir regressões de 
 ```
           /\
          /E2\      P0: 8 scenarios  (Critical user journeys)
-        /2E2E\     
-       /------\    
+        /2E2E\
+       /------\
       / API &  \   P1: 15 scenarios (Core SSR functionality)
-     /Integration\ 
-    /------------\ 
+     /Integration\
+    /------------\
    /    Unit      \ P1/P2: 25 scenarios (Component logic)
   /----------------\
 ```
@@ -116,15 +116,15 @@ Este documento fornece o design completo de testes para prevenir regressões de 
 
 ### Componentes Críticos SSR (Priorização)
 
-| Componente | Localização | Risco | Nível de Teste | Prioridade |
-|------------|-------------|-------|----------------|------------|
-| **Root Layout** | `src/app/layout.tsx` | R-SSR-001 | Unit + E2E | P0 |
-| **Dashboard Page** | `src/app/page.tsx` | R-SSR-007 | Integration + E2E | P0 |
-| **Setup Wizard** | `src/components/features/setup/` | R-SSR-007 | E2E | P0 |
-| **Security Dashboard** | `src/components/features/security/` | R-SSR-008 | Integration + E2E | P0 |
-| **Status Monitoring** | `src/components/features/dashboard/` | R-SSR-005 | Integration | P1 |
-| **QueryClientProvider** | `src/app/providers.tsx` | R-SSR-001 | Unit | P1 |
-| **Font Loading** | `src/app/layout.tsx` | R-SSR-002 | Unit | P2 |
+| Componente              | Localização                          | Risco     | Nível de Teste    | Prioridade |
+| ----------------------- | ------------------------------------ | --------- | ----------------- | ---------- |
+| **Root Layout**         | `src/app/layout.tsx`                 | R-SSR-001 | Unit + E2E        | P0         |
+| **Dashboard Page**      | `src/app/page.tsx`                   | R-SSR-007 | Integration + E2E | P0         |
+| **Setup Wizard**        | `src/components/features/setup/`     | R-SSR-007 | E2E               | P0         |
+| **Security Dashboard**  | `src/components/features/security/`  | R-SSR-008 | Integration + E2E | P0         |
+| **Status Monitoring**   | `src/components/features/dashboard/` | R-SSR-005 | Integration       | P1         |
+| **QueryClientProvider** | `src/app/providers.tsx`              | R-SSR-001 | Unit              | P1         |
+| **Font Loading**        | `src/app/layout.tsx`                 | R-SSR-002 | Unit              | P2         |
 
 ---
 
@@ -132,12 +132,12 @@ Este documento fornece o design completo de testes para prevenir regressões de 
 
 ### P0 - Critical (Must Test) - 8 scenarios
 
-#### **Scenario 1**: Root Layout renderiza sem erros SSR  
+#### **Scenario 1**: Root Layout renderiza sem erros SSR
 
 **Test ID**: `6.4-E2E-001`  
 **Risk**: R-SSR-001  
 **Level**: E2E  
-**Description**:  
+**Description**:
 
 - **Given**: Next.js app iniciando server-side
 - **When**: Root layout é renderizado
@@ -151,12 +151,12 @@ Este documento fornece o design completo de testes para prevenir regressões de 
 
 ---
 
-#### **Scenario 2**: Dashboard page renderiza dados iniciais via SSR  
+#### **Scenario 2**: Dashboard page renderiza dados iniciais via SSR
 
 **Test ID**: `6.4-E2E-002`  
 **Risk**: R-SSR-007  
 **Level**: E2E  
-**Description**:  
+**Description**:
 
 - **Given**: Usuário navegando para `/`
 - **When**: Página é renderizada server-side
@@ -170,12 +170,12 @@ Este documento fornece o design completo de testes para prevenir regressões de 
 
 ---
 
-#### **Scenario 3**: Setup Wizard - Fluxo completo SSR  
+#### **Scenario 3**: Setup Wizard - Fluxo completo SSR
 
 **Test ID**: `6.4-E2E-003`  
 **Risk**: R-SSR-007  
 **Level**: E2E  
-**Description**:  
+**Description**:
 
 - **Given**: Appliance em modo "First Boot"
 - **When**: Usuário acessa `/setup`
@@ -189,12 +189,12 @@ Este documento fornece o design completo de testes para prevenir regressões de 
 
 ---
 
-#### **Scenario 4**: Security Dashboard renderiza logs de auditoria  
+#### **Scenario 4**: Security Dashboard renderiza logs de auditoria
 
 **Test ID**: `6.4-E2E-004`  
 **Risk**: R-SSR-008  
 **Level**: E2E  
-**Description**:  
+**Description**:
 
 - **Given**: Logs de auditoria existem no sistema
 - **When**: Usuário acessa `/security/audit`
@@ -208,12 +208,12 @@ Este documento fornece o design completo de testes para prevenir regressões de 
 
 ---
 
-#### **Scenario 5**: QueryClientProvider não causa erro SSR  
+#### **Scenario 5**: QueryClientProvider não causa erro SSR
 
 **Test ID**: `6.4-UNIT-001`  
 **Risk**: R-SSR-001  
 **Level**: Unit  
-**Description**:  
+**Description**:
 
 - **Given**: QueryClientProvider configurado em `providers.tsx`
 - **When**: Componente é renderizado server-side (renderToString)
@@ -227,12 +227,12 @@ Este documento fornece o design completo de testes para prevenir regressões de 
 
 ---
 
-#### **Scenario 6**: Detecção de window/localStorage em SSR  
+#### **Scenario 6**: Detecção de window/localStorage em SSR
 
 **Test ID**: `6.4-E2E-005`  
 **Risk**: R-SSR-001  
 **Level**: E2E  
-**Description**:  
+**Description**:
 
 - **Given**: Componente tenta acessar `window.localStorage`
 - **When**: SSR executa
@@ -246,12 +246,12 @@ Este documento fornece o design completo de testes para prevenir regressões de 
 
 ---
 
-#### **Scenario 7**: Erro em Server Component é capturado  
+#### **Scenario 7**: Erro em Server Component é capturado
 
 **Test ID**: `6.4-INT-001`  
 **Risk**: R-SSR-005  
 **Level**: Integration  
-**Description**:  
+**Description**:
 
 - **Given**: Server Component lança erro (API timeout)
 - **When**: SSR tenta renderizar
@@ -265,12 +265,12 @@ Este documento fornece o design completo de testes para prevenir regressões de 
 
 ---
 
-#### **Scenario 8**: HTML inicial não contém dados sensíveis  
+#### **Scenario 8**: HTML inicial não contém dados sensíveis
 
 **Test ID**: `6.4-E2E-006`  
 **Risk**: R-SSR-004  
 **Level**: E2E  
-**Description**:  
+**Description**:
 
 - **Given**: Usuário acessa página com dados sensíveis
 - **When**: SSR renderiza HTML inicial
@@ -286,12 +286,12 @@ Este documento fornece o design completo de testes para prevenir regressões de 
 
 ### P1 - High (Should Test) - 15 scenarios
 
-#### **Scenario 9**: Falha de hidratação detectada  
+#### **Scenario 9**: Falha de hidratação detectada
 
 **Test ID**: `6.4-INT-002`  
 **Risk**: R-SSR-002  
 **Level**: Integration  
-**Description**:  
+**Description**:
 
 - **Given**: Server renderiza timestamp dinâmico
 - **When**: Client hydrates
@@ -305,12 +305,12 @@ Este documento fornece o design completo de testes para prevenir regressões de 
 
 ---
 
-#### **Scenario 10**: SSR rendering time < 2s  
+#### **Scenario 10**: SSR rendering time < 2s
 
 **Test ID**: `6.4-PERF-001`  
 **Risk**: R-SSR-003  
 **Level**: Performance  
-**Description**:  
+**Description**:
 
 - **Given**: Dashboard page com dados de produção
 - **When**: SSR executa
@@ -324,12 +324,12 @@ Este documento fornece o design completo de testes para prevenir regressões de 
 
 ---
 
-#### **Scenario 11**: HTML size budget (< 500kb)  
+#### **Scenario 11**: HTML size budget (< 500kb)
 
 **Test ID**: `6.4-PERF-002`  
 **Risk**: R-SSR-006  
 **Level**: Performance  
-**Description**:  
+**Description**:
 
 - **Given**: Página complexa (Dashboard)
 - **When**: SSR gera HTML inicial
@@ -343,7 +343,7 @@ Este documento fornece o design completo de testes para prevenir regressões de 
 
 ---
 
-#### **Scenario 12-20**: *(Continuação de cenários P1)*  
+#### **Scenario 12-20**: _(Continuação de cenários P1)_
 
 - Cluster topology renderiza sem erros
 - Font loading não bloqueia SSR
@@ -437,21 +437,21 @@ tests/ssr/
 // tests/__mocks__/fixtures.ts
 export const mockClusterStatus = () => ({
   nodes: [
-    { id: 1, name: 'ganache-01', status: 'primary', uptime: '15d' },
-    { id: 2, name: 'ganache-02', status: 'secondary', uptime: '15d' }
+    { id: 1, name: "ganache-01", status: "primary", uptime: "15d" },
+    { id: 2, name: "ganache-02", status: "secondary", uptime: "15d" },
   ],
-  drbd: { status: 'UpToDate', sync: 100 },
-  zfs: { pools: [{ name: 'tank', status: 'ONLINE', usage: 45 }] }
+  drbd: { status: "UpToDate", sync: 100 },
+  zfs: { pools: [{ name: "tank", status: "ONLINE", usage: 45 }] },
 });
 
-export const mockAuditLogs = (count = 50) => 
+export const mockAuditLogs = (count = 50) =>
   Array.from({ length: count }, (_, i) => ({
     id: i,
     timestamp: new Date(Date.now() - i * 60000).toISOString(),
     user: `user${i % 5}@example.com`,
-    action: ['CREATE', 'UPDATE', 'DELETE'][i % 3],
-    resource: 'dataset',
-    details: { name: `dataset-${i}` }
+    action: ["CREATE", "UPDATE", "DELETE"][i % 3],
+    resource: "dataset",
+    details: { name: `dataset-${i}` },
   }));
 ```
 
@@ -470,31 +470,39 @@ export const mockAuditLogs = (count = 50) =>
 
 ```javascript
 module.exports = {
-  testEnvironment: 'node', // SSR executa em Node
-  testMatch: ['**/tests/ssr/**/*.test.{ts,tsx}'],
+  testEnvironment: "node", // SSR executa em Node
+  testMatch: ["**/tests/ssr/**/*.test.{ts,tsx}"],
   transform: {
-    '^.+\\.(ts|tsx)$': ['@swc/jest', {
-      jsc: {
-        parser: { syntax: 'typescript', tsx: true },
-        transform: { react: { runtime: 'automatic' } }
-      }
-    }]
+    "^.+\\.(ts|tsx)$": [
+      "@swc/jest",
+      {
+        jsc: {
+          parser: { syntax: "typescript", tsx: true },
+          transform: { react: { runtime: "automatic" } },
+        },
+      },
+    ],
   },
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
-    '\\.(css|scss)$': 'identity-obj-proxy'
+    "^@/(.*)$": "<rootDir>/src/$1",
+    "\\.(css|scss)$": "identity-obj-proxy",
   },
-  setupFilesAfterEnv: ['<rootDir>/tests/ssr/setup.ts'],
+  setupFilesAfterEnv: ["<rootDir>/tests/ssr/setup.ts"],
   collectCoverageFrom: [
-    'src/app/**/*.{ts,tsx}',
-    'src/components/features/**/*.{ts,tsx}',
-    '!**/*.stories.{ts,tsx}',
-    '!**/__tests__/**'
+    "src/app/**/*.{ts,tsx}",
+    "src/components/features/**/*.{ts,tsx}",
+    "!**/*.stories.{ts,tsx}",
+    "!**/__tests__/**",
   ],
   coverageThresholds: {
-    'src/app/': { statements: 80, branches: 75, functions: 80, lines: 80 },
-    'src/components/features/': { statements: 80, branches: 70, functions: 75, lines: 80 }
-  }
+    "src/app/": { statements: 80, branches: 75, functions: 80, lines: 80 },
+    "src/components/features/": {
+      statements: 80,
+      branches: 70,
+      functions: 75,
+      lines: 80,
+    },
+  },
 };
 ```
 
@@ -502,18 +510,16 @@ module.exports = {
 
 ```typescript
 export default {
-  testDir: './tests/ssr/e2e',
+  testDir: "./tests/ssr/e2e",
   use: {
-    baseURL: 'http://localhost:3000',
-    trace: 'retain-on-failure',
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    baseURL: "http://localhost:3000",
+    trace: "retain-on-failure",
+    screenshot: "only-on-failure",
+    video: "retain-on-failure",
   },
-  projects: [
-    { name: 'ssr-chrome', use: { ...devices['Desktop Chrome'] } },
-  ],
+  projects: [{ name: "ssr-chrome", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: 'npm run dev',
+    command: "npm run dev",
     port: 3000,
     reuseExistingServer: !process.env.CI,
   },
@@ -556,26 +562,26 @@ export default {
 
 ### Desenvolvimento de Testes
 
-| Fase | Scenarios | Tempo Estimado | Owner |
-|------|-----------|----------------|-------|
-| **ATDD (Red phase)** | 3 specs failing | 4h | Dev + QA |
-| **Unit Tests** | 10 scenarios | 12h | Dev |
-| **Integration Tests** | 8 scenarios | 10h | Dev |
-| **E2E Tests** | 8 scenarios | 16h | QA |
-| **Performance Tests** | 3 scenarios | 6h | QA |
-| **Mocks & Fixtures** | - | 4h | Dev |
-| **Configuration** | - | 2h | Dev |
-| **Documentation** | - | 2h | Tech Writer |
-| **TOTAL** | 35 scenarios | **56h** (~7 days) |
+| Fase                  | Scenarios       | Tempo Estimado    | Owner       |
+| --------------------- | --------------- | ----------------- | ----------- |
+| **ATDD (Red phase)**  | 3 specs failing | 4h                | Dev + QA    |
+| **Unit Tests**        | 10 scenarios    | 12h               | Dev         |
+| **Integration Tests** | 8 scenarios     | 10h               | Dev         |
+| **E2E Tests**         | 8 scenarios     | 16h               | QA          |
+| **Performance Tests** | 3 scenarios     | 6h                | QA          |
+| **Mocks & Fixtures**  | -               | 4h                | Dev         |
+| **Configuration**     | -               | 2h                | Dev         |
+| **Documentation**     | -               | 2h                | Tech Writer |
+| **TOTAL**             | 35 scenarios    | **56h** (~7 days) |
 
 ### Execução de Testes (CI/CD)
 
-| Suite | Tempo Estimado | Frequência |
-|-------|----------------|------------|
-| Smoke (P0 subset) | 2 min | Every commit |
-| P0 Full | 10 min | Every PR |
-| P0 + P1 | 20 min | Pre-merge |
-| Full Regression (P0-P2) | 35 min | Nightly |
+| Suite                   | Tempo Estimado | Frequência   |
+| ----------------------- | -------------- | ------------ |
+| Smoke (P0 subset)       | 2 min          | Every commit |
+| P0 Full                 | 10 min         | Every PR     |
+| P0 + P1                 | 20 min         | Pre-merge    |
+| Full Regression (P0-P2) | 35 min         | Nightly      |
 
 ---
 

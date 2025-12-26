@@ -6,22 +6,22 @@
  */
 
 export type SearchAdPrincipalsParams = {
-/**
- * Search query
- */
-query?: string;
-/**
- * Filter: 'user' or 'group'
- */
-principal_type?: string;
-/**
- * Page number (default: 0)
- * @minimum 0
- */
-page?: number;
-/**
- * Page size (default: 50, max: 1000)
- * @minimum 0
- */
-page_size?: number;
+  /**
+   * Search query
+   */
+  query?: string;
+  /**
+   * Filter: 'user' or 'group'
+   */
+  principal_type?: string;
+  /**
+   * Page number (default: 0)
+   * @minimum 0
+   */
+  page?: number;
+  /**
+   * Page size (default: 50, max: 1000)
+   * @minimum 0
+   */
+  page_size?: number;
 };

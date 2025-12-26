@@ -4,11 +4,11 @@
  * ganache-core
  * OpenAPI spec version: 0.1.0
  */
-import type { AceType } from './aceType';
-import type { Nfs4AceIndex } from './nfs4AceIndex';
-import type { AceInheritFlags } from './aceInheritFlags';
-import type { Nfs4Permissions } from './nfs4Permissions';
-import type { AcePrincipal } from './acePrincipal';
+import type { AceType } from "./aceType";
+import type { Nfs4AceIndex } from "./nfs4AceIndex";
+import type { AceInheritFlags } from "./aceInheritFlags";
+import type { Nfs4Permissions } from "./nfs4Permissions";
+import type { AcePrincipal } from "./acePrincipal";
 
 /**
  * Single Access Control Entry (ACE)

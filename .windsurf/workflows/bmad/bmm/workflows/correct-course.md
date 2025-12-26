@@ -4,11 +4,12 @@ auto_execution_mode: 1
 ---
 
 # Correct Course - Sprint Change Management Workflow
+
 name: "correct-course"
 description: "Navigate significant changes during sprint execution by analyzing impact, proposing solutions, and routing for implementation"
 author: "BMad Method"
 
-config_source: "{project-root}/_bmad/bmm/config.yaml"
+config_source: "{project-root}/\_bmad/bmm/config.yaml"
 output_folder: "{config_source}:output_folder"
 user_name: "{config_source}:user_name"
 communication_language: "{config_source}:communication_language"
@@ -19,39 +20,42 @@ sprint_artifacts: "{config_source}:sprint_artifacts"
 sprint_status: "{sprint_artifacts}/sprint-status.yaml || {output_folder}/sprint-status.yaml"
 
 # Smart input file references - handles both whole docs and sharded docs
-# Priority: Whole document first, then sharded version
-# Strategy: Load project context for impact analysis
-input_file_patterns:
-  prd:
-    description: "Product requirements for impact analysis"
-    whole: "{output_folder}/*prd*.md"
-    sharded: "{output_folder}/*prd*/*.md"
-    load_strategy: "FULL_LOAD"
-  epics:
-    description: "All epics to analyze change impact"
-    whole: "{output_folder}/*epic*.md"
-    sharded: "{output_folder}/*epic*/*.md"
-    load_strategy: "FULL_LOAD"
-  architecture:
-    description: "System architecture and decisions"
-    whole: "{output_folder}/*architecture*.md"
-    sharded: "{output_folder}/*architecture*/*.md"
-    load_strategy: "FULL_LOAD"
-  ux_design:
-    description: "UX design specification (if UI impacts)"
-    whole: "{output_folder}/*ux*.md"
-    sharded: "{output_folder}/*ux*/*.md"
-    load_strategy: "FULL_LOAD"
-  tech_spec:
-    description: "Technical specification"
-    whole: "{output_folder}/tech-spec*.md"
-    load_strategy: "FULL_LOAD"
-  document_project:
-    description: "Brownfield project documentation (optional)"
-    sharded: "{output_folder}/index.md"
-    load_strategy: "INDEX_GUIDED"
 
-installed_path: "{project-root}/_bmad/bmm/workflows/4-implementation/correct-course"
+# Priority: Whole document first, then sharded version
+
+# Strategy: Load project context for impact analysis
+
+input_file_patterns:
+prd:
+description: "Product requirements for impact analysis"
+whole: "{output_folder}/_prd_.md"
+sharded: "{output_folder}/_prd_/*.md"
+load_strategy: "FULL_LOAD"
+epics:
+description: "All epics to analyze change impact"
+whole: "{output_folder}/*epic*.md"
+sharded: "{output_folder}/*epic*/*.md"
+load_strategy: "FULL_LOAD"
+architecture:
+description: "System architecture and decisions"
+whole: "{output_folder}/_architecture_.md"
+sharded: "{output_folder}/_architecture_/*.md"
+load_strategy: "FULL_LOAD"
+ux_design:
+description: "UX design specification (if UI impacts)"
+whole: "{output_folder}/*ux*.md"
+sharded: "{output_folder}/*ux*/*.md"
+load_strategy: "FULL_LOAD"
+tech_spec:
+description: "Technical specification"
+whole: "{output_folder}/tech-spec\*.md"
+load_strategy: "FULL_LOAD"
+document_project:
+description: "Brownfield project documentation (optional)"
+sharded: "{output_folder}/index.md"
+load_strategy: "INDEX_GUIDED"
+
+installed_path: "{project-root}/\_bmad/bmm/workflows/4-implementation/correct-course"
 template: false
 instructions: "{installed_path}/instructions.md"
 validation: "{installed_path}/checklist.md"

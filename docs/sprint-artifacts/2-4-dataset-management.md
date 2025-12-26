@@ -15,27 +15,27 @@
 ### Critical Findings
 
 1. **[High] Phantom Verification (E2E Tests Bypass Backend):**
-    - The E2E tests in `tests/e2e/dataset-management.spec.ts` use `mockDatasets(page)` from `api-mocks.ts`.
-    - `api-mocks.ts` implements a *duplicate* stateful mock in JavaScript (lines 78-105).
-    - **Impact:** The `create_dataset` logic in `zfs.rs` (Rust) is **NEVER EXECUTED** during E2E testing. You verified the *Playwright Mock*, not the *Rust Application*.
-    - **Action:** Remove `mockDatasets(page)` from the E2E test or configure it to pass-through to the real backend (requires proxy).
+   - The E2E tests in `tests/e2e/dataset-management.spec.ts` use `mockDatasets(page)` from `api-mocks.ts`.
+   - `api-mocks.ts` implements a _duplicate_ stateful mock in JavaScript (lines 78-105).
+   - **Impact:** The `create_dataset` logic in `zfs.rs` (Rust) is **NEVER EXECUTED** during E2E testing. You verified the _Playwright Mock_, not the _Rust Application_.
+   - **Action:** Remove `mockDatasets(page)` from the E2E test or configure it to pass-through to the real backend (requires proxy).
 
 2. **[Medium] Flaky Unit Tests (Global State Pollution):**
-    - `zfs.rs` uses a global `lazy_static` `MOCK_DATASETS`.
-    - Tests `test_dataset_operations` and `test_dataset_lifecycle` run in parallel by default (`cargo test`).
-    - Both modify the global list. If one adds an item while the other asserts `count`, random failures will occur.
-    - **Action:** Ensure tests run serially (`#[serial]` crate) or use a fresh mock instance per test (hard with statics).
+   - `zfs.rs` uses a global `lazy_static` `MOCK_DATASETS`.
+   - Tests `test_dataset_operations` and `test_dataset_lifecycle` run in parallel by default (`cargo test`).
+   - Both modify the global list. If one adds an item while the other asserts `count`, random failures will occur.
+   - **Action:** Ensure tests run serially (`#[serial]` crate) or use a fresh mock instance per test (hard with statics).
 
 3. **[Medium] ZFS Naming Violation:**
-    - `zfs.rs` accepts raw names (e.g., "Finance") and stores them as-is.
-    - Real ZFS requires hierarchical names (e.g., "pool/Finance").
-    - The mock initializes with "pool/Production" but allows creating "Finance".
-    - **Action:** Enforce `format!("{}/{}", pool, name)` in `create_dataset`.
+   - `zfs.rs` accepts raw names (e.g., "Finance") and stores them as-is.
+   - Real ZFS requires hierarchical names (e.g., "pool/Finance").
+   - The mock initializes with "pool/Production" but allows creating "Finance".
+   - **Action:** Enforce `format!("{}/{}", pool, name)` in `create_dataset`.
 
 4. **[High] Missing Integration Proxy:**
-    - `next.config.ts` is empty.
-    - There is no configured path for the Frontend to reach the Rust Backend in development.
-    - Even if you remove Playwright mocks, the app will fail to talk to the backend.
+   - `next.config.ts` is empty.
+   - There is no configured path for the Frontend to reach the Rust Backend in development.
+   - Even if you remove Playwright mocks, the app will fail to talk to the backend.
 
 ### Action Items
 
@@ -46,7 +46,7 @@
 
 ### Conclusion
 
-The implementation of `zfs.rs` is technically correct (stateful), but it is currently an isolated island. The validation strategy is fundamentally flawed because it tests a JS simulation instead of the Rust code. You cannot merge this until the Frontend *actually* talks to the Backend.
+The implementation of `zfs.rs` is technically correct (stateful), but it is currently an isolated island. The validation strategy is fundamentally flawed because it tests a JS simulation instead of the Rust code. You cannot merge this until the Frontend _actually_ talks to the Backend.
 
 ## User Story
 

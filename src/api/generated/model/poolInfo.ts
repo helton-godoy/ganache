@@ -4,7 +4,7 @@
  * ganache-core
  * OpenAPI spec version: 0.1.0
  */
-import type { PoolInfoQuota } from './poolInfoQuota';
+import type { PoolInfoQuota } from "./poolInfoQuota";
 
 export interface PoolInfo {
   alloc: string;

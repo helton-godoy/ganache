@@ -1,16 +1,31 @@
-'use client';
+"use client";
 
-import { useGetCommitDiff, useGetConfigHistory } from '@/api/generated/default/default';
-import { GitCommit } from '@/api/generated/model/gitCommit';
-import { GitDiff } from '@/api/generated/model/gitDiff';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Calendar } from 'lucide-react';
-import { useState } from 'react';
-import { RollbackButton } from './RollbackButton';
+import {
+  useGetCommitDiff,
+  useGetConfigHistory,
+} from "@/api/generated/default/default";
+import { GitCommit } from "@/api/generated/model/gitCommit";
+import { GitDiff } from "@/api/generated/model/gitDiff";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Calendar } from "lucide-react";
+import { useState } from "react";
+import { RollbackButton } from "./RollbackButton";
 
 interface ConfigurationTimelineProps {
   className?: string;
@@ -22,10 +37,15 @@ const formatDiff = (diff: GitDiff) => {
   return (
     <div className="space-y-6">
       {diff.files.map((file, fileIndex) => (
-        <div key={fileIndex} className="rounded-md border border-slate-800 overflow-hidden">
+        <div
+          key={fileIndex}
+          className="rounded-md border border-slate-800 overflow-hidden"
+        >
           <div className="bg-slate-900/80 px-4 py-3 border-b border-slate-800 flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <span className="font-mono text-sm text-slate-300 font-semibold">{file.filename}</span>
+              <span className="font-mono text-sm text-slate-300 font-semibold">
+                {file.filename}
+              </span>
             </div>
             <div className="flex gap-4 text-xs font-medium">
               <span className="text-emerald-400 bg-emerald-950/30 px-2 py-0.5 rounded flex items-center gap-1">
@@ -39,21 +59,26 @@ const formatDiff = (diff: GitDiff) => {
           <div className="overflow-x-auto">
             <table className="w-full font-mono text-xs border-collapse">
               <tbody>
-                {file.diff_content.split('\n').map((line, i) => {
-                  let lineContentClass = "text-slate-400 px-4 py-0.5 w-full whitespace-pre";
-                  let lineNumClass = "text-slate-600 select-none text-right pr-3 pl-3 py-0.5 border-r border-slate-800/50 w-[1%] whitespace-nowrap bg-slate-900/30";
+                {file.diff_content.split("\n").map((line, i) => {
+                  let lineContentClass =
+                    "text-slate-400 px-4 py-0.5 w-full whitespace-pre";
+                  let lineNumClass =
+                    "text-slate-600 select-none text-right pr-3 pl-3 py-0.5 border-r border-slate-800/50 w-[1%] whitespace-nowrap bg-slate-900/30";
                   let rowClass = "hover:bg-slate-800/20";
 
-                  if (line.startsWith('+')) {
-                    lineContentClass = "text-emerald-300 bg-emerald-950/20 px-4 py-0.5 w-full whitespace-pre";
+                  if (line.startsWith("+")) {
+                    lineContentClass =
+                      "text-emerald-300 bg-emerald-950/20 px-4 py-0.5 w-full whitespace-pre";
                     rowClass = "bg-emerald-950/10 hover:bg-emerald-950/20";
                     lineNumClass += " text-emerald-700";
-                  } else if (line.startsWith('-')) {
-                    lineContentClass = "text-rose-300 bg-rose-950/20 px-4 py-0.5 w-full whitespace-pre";
+                  } else if (line.startsWith("-")) {
+                    lineContentClass =
+                      "text-rose-300 bg-rose-950/20 px-4 py-0.5 w-full whitespace-pre";
                     rowClass = "bg-rose-950/10 hover:bg-rose-950/20";
                     lineNumClass += " text-rose-700";
-                  } else if (line.startsWith('@@')) {
-                    lineContentClass = "text-blue-400 bg-slate-900/50 px-4 py-1 w-full whitespace-pre font-semibold";
+                  } else if (line.startsWith("@@")) {
+                    lineContentClass =
+                      "text-blue-400 bg-slate-900/50 px-4 py-1 w-full whitespace-pre font-semibold";
                     rowClass = "bg-slate-900/50";
                     lineNumClass += " text-blue-800";
                   }
@@ -74,17 +99,24 @@ const formatDiff = (diff: GitDiff) => {
   );
 };
 
-export function ConfigurationTimeline({ className }: ConfigurationTimelineProps) {
+export function ConfigurationTimeline({
+  className,
+}: ConfigurationTimelineProps) {
   const [selectedCommit, setSelectedCommit] = useState<GitCommit | null>(null);
-  const [authorFilter, setAuthorFilter] = useState('');
-  const [dateFilter, setDateFilter] = useState('');
+  const [authorFilter, setAuthorFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
 
   const PAGE_SIZE = 10; // Assuming a page size for pagination
   const [offset, setOffset] = useState(0);
-  const [dateAfter, setDateAfter] = useState('');
-  const [dateBefore, setDateBefore] = useState('');
+  const [dateAfter, setDateAfter] = useState("");
+  const [dateBefore, setDateBefore] = useState("");
 
-  const { data: commitsResponse, isLoading, error, refetch } = useGetConfigHistory({
+  const {
+    data: commitsResponse,
+    isLoading,
+    error,
+    refetch,
+  } = useGetConfigHistory({
     limit: PAGE_SIZE,
     offset: offset,
     author_filter: authorFilter || undefined,
@@ -93,12 +125,12 @@ export function ConfigurationTimeline({ className }: ConfigurationTimelineProps)
   });
 
   const { data: diffResponse, isLoading: diffLoading } = useGetCommitDiff(
-    selectedCommit?.id || '',
+    selectedCommit?.id || "",
     {
       query: {
         enabled: !!selectedCommit?.id,
       },
-    }
+    },
   );
 
   // Early return for error state
@@ -109,8 +141,12 @@ export function ConfigurationTimeline({ className }: ConfigurationTimelineProps)
           <CardTitle className="text-2xl text-red-500">Error</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-slate-400">Failed to load configuration history: {error.message}</p>
-          <Button onClick={() => refetch()} className="mt-4">Retry</Button>
+          <p className="text-slate-400">
+            Failed to load configuration history: {error.message}
+          </p>
+          <Button onClick={() => refetch()} className="mt-4">
+            Retry
+          </Button>
         </CardContent>
       </Card>
     );
@@ -201,16 +237,24 @@ export function ConfigurationTimeline({ className }: ConfigurationTimelineProps)
           <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-slate-800" />
           <div className="space-y-8 pl-10 pt-4">
             {commits.length === 0 ? (
-              <div className="text-center py-12 text-slate-500 italic">No configuration changes found</div>
+              <div className="text-center py-12 text-slate-500 italic">
+                No configuration changes found
+              </div>
             ) : (
               commits.map((commit) => (
-                <div key={commit.id} className="relative group transition-all duration-300">
+                <div
+                  key={commit.id}
+                  className="relative group transition-all duration-300"
+                >
                   <div className="absolute -left-10 top-2 w-4 h-4 rounded-full bg-slate-950 border-2 border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)] group-hover:scale-125 transition-transform" />
                   <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-5 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.1)] transition-all duration-300">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <Badge variant="outline" className="text-[10px] font-mono border-slate-700 text-blue-400">
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] font-mono border-slate-700 text-blue-400"
+                          >
                             {commit.id.substring(0, 7)}
                           </Badge>
                           <span className="text-xs text-slate-500 flex items-center gap-1 font-medium">
@@ -226,7 +270,10 @@ export function ConfigurationTimeline({ className }: ConfigurationTimelineProps)
                         </p>
                       </div>
                       <div className="flex gap-2">
-                        <RollbackButton commit={commit} onSuccess={() => refetch()} />
+                        <RollbackButton
+                          commit={commit}
+                          onSuccess={() => refetch()}
+                        />
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button
@@ -242,11 +289,16 @@ export function ConfigurationTimeline({ className }: ConfigurationTimelineProps)
                             <DialogHeader className="p-6 pb-2 border-b border-slate-800">
                               <DialogTitle className="flex items-center gap-3">
                                 Visual Comparison
-                                <Badge variant="outline" className="font-mono text-blue-400">
+                                <Badge
+                                  variant="outline"
+                                  className="font-mono text-blue-400"
+                                >
                                   {commit.id.substring(0, 7)}
                                 </Badge>
                               </DialogTitle>
-                              <p className="text-sm text-slate-400 mt-2">{commit.message}</p>
+                              <p className="text-sm text-slate-400 mt-2">
+                                {commit.message}
+                              </p>
                             </DialogHeader>
                             <div className="overflow-auto p-4 bg-slate-950/50">
                               {diffLoading ? (
@@ -255,7 +307,13 @@ export function ConfigurationTimeline({ className }: ConfigurationTimelineProps)
                                 </div>
                               ) : (
                                 <div className="font-mono text-xs leading-relaxed rounded-lg overflow-hidden border border-slate-800 bg-slate-900/50">
-                                  {diff ? formatDiff(diff) : <div className="p-4 text-slate-500 italic">No diff content available</div>}
+                                  {diff ? (
+                                    formatDiff(diff)
+                                  ) : (
+                                    <div className="p-4 text-slate-500 italic">
+                                      No diff content available
+                                    </div>
+                                  )}
                                 </div>
                               )}
                             </div>

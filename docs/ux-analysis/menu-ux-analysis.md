@@ -167,5 +167,5 @@ A análise identificou oportunidades claras de melhoria na experiência do usuá
 
 ---
 
-*Análise realizada em: 2025-12-21*
-*Versão: 1.0*
+_Análise realizada em: 2025-12-21_
+_Versão: 1.0_

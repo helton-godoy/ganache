@@ -25,23 +25,23 @@ echo ""
 # PRÉ-VERIFICAÇÃO: Bloquear se não há staged files
 STAGED_COUNT=$(git diff --cached --name-only | wc -l)
 if [ "$STAGED_COUNT" -eq 0 ]; then
-	echo -e "${RED}❌ ERRO: Nenhum arquivo staged para commit!${NC}"
-	echo -e "${YELLOW}Execute: git add <arquivos>${NC}"
-	exit 1
+    echo -e "${RED}❌ ERRO: Nenhum arquivo staged para commit!${NC}"
+    echo -e "${YELLOW}Execute: git add <arquivos>${NC}"
+    exit 1
 fi
 
 echo -e "${CYAN}📋 Arquivos staged: $STAGED_COUNT${NC}"
 git diff --cached --name-status | head -5
 if [ "$STAGED_COUNT" -gt 5 ]; then
-	echo -e "  ... e mais $((STAGED_COUNT - 5)) arquivos"
+    echo -e "  ... e mais $((STAGED_COUNT - 5)) arquivos"
 fi
 echo ""
 
 # EXECUTAR GIT COMMIT
 echo -e "${CYAN}→ Executando git commit...${NC}"
 if ! git commit "$@"; then
-	echo -e "${RED}❌ Commit falhou ou foi abortado${NC}"
-	exit 1
+    echo -e "${RED}❌ Commit falhou ou foi abortado${NC}"
+    exit 1
 fi
 
 # PÓS-VERIFICAÇÃO AUTOMÁTICA: Garantir que commit foi feito
@@ -54,10 +54,10 @@ echo ""
 # 1. Verificar se ainda há staged files (indica commit parcial ou falha)
 STAGED_AFTER=$(git diff --cached --name-only | wc -l)
 if [ "$STAGED_AFTER" -gt 0 ]; then
-	echo -e "${YELLOW}⚠️  AVISO: Ainda existem $STAGED_AFTER arquivos staged!${NC}"
-	echo -e "${YELLOW}   Isso pode indicar commit parcial.${NC}"
-	git diff --cached --name-status | head -5
-	echo ""
+    echo -e "${YELLOW}⚠️  AVISO: Ainda existem $STAGED_AFTER arquivos staged!${NC}"
+    echo -e "${YELLOW}   Isso pode indicar commit parcial.${NC}"
+    git diff --cached --name-status | head -5
+    echo ""
 fi
 
 # 2. Confirmar que commit foi criado
@@ -76,11 +76,11 @@ echo -e "  Untracked: $TOTAL_UNTRACKED arquivo(s)"
 echo ""
 
 if [ "$TOTAL_STAGED" -eq 0 ] && [ "$TOTAL_UNSTAGED" -eq 0 ] && [ "$TOTAL_UNTRACKED" -eq 0 ]; then
-	echo -e "${BOLD}${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-	echo -e "${BOLD}${GREEN}✅ PERFEITO: Repositório completamente limpo!${NC}"
-	echo -e "${BOLD}${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BOLD}${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BOLD}${GREEN}✅ PERFEITO: Repositório completamente limpo!${NC}"
+    echo -e "${BOLD}${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 else
-	echo -e "${YELLOW}💡 Você pode ter mais mudanças para commitar.${NC}"
+    echo -e "${YELLOW}💡 Você pode ter mais mudanças para commitar.${NC}"
 fi
 
 echo ""

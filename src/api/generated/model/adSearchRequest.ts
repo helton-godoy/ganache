@@ -4,8 +4,8 @@
  * ganache-core
  * OpenAPI spec version: 0.1.0
  */
-import type { AdSearchRequestPrincipalType } from './adSearchRequestPrincipalType';
-import type { AdSearchRequestQuery } from './adSearchRequestQuery';
+import type { AdSearchRequestPrincipalType } from "./adSearchRequestPrincipalType";
+import type { AdSearchRequestQuery } from "./adSearchRequestQuery";
 
 /**
  * Request to search/list AD users and groups

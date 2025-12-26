@@ -5,6 +5,7 @@
 Service for detecting hardware capabilities, particularly RAID controllers.
 
 # Purpose
+
 Detects legacy RAID hardware (PERC 6/i, H700, MegaRAID) to determine
 if the system should operate in compatibility mode.
 
@@ -30,6 +31,7 @@ pub fn detect_raid_controller() -> Result<HardwareInfo>
 Default path for the git-backed configuration repository.
 
 # Purpose
+
 Defines the standard location where Ganache stores its versioned
 configuration files. Can be overridden via GANACHE_CONFIG_DIR env var.
 
@@ -44,6 +46,7 @@ pub const DEFAULT_REPO_PATH: &str = "/etc/ganache";
 Service for git-based configuration version control.
 
 # Purpose
+
 Manages a git repository for configuration files, providing init, commit,
 and rollback operations with full audit trail support.
 
@@ -99,6 +102,7 @@ pub fn commit_changes_at<P: AsRef<Path>>(
 Rollback configuration to a specific commit using default repository path
 
 # Purpose
+
 One-click rollback of configuration to a previous state
 
 @ref Story-3.3 - Implements git-based configuration rollback
@@ -112,13 +116,15 @@ pub fn rollback_config(commit_id: &str, username: &str, reason: &str) -> Result<
 Rollback configuration to a specific commit at a specific path
 
 # Purpose
+
 One-click rollback of configuration to a previous state with audit trail
 
 # Arguments
-* `repo_path` - Path to git repository
-* `commit_id` - Commit ID to rollback to
-* `username` - User performing the rollback
-* `reason` - Reason for rollback (audit trail)
+
+- `repo_path` - Path to git repository
+- `commit_id` - Commit ID to rollback to
+- `username` - User performing the rollback
+- `reason` - Reason for rollback (audit trail)
 
 @ref Story-3.3 - Implements git-based configuration rollback with validation
 
@@ -133,6 +139,7 @@ pub fn rollback_config_to<P: AsRef<Path>>(
 Service for system memory management and ZFS ARC tuning.
 
 # Purpose
+
 Calculates and applies optimal ZFS Adaptive Replacement Cache (ARC) settings
 based on available system RAM, following safety policies to prevent OOM.
 
@@ -147,6 +154,7 @@ pub struct MemoryService;
 Calculate the target ZFS ARC size based on system RAM rules.
 
 Policies:
+
 1. RAM < 32GB: ARC = 50% of RAM
 2. RAM >= 32GB: ARC = RAM - 2GB
 3. Safety Constraint: Ensure at least 4GB is reserved for OS + Middleware.
@@ -162,6 +170,7 @@ pub fn calculate_arc_target(total_ram_bytes: u64) -> u64
 Service for managing ZFS Boot Environments (BEs).
 
 # Purpose
+
 Lists and activates ZFS boot environments, enabling system rollback
 to previous known-good states before applying updates or changes.
 
@@ -205,6 +214,7 @@ pub trait CommandExecutor
 Real system command executor implementation.
 
 # Purpose
+
 Executes actual system commands (drbdadm, zpool, ip) for cluster operations.
 Implements the CommandExecutor trait for testability via dependency injection.
 
@@ -219,6 +229,7 @@ pub struct SystemCommandExecutor;
 Service for managing twin-node HA cluster operations.
 
 # Purpose
+
 Handles cluster configuration, DRBD replication, VIP failover,
 heartbeat monitoring, and automatic failover sequences.
 
@@ -234,6 +245,7 @@ pub struct ClusterService;
 Heartbeat tracker for peer node liveness detection.
 
 # Purpose
+
 Tracks the last seen timestamp of the peer node to detect failures
 and trigger automatic failover when heartbeat is lost.
 
@@ -251,6 +263,7 @@ pub struct ClusterHeartbeat
 Service for managing ZFS pools and datasets.
 
 # Purpose
+
 Provides operations for creating, listing, and managing ZFS storage pools
 and datasets, including DRBD device support for HA configurations.
 
@@ -283,6 +296,7 @@ pub fn calculate_90_percent(size_str: &str) -> Result<String>
 Database abstraction for git-backed configuration persistence.
 
 # Purpose
+
 Saves and deletes configuration files in a git-tracked directory,
 automatically creating commits for each change to maintain audit trail.
 
@@ -315,6 +329,7 @@ pub fn delete_and_commit(
 Service for managing Active Directory domain operations
 
 # Purpose
+
 Provides secure domain join/leave functionality and status monitoring
 
 @ref Story-4.1 - Active Directory integration service
@@ -328,15 +343,19 @@ pub struct AdService;
 Join the Ganache appliance to an Active Directory domain
 
 # Purpose
+
 Executes the full AD join sequence: DNS configuration, Samba setup, and domain join
 
 # Arguments
-* `request` - AD join configuration containing domain, credentials, and DNS settings
+
+- `request` - AD join configuration containing domain, credentials, and DNS settings
 
 # Returns
+
 Result containing join response with success status and current domain
 
 # Errors
+
 Returns error if DNS validation fails, Samba configuration fails, or join command fails
 
 @ref Story-4.1 - Implements AD domain join logic
@@ -350,9 +369,11 @@ pub fn join_domain(request: &AdJoinRequest) -> Result<AdJoinResponse>
 Get current AD join status
 
 # Purpose
+
 Checks if the system is currently joined to an AD domain
 
 # Returns
+
 Result containing AD status with join state and domain information
 
 @ref Story-4.1 - Query AD join status
@@ -366,9 +387,11 @@ pub fn get_status() -> Result<AdStatus>
 Leave the current AD domain
 
 # Purpose
+
 Removes the system from the AD domain and resets Samba configuration
 
 # Returns
+
 Result containing leave response with success status
 
 @ref Story-4.1 - Leave AD domain functionality
@@ -384,6 +407,7 @@ pub fn leave_domain() -> Result<AdJoinResponse>
 Service for managing NFSv4 ACLs and AD principal searches
 
 # Purpose
+
 Provides ACL management via nfs4xdr-acl-tools and LDAP searches for user/group lookup
 
 @ref Story-4.2 - ACL service implementation
@@ -397,15 +421,19 @@ pub struct AclService;
 Search Active Directory for users and groups
 
 # Purpose
+
 Performs LDAP query with pagination to list AD principals for ACL assignment
 
 # Arguments
-* `request` - Search parameters (query, type filter, pagination)
+
+- `request` - Search parameters (query, type filter, pagination)
 
 # Returns
+
 Paginated list of AD principals matching the search criteria
 
 # Errors
+
 Returns error if AD is not joined, LDAP query fails, or parsing fails
 
 @ref Story-4.2 - Implements searchable AD principal listing with pagination
@@ -419,16 +447,20 @@ pub fn search_principals(request: &AdSearchRequest) -> Result<AdSearchResponse>
 Get ACL for a filesystem path
 
 # Purpose
+
 Retrieves and parses ACL using nfs4xdr_getfacl
 
 # Arguments
-* `path` - Filesystem path to query
-* `format` - Output format ("compact" or "verbose")
+
+- `path` - Filesystem path to query
+- `format` - Output format ("compact" or "verbose")
 
 # Returns
+
 Structured ACL data
 
 # Errors
+
 Returns error if path doesn't exist or nfs4xdr_getfacl fails
 
 @ref Story-4.2 - Implements ACL retrieval and parsing
@@ -442,16 +474,20 @@ pub fn get_acl(path: &str, format: &str) -> Result<GetAclResponse>
 Set ACL for a filesystem path
 
 # Purpose
+
 Applies ACL using nfs4xdr_setfacl
 
 # Arguments
-* `path` - Filesystem path to modify
-* `acl` - ACL to apply
+
+- `path` - Filesystem path to modify
+- `acl` - ACL to apply
 
 # Returns
+
 Success status
 
 # Errors
+
 Returns error if validation fails or nfs4xdr_setfacl fails
 
 @ref Story-4.3 - Implements recursive ACL modification
@@ -467,6 +503,7 @@ pub fn set_acl(path: &str, acl: &Nfs4Acl, recursive: bool) -> Result<SetAclRespo
 Serviço de coleta e gerenciamento de eventos de segurança
 
 # Purpose
+
 Agrega eventos de múltiplas fontes (SSH, Git, arquivos) e fornece
 API para consulta com filtros
 
@@ -481,6 +518,7 @@ pub struct SecurityEventService;
 Inicializa o serviço
 
 # Purpose
+
 Prepara o cache e inicia thread de limpeza automática
 
 @ref Story-5.4 - Service initialization
@@ -494,9 +532,11 @@ pub fn init() -> Result<()>
 Adiciona um evento ao cache
 
 # Arguments
-* `event` - Evento de segurança a ser adicionado
+
+- `event` - Evento de segurança a ser adicionado
 
 # Purpose
+
 Armazena evento no cache em memória e dispara broadcast para WebSocket
 
 @ref Story-5.4 - Event insertion
@@ -518,12 +558,15 @@ pub fn subscribe() -> tokio::sync::broadcast::Receiver<SecurityEvent>
 Busca eventos com filtros aplicados
 
 # Arguments
-* `filter` - Critérios de filtro e paginação
+
+- `filter` - Critérios de filtro e paginação
 
 # Returns
+
 Lista de eventos que correspondem aos filtros
 
 # Purpose
+
 Permite consultas flexíveis com filtros REST API
 
 @ref Story-5.2 - Filtered event queries with filename search
@@ -537,7 +580,8 @@ pub fn get_events(filter: &EventFilter) -> Result<Vec<SecurityEvent>>
 Retorna eventos recentes (últimos N minutos)
 
 # Arguments
-* `minutes` - Janela de tempo em minutos
+
+- `minutes` - Janela de tempo em minutos
 
 @ref Story-5.4 - Recent events query
 
@@ -550,12 +594,15 @@ pub fn get_recent_events(minutes: u32) -> Result<Vec<SecurityEvent>>
 Decodifica dados hexadecimal de logs TTY com tratamento robusto de erros
 
 # Arguments
-* `hex_data` - String hexadecimal (pode conter espaços)
+
+- `hex_data` - String hexadecimal (pode conter espaços)
 
 # Returns
+
 String decodificada ou erro descritivo
 
 # Purpose
+
 Trata edge cases: hex inválido, dados vazios, bytes não-UTF8
 
 @ref Story-6.1 - Robust log parsing improvements
@@ -577,6 +624,7 @@ pub fn parse_tty_log(line: &str, default_user: &str) -> Option<SecurityEvent>
 Processa uma linha de log de auditoria do Samba e converte em SecurityEvent
 
 # Purpose
+
 Parsing robusto com validação de estrutura e campos
 
 @ref Story-6.1 - Robust Samba log parsing
@@ -610,6 +658,7 @@ pub fn event_exists(id: &str) -> bool
 Serviço de cálculo de métricas de segurança
 
 # Purpose
+
 Calcula métricas agregadas em tempo real a partir dos eventos de segurança
 
 @ref Story-5.4 - Security metrics calculation service
@@ -641,6 +690,7 @@ pub fn refresh_alerts() -> Result<()>
 Estado da conta Break-Glass emergency_admin
 
 # Purpose
+
 Controla o estado de ativação da conta de emergência local
 
 @ref Story-5.3 - Break-Glass emergency admin state
@@ -654,6 +704,7 @@ pub enum BreakGlassState
 Informações de ativação Break-Glass
 
 # Purpose
+
 Armazena metadados de quem ativou e quando
 
 @ref Story-5.3 - Break-Glass activation tracking
@@ -667,7 +718,9 @@ pub struct BreakGlassActivation
 Serviço de gerenciamento da conta Break-Glass
 
 # Purpose
+
 Gerencia o ciclo de vida da conta emergency_admin incluindo:
+
 - Ativação/desativação segura
 - Auditoria completa de atividades
 - Integração com sistema de notificação
@@ -747,4 +800,3 @@ pub fn get_activation_info(&self) -> Result<Option<BreakGlassActivation>>
 ```
 
 ---
-

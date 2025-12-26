@@ -129,18 +129,9 @@ _Reviewer: Amelia (Dev Agent) on 2025-12-23_
 
 1. **Compilation Error - Duplicate Variable** - `LAST_SAMBA_CHECK` defined twice in `security_event_service.rs` (Fixed).
 
-**MEDIUM Issues:**
-2. **Incomplete File List** - `package.json`, `sprint-status.yaml` modified but not documented.
-3. **Non-functional E2E Tests** - Tests were skeletons.
-4. **PDF Export Placeholder** - AC1 required PDF export, found `alert()`.
-5. **Untracked Test Files** - `e2e/audit_search.spec.ts` was not tracked by git.
-6. **Fragile Log Parsing** - `security_event_service.rs` used unsafe `split('|')` for filenames.
+**MEDIUM Issues:** 2. **Incomplete File List** - `package.json`, `sprint-status.yaml` modified but not documented. 3. **Non-functional E2E Tests** - Tests were skeletons. 4. **PDF Export Placeholder** - AC1 required PDF export, found `alert()`. 5. **Untracked Test Files** - `e2e/audit_search.spec.ts` was not tracked by git. 6. **Fragile Log Parsing** - `security_event_service.rs` used unsafe `split('|')` for filenames.
 
-**LOW Issues:**
-7. **Weak Type Safety** - Hardcoded event types.
-8. **Duplicate Comments** - Copy-paste errors.
-9. **Code Style** - Local `declare module` in component.
-10. **Uncommitted Dependencies** - `package-lock.json` unstaged.
+**LOW Issues:** 7. **Weak Type Safety** - Hardcoded event types. 8. **Duplicate Comments** - Copy-paste errors. 9. **Code Style** - Local `declare module` in component. 10. **Uncommitted Dependencies** - `package-lock.json` unstaged.
 
 ### Remediation Actions (Auto-Fixed)
 

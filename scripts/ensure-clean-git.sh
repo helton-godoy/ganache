@@ -9,10 +9,10 @@
 
 # 1. Check for staged/unstaged changes
 if [ -n "$(git status --porcelain)" ]; then
-	echo -e "\033[0;31m[ERROR] Git directory is not clean. You have pending changes.\033[0m"
-	echo -e "You MUST commit your changes before proceeding."
-	git status --short
-	exit 1
+    echo -e "\033[0;31m[ERROR] Git directory is not clean. You have pending changes.\033[0m"
+    echo -e "You MUST commit your changes before proceeding."
+    git status --short
+    exit 1
 fi
 
 # 2. Check for untracked files (that are not ignored)

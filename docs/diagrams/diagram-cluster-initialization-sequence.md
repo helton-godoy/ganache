@@ -15,3 +15,4 @@ sequenceDiagram
     P->>DRBD: Iniciar Sincronização Inicial Block-Level
     DRBD-->>P: Sincronização Iniciada
     P-->>U: Cluster Inicializado com Sucesso
+```

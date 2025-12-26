@@ -4,7 +4,7 @@
  * ganache-core
  * OpenAPI spec version: 0.1.0
  */
-import type { HardwareInfoControllerName } from './hardwareInfoControllerName';
+import type { HardwareInfoControllerName } from "./hardwareInfoControllerName";
 
 export interface HardwareInfo {
   /** Name of the detected controller, if any */

@@ -186,6 +186,6 @@ Embora não sejam critérios primários de sucesso estrondoso, estes indicadores
 
 ---
 
-*Documento atualizado em: 2025-12-14*
-*Versão: 1.0*
-*Responsável: Equipe GANACHE*
+_Documento atualizado em: 2025-12-14_
+_Versão: 1.0_
+_Responsável: Equipe GANACHE_

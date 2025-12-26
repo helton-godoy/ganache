@@ -21,9 +21,9 @@ ERRORS=0
 # ============================================================
 format_rust() {
     if [[ "$ENABLE_RUST" != "true" ]]; then return 0; fi
-    
+
     echo -e "\n${CYAN}[Rust]${NC} cargo fmt"
-    
+
     if command_exists cargo; then
         if [[ -d "core" ]]; then
             cd core
@@ -46,18 +46,18 @@ format_rust() {
 # ============================================================
 format_python() {
     if [[ "$ENABLE_PYTHON" != "true" ]]; then return 0; fi
-    
+
     # Find Python files
     local py_files
     py_files=$(find . -name "*.py" -not -path "./node_modules/*" -not -path "./.venv/*" -not -path "./__pycache__/*" 2>/dev/null || true)
-    
+
     if [[ -z "$py_files" ]]; then
         print_info "Nenhum arquivo Python encontrado"
         return 0
     fi
-    
+
     echo -e "\n${CYAN}[Python]${NC} black + isort"
-    
+
     if command_exists black; then
         if black . --quiet 2>/dev/null; then
             print_success "black aplicado"
@@ -68,7 +68,7 @@ format_python() {
     else
         print_warning "black não encontrado"
     fi
-    
+
     if command_exists isort; then
         if isort . --quiet 2>/dev/null; then
             print_success "isort aplicado"
@@ -85,9 +85,9 @@ format_python() {
 # ============================================================
 format_javascript() {
     if [[ "$ENABLE_JAVASCRIPT" != "true" ]]; then return 0; fi
-    
+
     echo -e "\n${CYAN}[JavaScript/TypeScript]${NC} prettier"
-    
+
     if command_exists npx && [[ -f "package.json" ]]; then
         # Use project's prettier if available, otherwise global
         if npx prettier --write "**/*.{js,jsx,ts,tsx,json,css,scss,md}" \
@@ -108,13 +108,13 @@ format_javascript() {
 # ============================================================
 format_shell() {
     if [[ "$ENABLE_SHELL" != "true" ]]; then return 0; fi
-    
+
     echo -e "\n${CYAN}[Shell]${NC} shfmt"
-    
+
     if command_exists shfmt; then
         # Find shell scripts
         local scripts_found=false
-        
+
         for dir in scripts .githooks; do
             if [[ -d "$dir" ]]; then
                 scripts_found=true
@@ -126,7 +126,7 @@ format_shell() {
                 fi
             fi
         done
-        
+
         if [[ "$scripts_found" == "false" ]]; then
             print_info "Nenhum diretório de scripts encontrado"
         fi
@@ -140,9 +140,9 @@ format_shell() {
 # ============================================================
 format_toml() {
     if [[ "$ENABLE_TOML" != "true" ]]; then return 0; fi
-    
+
     echo -e "\n${CYAN}[TOML]${NC} taplo"
-    
+
     if command_exists taplo; then
         if taplo fmt 2>/dev/null; then
             print_success "taplo aplicado"
@@ -164,10 +164,10 @@ main() {
     format_javascript
     format_shell
     format_toml
-    
+
     echo ""
     print_header "📊 Resultado"
-    
+
     if [[ $ERRORS -gt 0 ]]; then
         print_error "Formatação concluída com $ERRORS erro(s)"
         exit 1

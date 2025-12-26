@@ -35,7 +35,7 @@ fn read_file(path: &str) -> Result<String, String> {
 // CÓDIGO PROBLEMÁTICO
 // TODO: implement validation
 export function validateUser(user: User) {
-    return true;
+  return true;
 }
 ```
 
@@ -44,13 +44,13 @@ export function validateUser(user: User) {
 ```typescript
 // CÓDIGO CORRIGIDO
 export function validateUser(user: User): boolean {
-    if (!user.email || !user.email.includes('@')) {
-        return false;
-    }
-    if (!user.password || user.password.length < 8) {
-        return false;
-    }
-    return true;
+  if (!user.email || !user.email.includes("@")) {
+    return false;
+  }
+  if (!user.password || user.password.length < 8) {
+    return false;
+  }
+  return true;
 }
 ```
 
@@ -100,9 +100,9 @@ mod tests {
 // CÓDIGO PROBLEMÁTICO
 const API_KEY = "sk-1234567890abcdef";
 export function callAPI() {
-    fetch("https://api.example.com", {
-        headers: { "Authorization": `Bearer ${API_KEY}` }
-    });
+  fetch("https://api.example.com", {
+    headers: { Authorization: `Bearer ${API_KEY}` },
+  });
 }
 ```
 
@@ -125,8 +125,8 @@ export function callAPI() {
 ```typescript
 // CÓDIGO PROBLEMÁTICO
 function getUser(username: string) {
-    const query = "SELECT * FROM users WHERE username = '" + username + "';";
-    return db.execute(query);
+  const query = "SELECT * FROM users WHERE username = '" + username + "';";
+  return db.execute(query);
 }
 ```
 
@@ -135,8 +135,8 @@ function getUser(username: string) {
 ```typescript
 // CÓDIGO CORRIGIDO
 function getUser(username: string) {
-    const query = "SELECT * FROM users WHERE username = ?;";
-    return db.execute(query, [username]);
+  const query = "SELECT * FROM users WHERE username = ?;";
+  return db.execute(query, [username]);
 }
 ```
 

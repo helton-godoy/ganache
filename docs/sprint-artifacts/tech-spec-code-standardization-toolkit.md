@@ -57,25 +57,25 @@ Criar um **toolkit standalone** de linting, formatação e segurança que:
 
 O projeto segue padrões bem definidos em `project-context.md`:
 
-| Componente | Padrão |
-|------------|--------|
-| **Git Hooks** | `.githooks/` com instalação via `scripts/install-githooks.sh` |
-| **Validação** | `scripts/bmad-validate.sh` como validação master |
-| **Classificação** | `scripts/git-classify.sh` para análise semântica |
-| **CI/CD** | `.github/workflows/` com múltiplos pipelines |
-| **Node Scripts** | `package.json` com `lint`, `type-check`, `test:e2e` |
+| Componente        | Padrão                                                        |
+| ----------------- | ------------------------------------------------------------- |
+| **Git Hooks**     | `.githooks/` com instalação via `scripts/install-githooks.sh` |
+| **Validação**     | `scripts/bmad-validate.sh` como validação master              |
+| **Classificação** | `scripts/git-classify.sh` para análise semântica              |
+| **CI/CD**         | `.github/workflows/` com múltiplos pipelines                  |
+| **Node Scripts**  | `package.json` com `lint`, `type-check`, `test:e2e`           |
 
 ### Files to Reference
 
-| Arquivo | Propósito |
-|---------|-----------|
-| [.trunk/trunk.yaml](file:///root/GANACHE/.trunk/trunk.yaml) | Configuração atual do Trunk (lista de ferramentas) |
-| [.githooks/pre-commit](file:///root/GANACHE/.githooks/pre-commit) | Hook de pre-commit existente |
-| [scripts/install-githooks.sh](file:///root/GANACHE/scripts/install-githooks.sh) | Instalador de hooks |
-| [Makefile](file:///root/GANACHE/Makefile) | Makefile existente (mínimo) |
-| [package.json](file:///root/GANACHE/package.json) | Scripts Node existentes |
-| [.vscode/settings.json](file:///root/GANACHE/.vscode/settings.json) | Configurações VSCode |
-| [.vscode/extensions.json](file:///root/GANACHE/.vscode/extensions.json) | Extensões recomendadas (vazio) |
+| Arquivo                                                                         | Propósito                                          |
+| ------------------------------------------------------------------------------- | -------------------------------------------------- |
+| [.trunk/trunk.yaml](file:///root/GANACHE/.trunk/trunk.yaml)                     | Configuração atual do Trunk (lista de ferramentas) |
+| [.githooks/pre-commit](file:///root/GANACHE/.githooks/pre-commit)               | Hook de pre-commit existente                       |
+| [scripts/install-githooks.sh](file:///root/GANACHE/scripts/install-githooks.sh) | Instalador de hooks                                |
+| [Makefile](file:///root/GANACHE/Makefile)                                       | Makefile existente (mínimo)                        |
+| [package.json](file:///root/GANACHE/package.json)                               | Scripts Node existentes                            |
+| [.vscode/settings.json](file:///root/GANACHE/.vscode/settings.json)             | Configurações VSCode                               |
+| [.vscode/extensions.json](file:///root/GANACHE/.vscode/extensions.json)         | Extensões recomendadas (vazio)                     |
 
 ### Technical Decisions
 
@@ -126,16 +126,16 @@ O arquivo `AGENTS.md` é o **padrão emergente** para instruir agentes de IA em 
 
 #### Diferenças entre AGENTS.md e README.md
 
-| Aspecto | README.md | AGENTS.md |
-|---------|-----------|-----------|
-| **Público** | Humanos | Agentes LLM |
-| **Conteúdo** | Visão geral, instalação | Regras, comandos, restrições |
-| **Estilo** | Narrativo, amigável | Diretivo, máquina-parseável |
-| **Verbosidade** | Moderada | Alta (quanto mais contexto, melhor) |
+| Aspecto         | README.md               | AGENTS.md                           |
+| --------------- | ----------------------- | ----------------------------------- |
+| **Público**     | Humanos                 | Agentes LLM                         |
+| **Conteúdo**    | Visão geral, instalação | Regras, comandos, restrições        |
+| **Estilo**      | Narrativo, amigável     | Diretivo, máquina-parseável         |
+| **Verbosidade** | Moderada                | Alta (quanto mais contexto, melhor) |
 
 #### Estrutura do AGENTS.md (Este Projeto)
 
-```markdown
+````markdown
 # AGENTS.md
 
 > Instruções para agentes de IA que trabalham neste repositório.
@@ -145,16 +145,18 @@ O arquivo `AGENTS.md` é o **padrão emergente** para instruir agentes de IA em 
 ## 🛠️ Setup e Build
 
 ### Dependências
+
 - Execute: `make install-dev-tools` para instalar todas as ferramentas de desenvolvimento
 - Node.js 20+, Rust 1.65+, Python 3.10+
 
 ### Comandos Principais
-| Comando | Propósito |
-|---------|-----------|
-| `npm run dev` | Inicia servidor Next.js em dev mode |
-| `cargo test` | Executa testes Rust |
-| `cargo run` | Inicia daemon Rust |
-| `make check-all` | Valida lint + format + security |
+
+| Comando          | Propósito                           |
+| ---------------- | ----------------------------------- |
+| `npm run dev`    | Inicia servidor Next.js em dev mode |
+| `cargo test`     | Executa testes Rust                 |
+| `cargo run`      | Inicia daemon Rust                  |
+| `make check-all` | Valida lint + format + security     |
 
 ## ✅ Antes de Cada Commit
 
@@ -164,6 +166,7 @@ O arquivo `AGENTS.md` é o **padrão emergente** para instruir agentes de IA em 
 make fmt        # Formata TODO o código automaticamente
 make lint       # Verifica erros de lint
 ```
+````
 
 O pre-commit hook fará isso automaticamente, mas é boa prática executar durante o desenvolvimento.
 
@@ -289,59 +292,59 @@ Todas as tags seguem o formato consistente para facilitar busca via grep:
 
 ##### 1. Tags de Rastreabilidade (Linking)
 
-| Tag | Propósito | Exemplo |
-|-----|-----------|---------|
-| `@REF` | Referência a Story/Epic/Requisito | `@REF: Story-2.4 - Implements ZFS dataset creation` |
-| `@IMPLEMENTS` | Indica implementação de interface/contrato | `@IMPLEMENTS: OpenAPI /api/v1/datasets` |
-| `@DEPENDS` | Dependência crítica de outro módulo | `@DEPENDS: ganache-lib::zfs - Requires ZFS wrappers` |
-| `@USES` | Utiliza serviço/função externa | `@USES: SecurityEventService for audit logging` |
+| Tag           | Propósito                                  | Exemplo                                              |
+| ------------- | ------------------------------------------ | ---------------------------------------------------- |
+| `@REF`        | Referência a Story/Epic/Requisito          | `@REF: Story-2.4 - Implements ZFS dataset creation`  |
+| `@IMPLEMENTS` | Indica implementação de interface/contrato | `@IMPLEMENTS: OpenAPI /api/v1/datasets`              |
+| `@DEPENDS`    | Dependência crítica de outro módulo        | `@DEPENDS: ganache-lib::zfs - Requires ZFS wrappers` |
+| `@USES`       | Utiliza serviço/função externa             | `@USES: SecurityEventService for audit logging`      |
 
 ##### 2. Tags de Estado/Atenção
 
-| Tag | Propósito | Prioridade | Exemplo |
-|-----|-----------|------------|---------|
-| `@TODO` | Tarefa pendente não urgente | Baixa | `@TODO: Add pagination support` |
-| `@FIXME` | Código quebrado que precisa correção | Alta | `@FIXME: Race condition on concurrent access` |
-| `@BUG` | Bug conhecido documentado | Crítica | `@BUG: #123 - Memory leak in long-running sessions` |
-| `@HACK` | Workaround temporário | Média | `@HACK: Workaround for upstream bug in v2.3` |
-| `@XXX` | Código que funciona mas precisa revisão | Média | `@XXX: Magic number, needs refactor` |
+| Tag      | Propósito                               | Prioridade | Exemplo                                             |
+| -------- | --------------------------------------- | ---------- | --------------------------------------------------- |
+| `@TODO`  | Tarefa pendente não urgente             | Baixa      | `@TODO: Add pagination support`                     |
+| `@FIXME` | Código quebrado que precisa correção    | Alta       | `@FIXME: Race condition on concurrent access`       |
+| `@BUG`   | Bug conhecido documentado               | Crítica    | `@BUG: #123 - Memory leak in long-running sessions` |
+| `@HACK`  | Workaround temporário                   | Média      | `@HACK: Workaround for upstream bug in v2.3`        |
+| `@XXX`   | Código que funciona mas precisa revisão | Média      | `@XXX: Magic number, needs refactor`                |
 
 ##### 3. Tags de Documentação Semântica
 
-| Tag | Propósito | Exemplo |
-|-----|-----------|---------|
-| `@FUNC` | Marca função-chave do sistema | `@FUNC: Core dataset creation logic` |
-| `@ENTRY` | Ponto de entrada principal | `@ENTRY: Main API handler for /datasets` |
-| `@CRITICAL` | Código crítico para segurança/estabilidade | `@CRITICAL: Authentication validation` |
-| `@HOT` | Código de hot path (performance) | `@HOT: Called 1000x per second, optimize` |
-| `@UNSAFE` | Código unsafe que requer atenção | `@UNSAFE: Raw pointer manipulation for ZFS` |
+| Tag         | Propósito                                  | Exemplo                                     |
+| ----------- | ------------------------------------------ | ------------------------------------------- |
+| `@FUNC`     | Marca função-chave do sistema              | `@FUNC: Core dataset creation logic`        |
+| `@ENTRY`    | Ponto de entrada principal                 | `@ENTRY: Main API handler for /datasets`    |
+| `@CRITICAL` | Código crítico para segurança/estabilidade | `@CRITICAL: Authentication validation`      |
+| `@HOT`      | Código de hot path (performance)           | `@HOT: Called 1000x per second, optimize`   |
+| `@UNSAFE`   | Código unsafe que requer atenção           | `@UNSAFE: Raw pointer manipulation for ZFS` |
 
 ##### 4. Tags de Otimização e Performance
 
-| Tag | Propósito | Exemplo |
-|-----|-----------|---------|
-| `@OPT` | Oportunidade de otimização | `@OPT: Can be parallelized with rayon` |
-| `@PERF` | Nota sobre performance | `@PERF: O(n²) - acceptable for n < 100` |
-| `@CACHE` | Behavior de cache documentado | `@CACHE: Results cached for 5 minutes` |
+| Tag      | Propósito                      | Exemplo                                     |
+| -------- | ------------------------------ | ------------------------------------------- |
+| `@OPT`   | Oportunidade de otimização     | `@OPT: Can be parallelized with rayon`      |
+| `@PERF`  | Nota sobre performance         | `@PERF: O(n²) - acceptable for n < 100`     |
+| `@CACHE` | Behavior de cache documentado  | `@CACHE: Results cached for 5 minutes`      |
 | `@ASYNC` | Nota sobre comportamento async | `@ASYNC: Non-blocking, returns immediately` |
 
 ##### 5. Tags de Arquitetura
 
-| Tag | Propósito | Exemplo |
-|-----|-----------|---------|
-| `@LAYER` | Indica camada arquitetural | `@LAYER: Domain - Business logic only` |
-| `@API` | Marca interface pública | `@API: v1 - Stable, do not break` |
-| `@INTERNAL` | Marca como uso interno apenas | `@INTERNAL: Not for external use` |
-| `@DEPRECATED` | Marca como obsoleto | `@DEPRECATED: Use DatasetServiceV2 instead` |
+| Tag           | Propósito                     | Exemplo                                     |
+| ------------- | ----------------------------- | ------------------------------------------- |
+| `@LAYER`      | Indica camada arquitetural    | `@LAYER: Domain - Business logic only`      |
+| `@API`        | Marca interface pública       | `@API: v1 - Stable, do not break`           |
+| `@INTERNAL`   | Marca como uso interno apenas | `@INTERNAL: Not for external use`           |
+| `@DEPRECATED` | Marca como obsoleto           | `@DEPRECATED: Use DatasetServiceV2 instead` |
 
 ##### 6. Tags de Segurança
 
-| Tag | Propósito | Exemplo |
-|-----|-----------|---------|
-| `@SECURITY` | Nota de segurança importante | `@SECURITY: Validates JWT before processing` |
-| `@AUDIT` | Código relacionado a auditoria | `@AUDIT: Logs all access attempts` |
-| `@PRIVILEGE` | Requer privilégios elevados | `@PRIVILEGE: Requires root for ZFS ops` |
-| `@SENSITIVE` | Manipula dados sensíveis | `@SENSITIVE: Contains user credentials` |
+| Tag          | Propósito                      | Exemplo                                      |
+| ------------ | ------------------------------ | -------------------------------------------- |
+| `@SECURITY`  | Nota de segurança importante   | `@SECURITY: Validates JWT before processing` |
+| `@AUDIT`     | Código relacionado a auditoria | `@AUDIT: Logs all access attempts`           |
+| `@PRIVILEGE` | Requer privilégios elevados    | `@PRIVILEGE: Requires root for ZFS ops`      |
+| `@SENSITIVE` | Manipula dados sensíveis       | `@SENSITIVE: Contains user credentials`      |
 
 #### Exemplos de Uso por Linguagem
 
@@ -368,7 +371,7 @@ Todas as tags seguem o formato consistente para facilitar busca via grep:
 pub fn create_dataset(config: DatasetConfig) -> Result<Dataset, ZfsError> {
     // @SECURITY: Validate user has permission to create datasets
     validate_permissions(&config.owner)?;
-    
+
     // @TODO: Add support for encryption options
     // @PERF: O(1) - ZFS creation is constant time
     zfs::create_dataset(&config)
@@ -396,7 +399,7 @@ export function useCreateDataset() {
     mutationFn: createDataset,
     onSuccess: () => {
       // @TODO: Add optimistic update
-      queryClient.invalidateQueries({ queryKey: ['datasets'] });
+      queryClient.invalidateQueries({ queryKey: ["datasets"] });
     },
   });
 }
@@ -470,38 +473,38 @@ Para sistemas de RAG, as tags servem como **metadata enriquecida**:
 
 ### Tools Matrix
 
-| Categoria | Ferramenta | Linguagem | Comando | Instalação Debian |
-|-----------|------------|-----------|---------|-------------------|
-| **Lint:Python** | bandit | Python | `bandit -r .` | `pip install bandit` |
-| **Lint:Python** | ruff | Python | `ruff check .` | `pip install ruff` |
-| **Lint:Rust** | clippy | Rust | `cargo clippy` | `rustup component add clippy` |
-| **Lint:JS/TS** | eslint | JS/TS | `npx eslint .` | `npm install -g eslint` |
-| **Lint:Shell** | shellcheck | Shell | `shellcheck scripts/*.sh` | `apt install shellcheck` |
-| **Lint:YAML** | yamllint | YAML | `yamllint .` | `pip install yamllint` |
-| **Lint:Markdown** | markdownlint | MD | `npx markdownlint-cli2 '**/*.md'` | `npm install -g markdownlint-cli2` |
-| **Lint:Actions** | actionlint | GH | `actionlint` | Binary download |
-| **Fmt:Python** | black | Python | `black .` | `pip install black` |
-| **Fmt:Python** | isort | Python | `isort .` | `pip install isort` |
-| **Fmt:Rust** | rustfmt | Rust | `cargo fmt` | `rustup component add rustfmt` |
-| **Fmt:JS/TS** | prettier | JS/TS | `npx prettier --write .` | `npm install -g prettier` |
-| **Fmt:Shell** | shfmt | Shell | `shfmt -w scripts/` | `apt install shfmt` ou binary |
-| **Fmt:TOML** | taplo | TOML | `taplo fmt` | `cargo install taplo-cli` |
-| **Fmt:SVG** | svgo | SVG | `npx svgo -r .` | `npm install -g svgo` |
-| **Security** | osv-scanner | All | `osv-scanner --lockfile=*` | Binary download |
-| **Security** | trufflehog | All | `trufflehog filesystem .` | Binary download |
-| **Security** | checkov | IaC | `checkov -d .` | `pip install checkov` |
+| Categoria         | Ferramenta   | Linguagem | Comando                           | Instalação Debian                  |
+| ----------------- | ------------ | --------- | --------------------------------- | ---------------------------------- |
+| **Lint:Python**   | bandit       | Python    | `bandit -r .`                     | `pip install bandit`               |
+| **Lint:Python**   | ruff         | Python    | `ruff check .`                    | `pip install ruff`                 |
+| **Lint:Rust**     | clippy       | Rust      | `cargo clippy`                    | `rustup component add clippy`      |
+| **Lint:JS/TS**    | eslint       | JS/TS     | `npx eslint .`                    | `npm install -g eslint`            |
+| **Lint:Shell**    | shellcheck   | Shell     | `shellcheck scripts/*.sh`         | `apt install shellcheck`           |
+| **Lint:YAML**     | yamllint     | YAML      | `yamllint .`                      | `pip install yamllint`             |
+| **Lint:Markdown** | markdownlint | MD        | `npx markdownlint-cli2 '**/*.md'` | `npm install -g markdownlint-cli2` |
+| **Lint:Actions**  | actionlint   | GH        | `actionlint`                      | Binary download                    |
+| **Fmt:Python**    | black        | Python    | `black .`                         | `pip install black`                |
+| **Fmt:Python**    | isort        | Python    | `isort .`                         | `pip install isort`                |
+| **Fmt:Rust**      | rustfmt      | Rust      | `cargo fmt`                       | `rustup component add rustfmt`     |
+| **Fmt:JS/TS**     | prettier     | JS/TS     | `npx prettier --write .`          | `npm install -g prettier`          |
+| **Fmt:Shell**     | shfmt        | Shell     | `shfmt -w scripts/`               | `apt install shfmt` ou binary      |
+| **Fmt:TOML**      | taplo        | TOML      | `taplo fmt`                       | `cargo install taplo-cli`          |
+| **Fmt:SVG**       | svgo         | SVG       | `npx svgo -r .`                   | `npm install -g svgo`              |
+| **Security**      | osv-scanner  | All       | `osv-scanner --lockfile=*`        | Binary download                    |
+| **Security**      | trufflehog   | All       | `trufflehog filesystem .`         | Binary download                    |
+| **Security**      | checkov      | IaC       | `checkov -d .`                    | `pip install checkov`              |
 
 ### LSP Servers Matrix
 
-| Linguagem | LSP Server | Instalação |
-|-----------|------------|------------|
-| **Rust** | rust-analyzer | `rustup component add rust-analyzer` |
+| Linguagem         | LSP Server                 | Instalação                                             |
+| ----------------- | -------------------------- | ------------------------------------------------------ |
+| **Rust**          | rust-analyzer              | `rustup component add rust-analyzer`                   |
 | **TypeScript/JS** | typescript-language-server | `npm install -g typescript-language-server typescript` |
-| **Python** | pyright | `npm install -g pyright` |
-| **Bash** | bash-language-server | `npm install -g bash-language-server` |
-| **YAML** | yaml-language-server | `npm install -g yaml-language-server` |
-| **JSON** | vscode-json-languageserver | `npm install -g vscode-langservers-extracted` |
-| **Markdown** | marksman | Binary download |
+| **Python**        | pyright                    | `npm install -g pyright`                               |
+| **Bash**          | bash-language-server       | `npm install -g bash-language-server`                  |
+| **YAML**          | yaml-language-server       | `npm install -g yaml-language-server`                  |
+| **JSON**          | vscode-json-languageserver | `npm install -g vscode-langservers-extracted`          |
+| **Markdown**      | marksman                   | Binary download                                        |
 
 ---
 
@@ -721,18 +724,19 @@ Para sistemas de RAG, as tags servem como **metadata enriquecida**:
 ## Antes de Commitar
 
 SEMPRE execute antes de commitar código:
+
 - `make fmt` - Formata todo o código automaticamente
 - `make lint` - Verifica erros de lint
 
 ## Comandos Disponíveis
 
-| Comando | Propósito |
-|---------|-----------|
-| `make fmt` | Formata código (modifica arquivos) |
+| Comando          | Propósito                          |
+| ---------------- | ---------------------------------- |
+| `make fmt`       | Formata código (modifica arquivos) |
 | `make fmt-check` | Verifica formatação (não modifica) |
-| `make lint` | Executa linters |
-| `make security` | Scan de segurança |
-| `make check-all` | Executa tudo |
+| `make lint`      | Executa linters                    |
+| `make security`  | Scan de segurança                  |
+| `make check-all` | Executa tudo                       |
 
 ## Regra de Ouro
 
@@ -773,24 +777,24 @@ mas é boa prática executar `make fmt` durante o desenvolvimento.
    # ============================================================
    # Code Quality Toolkit
    # ============================================================
-   
+
    .PHONY: fmt fmt-check lint security check-all install-dev-tools
-   
+
    install-dev-tools:
     ./scripts/code-quality/install-dev-tools.sh
-   
+
    fmt:
     ./scripts/code-quality/fmt.sh
-   
+
    fmt-check:
     ./scripts/code-quality/fmt-check.sh
-   
+
    lint:
     ./scripts/code-quality/lint.sh
-   
+
    security:
     ./scripts/code-quality/security.sh
-   
+
    check-all:
     ./scripts/code-quality/check-all.sh
    ```

@@ -66,11 +66,13 @@ Located in `tests/support/fixtures/`. **Always import test from fixtures, not fr
 #### Fixture Usage
 
 ```typescript
-import { test, expect } from '../support/fixtures/break-glass.fixture';
+import { test, expect } from "../support/fixtures/break-glass.fixture";
 
-test('[P0] should test break-glass scenario', async ({ breakGlassActivated }) => {
+test("[P0] should test break-glass scenario", async ({
+  breakGlassActivated,
+}) => {
   // Use pre-activated break-glass context
-  await breakGlassActivated.goto('/security');
+  await breakGlassActivated.goto("/security");
   // emergency_admin is already activated
 });
 ```
@@ -99,10 +101,13 @@ Located in `tests/support/factories/`. Use for generating test data with determi
 #### Factory Usage
 
 ```typescript
-import { createAdmin, generateValidPassword } from '../support/factories/user.factory';
-import { createBreakGlassActivationEvent } from '../support/factories/security-event.factory';
+import {
+  createAdmin,
+  generateValidPassword,
+} from "../support/factories/user.factory";
+import { createBreakGlassActivationEvent } from "../support/factories/security-event.factory";
 
-const admin = createAdmin({ username: 'specific-admin' });
+const admin = createAdmin({ username: "specific-admin" });
 const password = generateValidPassword();
 const event = createBreakGlassActivationEvent({ user: admin.username });
 ```
@@ -141,15 +146,19 @@ tests/
 Use Given-When-Then format for clarity:
 
 ```typescript
-test('[P0] should activate break-glass account', async ({ authenticatedPage }) => {
+test("[P0] should activate break-glass account", async ({
+  authenticatedPage,
+}) => {
   // GIVEN: Admin is authenticated
-  await authenticatedPage.goto('/security/break-glass');
+  await authenticatedPage.goto("/security/break-glass");
 
   // WHEN: Admin triggers activation
   await authenticatedPage.click('[data-testid="activate-button"]');
 
   // THEN: Account is activated
-  await expect(authenticatedPage.locator('[data-testid="status"]')).toContainText('Active');
+  await expect(
+    authenticatedPage.locator('[data-testid="status"]'),
+  ).toContainText("Active");
 });
 ```
 

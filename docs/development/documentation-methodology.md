@@ -96,7 +96,6 @@ status: "draft|review|approved|deprecated"
 tags: ["tag1", "tag2", "tag3"]
 related_docs: ["doc1.md", "doc2.md"]
 ---
-
 # Conteúdo do documento
 ```
 
@@ -106,6 +105,7 @@ related_docs: ["doc1.md", "doc2.md"]
 # {Título do Documento}
 
 **Meta-informações:**
+
 - **Data de Criação:** {data}
 - **Última Atualização:** {data}
 - **Autor:** {autor}
@@ -113,27 +113,33 @@ related_docs: ["doc1.md", "doc2.md"]
 - **Versão:** {versão}
 
 ## 📋 Resumo Executivo
+
 {Breve descrição do propósito e escopo}
 
 ## 🎯 Objetivos
+
 - Objetivo 1
 - Objetivo 2
 - Objetivo 3
 
 ## 📊 Detalhamento
+
 {Conteúdo principal}
 
 ## 🔗 Documentos Relacionados
+
 - [Documento 1](./documento1.md)
 - [Documento 2](./documento2.md)
 
 ## 📝 Histórico de Alterações
-| Data | Versão | Autor | Alteração |
-|------|--------|-------|-----------|
-| YYYY-MM-DD | 1.0 | Autor | Versão inicial |
+
+| Data       | Versão | Autor | Alteração      |
+| ---------- | ------ | ----- | -------------- |
+| YYYY-MM-DD | 1.0    | Autor | Versão inicial |
 
 ---
-*Gerado conforme metodologia BMAD - Projeto Ganache*
+
+_Gerado conforme metodologia BMAD - Projeto Ganache_
 ```
 
 ### **4. 🔄 ESPECIFICAÇÕES TÉCNICAS PARA HANDOFF/HANDOVER**
@@ -291,7 +297,7 @@ touch docs/index.md
 
 ---
 
-*Metodologia desenvolvida conforme padrões BMAD*  
-*Data: 2025-12-15*  
-*Projeto: Ganache Enterprise NAS*  
-*Status: Aprovada e Implementada*
+_Metodologia desenvolvida conforme padrões BMAD_  
+_Data: 2025-12-15_  
+_Projeto: Ganache Enterprise NAS_  
+_Status: Aprovada e Implementada_

@@ -4,7 +4,7 @@
  * ganache-core
  * OpenAPI spec version: 0.1.0
  */
-import type { AdPrincipal } from './adPrincipal';
+import type { AdPrincipal } from "./adPrincipal";
 
 /**
  * Response containing paginated AD principals

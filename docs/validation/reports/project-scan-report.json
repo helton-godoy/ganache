@@ -1,110 +1,110 @@
 {
-    "workflow_version": "1.2.0",
-    "timestamps": {
-        "started": "2025-12-14T11:51:51-04:00",
-        "last_updated": "2025-12-14T12:15:00-04:00"
+  "workflow_version": "1.2.0",
+  "timestamps": {
+    "started": "2025-12-14T11:51:51-04:00",
+    "last_updated": "2025-12-14T12:15:00-04:00"
+  },
+  "mode": "full_rescan",
+  "scan_level": "deep",
+  "project_root": "/home/helton/git/GANACHE",
+  "output_folder": "/home/helton/git/GANACHE/docs",
+  "completed_steps": [
+    {
+      "step": "step_1",
+      "status": "completed",
+      "timestamp": "2025-12-14T11:53:00-04:00",
+      "summary": "Classified as multi-part (Backend/Frontend)"
     },
-    "mode": "full_rescan",
-    "scan_level": "deep",
-    "project_root": "/home/helton/git/GANACHE",
-    "output_folder": "/home/helton/git/GANACHE/docs",
-    "completed_steps": [
+    {
+      "step": "step_2",
+      "status": "completed",
+      "timestamp": "2025-12-14T11:53:00-04:00",
+      "summary": "Inventory of existing docs completed"
+    },
+    {
+      "step": "step_3",
+      "status": "completed",
+      "timestamp": "2025-12-14T11:55:00-04:00",
+      "summary": "Tech stack analyzed"
+    },
+    {
+      "step": "step_4",
+      "status": "completed",
+      "timestamp": "2025-12-14T12:00:00-04:00",
+      "summary": "Conditional artifacts generated"
+    },
+    {
+      "step": "step_5",
+      "status": "completed",
+      "timestamp": "2025-12-14T12:02:00-04:00",
+      "summary": "Source tree analyzed"
+    },
+    {
+      "step": "step_6",
+      "status": "completed",
+      "timestamp": "2025-12-14T12:05:00-04:00",
+      "summary": "Dev & Ops guides generated"
+    },
+    {
+      "step": "step_7",
+      "status": "completed",
+      "timestamp": "2025-12-14T12:10:00-04:00",
+      "summary": "Integration architecture documented"
+    },
+    {
+      "step": "step_8",
+      "status": "completed",
+      "timestamp": "2025-12-14T12:10:00-04:00",
+      "summary": "Detailed architecture docs generated"
+    },
+    {
+      "step": "step_9",
+      "status": "completed",
+      "timestamp": "2025-12-14T12:15:00-04:00",
+      "summary": "Project overview generated"
+    },
+    {
+      "step": "step_10",
+      "status": "completed",
+      "timestamp": "2025-12-14T12:15:00-04:00",
+      "summary": "Master index generated"
+    }
+  ],
+  "current_step": "completed",
+  "findings": {
+    "project_classification": {
+      "repository_type": "multi-part",
+      "parts": [
         {
-            "step": "step_1",
-            "status": "completed",
-            "timestamp": "2025-12-14T11:53:00-04:00",
-            "summary": "Classified as multi-part (Backend/Frontend)"
+          "part_id": "backend",
+          "root_path": "ganache",
+          "project_type_id": "backend",
+          "display_name": "Ganache Backend"
         },
         {
-            "step": "step_2",
-            "status": "completed",
-            "timestamp": "2025-12-14T11:53:00-04:00",
-            "summary": "Inventory of existing docs completed"
-        },
-        {
-            "step": "step_3",
-            "status": "completed",
-            "timestamp": "2025-12-14T11:55:00-04:00",
-            "summary": "Tech stack analyzed"
-        },
-        {
-            "step": "step_4",
-            "status": "completed",
-            "timestamp": "2025-12-14T12:00:00-04:00",
-            "summary": "Conditional artifacts generated"
-        },
-        {
-            "step": "step_5",
-            "status": "completed",
-            "timestamp": "2025-12-14T12:02:00-04:00",
-            "summary": "Source tree analyzed"
-        },
-        {
-            "step": "step_6",
-            "status": "completed",
-            "timestamp": "2025-12-14T12:05:00-04:00",
-            "summary": "Dev & Ops guides generated"
-        },
-        {
-            "step": "step_7",
-            "status": "completed",
-            "timestamp": "2025-12-14T12:10:00-04:00",
-            "summary": "Integration architecture documented"
-        },
-        {
-            "step": "step_8",
-            "status": "completed",
-            "timestamp": "2025-12-14T12:10:00-04:00",
-            "summary": "Detailed architecture docs generated"
-        },
-        {
-            "step": "step_9",
-            "status": "completed",
-            "timestamp": "2025-12-14T12:15:00-04:00",
-            "summary": "Project overview generated"
-        },
-        {
-            "step": "step_10",
-            "status": "completed",
-            "timestamp": "2025-12-14T12:15:00-04:00",
-            "summary": "Master index generated"
+          "part_id": "frontend",
+          "root_path": "ganache/ui",
+          "project_type_id": "web",
+          "display_name": "Ganache UI"
         }
-    ],
-    "current_step": "completed",
-    "findings": {
-        "project_classification": {
-            "repository_type": "multi-part",
-            "parts": [
-                {
-                    "part_id": "backend",
-                    "root_path": "ganache",
-                    "project_type_id": "backend",
-                    "display_name": "Ganache Backend"
-                },
-                {
-                    "part_id": "frontend",
-                    "root_path": "ganache/ui",
-                    "project_type_id": "web",
-                    "display_name": "Ganache UI"
-                }
-            ]
-        },
-        "completion_status": "Success"
+      ]
     },
-    "outputs_generated": [
-        "project-scan-report.json",
-        "api-contracts-backend.md",
-        "ui-component-inventory-frontend.md",
-        "state-management-frontend.md",
-        "data-models-backend.md",
-        "source-tree-analysis.md",
-        "development-guide.md",
-        "deployment-guide.md",
-        "integration-architecture.md",
-        "architecture-backend.md",
-        "architecture-frontend.md",
-        "project-overview.md",
-        "index.md"
-    ],
-    "resume_instructions": "Workflow Complete"
+    "completion_status": "Success"
+  },
+  "outputs_generated": [
+    "project-scan-report.json",
+    "api-contracts-backend.md",
+    "ui-component-inventory-frontend.md",
+    "state-management-frontend.md",
+    "data-models-backend.md",
+    "source-tree-analysis.md",
+    "development-guide.md",
+    "deployment-guide.md",
+    "integration-architecture.md",
+    "architecture-backend.md",
+    "architecture-frontend.md",
+    "project-overview.md",
+    "index.md"
+  ],
+  "resume_instructions": "Workflow Complete"
 }

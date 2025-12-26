@@ -5,6 +5,7 @@
 **Summary**: WebSocket upgrade handler
 
 # Purpose
+
 Handles WebSocket upgrade and starts event streaming
 
 @ref Story-5.4 - WebSocket endpoint
@@ -14,11 +15,10 @@ Handles WebSocket upgrade and starts event streaming
 ### Example Usage (TypeScript SDK)
 
 ```typescript
-import { useWs_security_events } from '@/api/generated';
+import { useWs_security_events } from "@/api/generated";
 
 const { mutate, data } = useWs_security_events();
 // Call mutate(...) or use data
 ```
 
 ---
-

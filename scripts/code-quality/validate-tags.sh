@@ -21,21 +21,21 @@ WARNINGS=0
 # ============================================================
 validate_ref_tags() {
     echo -e "\n${CYAN}[1/4]${NC} Validando @REF tags..."
-    
+
     # Find all @REF tags
     local refs
     refs=$(grep -rn "@REF:" --include="*.rs" --include="*.ts" --include="*.tsx" --include="*.sh" \
         --exclude-dir=node_modules --exclude-dir=target . 2>/dev/null || true)
-    
+
     if [[ -z "$refs" ]]; then
         print_info "Nenhuma tag @REF encontrada"
         return 0
     fi
-    
+
     local count
     count=$(echo "$refs" | wc -l)
     print_success "Encontradas $count tags @REF"
-    
+
     # Check if referenced stories exist
     while IFS= read -r line; do
         local story_ref
@@ -49,7 +49,7 @@ validate_ref_tags() {
                 ((WARNINGS++)) || true
             fi
         fi
-    done <<< "$refs"
+    done <<<"$refs"
 }
 
 # ============================================================
@@ -57,7 +57,7 @@ validate_ref_tags() {
 # ============================================================
 list_technical_debt() {
     echo -e "\n${CYAN}[2/4]${NC} Gerando relatório de dívida técnica..."
-    
+
     echo ""
     echo -e "${BOLD}📋 TODOs:${NC}"
     local todos
@@ -72,7 +72,7 @@ list_technical_debt() {
     else
         print_success "Nenhum @TODO encontrado"
     fi
-    
+
     echo ""
     echo -e "${BOLD}🔧 FIXMEs:${NC}"
     local fixmes
@@ -88,7 +88,7 @@ list_technical_debt() {
     else
         print_success "Nenhum @FIXME encontrado"
     fi
-    
+
     echo ""
     echo -e "${BOLD}🐛 BUGs:${NC}"
     local bugs
@@ -104,7 +104,7 @@ list_technical_debt() {
     else
         print_success "Nenhum @BUG encontrado"
     fi
-    
+
     echo ""
     echo -e "${BOLD}🔨 HACKs:${NC}"
     local hacks
@@ -126,11 +126,11 @@ list_technical_debt() {
 # ============================================================
 list_key_functions() {
     echo -e "\n${CYAN}[3/4]${NC} Listando funções-chave (@FUNC)..."
-    
+
     local funcs
     funcs=$(grep -rn "@FUNC" --include="*.rs" --include="*.ts" --include="*.tsx" --include="*.sh" \
         --exclude-dir=node_modules --exclude-dir=target . 2>/dev/null | head -30 || true)
-    
+
     if [[ -n "$funcs" ]]; then
         echo "$funcs"
         local func_count
@@ -147,13 +147,13 @@ list_key_functions() {
 # ============================================================
 validate_tag_format() {
     echo -e "\n${CYAN}[4/4]${NC} Validando formato das tags..."
-    
+
     # Look for malformed tags (e.g., @todo instead of @TODO)
     local lowercase_tags
     lowercase_tags=$(grep -rn "@todo\|@fixme\|@bug\|@hack\|@func\|@ref" \
         --include="*.rs" --include="*.ts" --include="*.tsx" --include="*.sh" \
         --exclude-dir=node_modules --exclude-dir=target . 2>/dev/null || true)
-    
+
     if [[ -n "$lowercase_tags" ]]; then
         print_warning "Tags em lowercase encontradas (devem ser UPPERCASE):"
         echo "$lowercase_tags" | head -10
@@ -171,14 +171,14 @@ main() {
     list_technical_debt
     list_key_functions
     validate_tag_format
-    
+
     echo ""
     print_header "📊 Resultado"
-    
+
     echo "Warnings: $WARNINGS"
     echo "Erros: $ERRORS"
     echo ""
-    
+
     if [[ $ERRORS -gt 0 ]]; then
         print_error "Validação falhou com $ERRORS erro(s)"
         exit 1

@@ -4,7 +4,7 @@
  * ganache-core
  * OpenAPI spec version: 0.1.0
  */
-import type { AdJoinRequestOrganizationalUnit } from './adJoinRequestOrganizationalUnit';
+import type { AdJoinRequestOrganizationalUnit } from "./adJoinRequestOrganizationalUnit";
 
 /**
  * Request payload for joining an Active Directory domain

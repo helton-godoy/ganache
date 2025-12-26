@@ -158,15 +158,15 @@ Agente SM (BMad)
 **Correções Críticas Aplicadas:**
 
 1. **Deduplicação de Eventos (High Severity)**:
-    - Implementada lógica de assinatura determinística para eventos SSH (`timestamp:user:ip:line`).
-    - Implementado uso do Git Commit Hash como ID único para eventos de configuração.
-    - Adicionada verificação `!event_exists()` antes da inserção no cache.
+   - Implementada lógica de assinatura determinística para eventos SSH (`timestamp:user:ip:line`).
+   - Implementado uso do Git Commit Hash como ID único para eventos de configuração.
+   - Adicionada verificação `!event_exists()` antes da inserção no cache.
 
 2. **Estabilidade de Alertas (High Severity)**:
-    - Criado cache stateful `ALERT_CACHE` em `SecurityMetricsService`.
-    - IDs de alerta agora são gerados deterministicamente (UUID v5) baseados na condição (ex: `suspicious_ip:10.0.0.1`).
-    - `acknowledge_security_alert` agora persiste o estado em memória corretamente.
+   - Criado cache stateful `ALERT_CACHE` em `SecurityMetricsService`.
+   - IDs de alerta agora são gerados deterministicamente (UUID v5) baseados na condição (ex: `suspicious_ip:10.0.0.1`).
+   - `acknowledge_security_alert` agora persiste o estado em memória corretamente.
 
 3. **Higiene Git (Medium Severity)**:
-    - Commitados todos os arquivos pendentes.
-    - Resolvidas dependências faltantes (`uuid` features).
+   - Commitados todos os arquivos pendentes.
+   - Resolvidas dependências faltantes (`uuid` features).

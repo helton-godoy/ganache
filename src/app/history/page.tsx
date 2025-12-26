@@ -1,4 +1,4 @@
-import { ConfigurationTimeline } from '@/components/features/history/ConfigurationTimeline';
+import { ConfigurationTimeline } from "@/components/features/history/ConfigurationTimeline";
 
 export default function HistoryPage() {
   return (

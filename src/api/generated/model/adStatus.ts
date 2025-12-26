@@ -4,8 +4,8 @@
  * ganache-core
  * OpenAPI spec version: 0.1.0
  */
-import type { AdStatusDomainName } from './adStatusDomainName';
-import type { AdStatusLastSync } from './adStatusLastSync';
+import type { AdStatusDomainName } from "./adStatusDomainName";
+import type { AdStatusLastSync } from "./adStatusLastSync";
 
 /**
  * Active Directory status information

@@ -4,8 +4,8 @@
  * ganache-core
  * OpenAPI spec version: 0.1.0
  */
-import type { Nfs4Acl } from './nfs4Acl';
-import type { GetAclResponseRawOutput } from './getAclResponseRawOutput';
+import type { Nfs4Acl } from "./nfs4Acl";
+import type { GetAclResponseRawOutput } from "./getAclResponseRawOutput";
 
 /**
  * Response containing ACL information

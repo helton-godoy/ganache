@@ -2,7 +2,7 @@
 
 ## Sumário Executivo
 
-O **Ganache** é uma plataforma de NAS Enterprise de Alta Disponibilidade (HA), desenvolvida como um *remaster* do **Proxmox Backup Server (PBS)**. O objetivo é fornecer gestão de armazenamento SMB/NFS robusta, utilizando a base sólida do Debian 13 e Rust.
+O **Ganache** é uma plataforma de NAS Enterprise de Alta Disponibilidade (HA), desenvolvida como um _remaster_ do **Proxmox Backup Server (PBS)**. O objetivo é fornecer gestão de armazenamento SMB/NFS robusta, utilizando a base sólida do Debian 13 e Rust.
 
 ---
 
@@ -18,7 +18,7 @@ Isso significa que o Ganache atua como um "cliente" de backup especializado (um 
 
 - **Backend:** Rust (Baseado no `proxmox-backup`). Foco em tipagem forte para evitar estados inválidos de cluster.
 - **Frontend:** React + TypeScript (Consumindo OpenAPI Contract).
-- **Protocolo de Recuperação:** Endpoints de API específicos para resolução de *Split-Brain* (divergência de dados no DRBD), com travas de segurança (`confirm_data_loss`).
+- **Protocolo de Recuperação:** Endpoints de API específicos para resolução de _Split-Brain_ (divergência de dados no DRBD), com travas de segurança (`confirm_data_loss`).
 
 ---
 
@@ -55,15 +55,15 @@ O Ganache utiliza sua própria infraestrutura NAS (ZFS) e, em seguida, age como 
 
 ### 4.1 Fluxo do Backup de Conteúdo NAS (Samba)
 
-1. **Geração de Snapshot ZFS:** Rotinas programadas (cron jobs) criam *snapshots* do *dataset* Samba no pool ZFS do Ganache.
+1. **Geração de Snapshot ZFS:** Rotinas programadas (cron jobs) criam _snapshots_ do _dataset_ Samba no pool ZFS do Ganache.
 
-2. **Preparação do Stream:** O processo de backup no Ganache acessa o *snapshot* ZFS.
+2. **Preparação do Stream:** O processo de backup no Ganache acessa o _snapshot_ ZFS.
 
 3. **Transporte Eficiente:** O Ganache (atuando como cliente Proxmox) utiliza mecanismos de transporte eficientes, como o comando `zfs send` incremental, que pode ser encapsulado pelo **proxmox-backup-client** ou `vzdump` para ser enviado ao PBS Puro.
 
 4. **Recursos PBS Utilizados:** Este transporte tira proveito dos recursos avançados do PBS, como **backups incrementais**, **deduplicação de dados em chunk a nível de bloco**, e **criptografia cliente-lado**.
 
-5. **Armazenamento Remoto:** O PBS Puro recebe o *stream* e armazena os dados no seu *datastore* deduplicado e seguro.
+5. **Armazenamento Remoto:** O PBS Puro recebe o _stream_ e armazena os dados no seu _datastore_ deduplicado e seguro.
 
 O objetivo é, portanto, não usar o recurso de "sincronização remota" (que é para redundância de datastore), mas sim a **função de backup (cliente)** para proteger os dados da fonte (ZFS/Samba).
 
@@ -150,7 +150,7 @@ O arquivo que deve consultar para ver como eles fazem a validação é:
 
 ## 8. Melhorias Implementadas nesta Versão
 
-1. **Flexibilidade do ZFS:** Deixei explícito que o ZFS é a camada de *Filesystem* em **ambos** os modos. Antes, poderia parecer que o modo legado usava outro FS. Agora está claro: é ZFS sobre DRBD (Legado) ou ZFS sobre Disco (Nativo).
+1. **Flexibilidade do ZFS:** Deixei explícito que o ZFS é a camada de _Filesystem_ em **ambos** os modos. Antes, poderia parecer que o modo legado usava outro FS. Agora está claro: é ZFS sobre DRBD (Legado) ou ZFS sobre Disco (Nativo).
 2. **Strategy Pattern:** Enfatizei que a solução técnica é via software (Rust Traits), o que profissionaliza o código e evita "gambiarras" de scripts soltos.
 
 ---

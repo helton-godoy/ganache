@@ -23,7 +23,7 @@ CHECKED=0
 # ============================================================
 scan_secrets() {
     echo -e "\n${CYAN}[Secrets]${NC} Scanning for exposed secrets..."
-    
+
     # Pattern for common secret formats
     local patterns=(
         'API[_-]?KEY.*=.*[A-Za-z0-9]{20,}'
@@ -34,9 +34,9 @@ scan_secrets() {
         'aws_access_key_id.*=.*AKIA'
         'aws_secret_access_key.*=.*[A-Za-z0-9/+]{40}'
     )
-    
+
     local found_secrets=false
-    
+
     for pattern in "${patterns[@]}"; do
         if grep -rn --include="*.ts" --include="*.js" --include="*.rs" --include="*.py" \
             --include="*.sh" --include="*.env" --include="*.json" \
@@ -45,7 +45,7 @@ scan_secrets() {
             found_secrets=true
         fi
     done
-    
+
     if [[ "$found_secrets" == "true" ]]; then
         print_error "Possíveis secrets encontrados! Revise os resultados acima."
         ((ERRORS++)) || true
@@ -60,7 +60,7 @@ scan_secrets() {
 # ============================================================
 scan_dependencies() {
     echo -e "\n${CYAN}[Dependencies]${NC} Checking for vulnerabilities..."
-    
+
     # npm audit
     if [[ -f "package-lock.json" ]]; then
         echo -e "${CYAN}  npm audit${NC}"
@@ -72,7 +72,7 @@ scan_dependencies() {
             ((WARNINGS++)) || true
         fi
     fi
-    
+
     # Cargo audit (if available)
     if [[ -f "core/Cargo.lock" ]] && command_exists cargo-audit; then
         echo -e "${CYAN}  cargo audit${NC}"
@@ -86,7 +86,7 @@ scan_dependencies() {
         fi
         cd ..
     fi
-    
+
     # OSV Scanner (if available)
     if command_exists osv-scanner; then
         echo -e "${CYAN}  osv-scanner${NC}"
@@ -107,7 +107,7 @@ scan_dependencies() {
 # ============================================================
 scan_trufflehog() {
     echo -e "\n${CYAN}[Trufflehog]${NC} Deep secrets scan..."
-    
+
     if command_exists trufflehog; then
         if trufflehog filesystem . --only-verified --json 2>/dev/null | jq -e '.[]' >/dev/null 2>&1; then
             print_error "trufflehog encontrou secrets verificados!"
@@ -126,7 +126,7 @@ scan_trufflehog() {
 # ============================================================
 scan_iac() {
     echo -e "\n${CYAN}[IaC]${NC} Infrastructure as Code security..."
-    
+
     if command_exists checkov; then
         if checkov -d . --quiet --compact --skip-check CKV_GHA_7 2>/dev/null; then
             print_success "checkov passou"
@@ -146,11 +146,11 @@ scan_iac() {
 scan_python_security() {
     local py_files
     py_files=$(find . -name "*.py" -not -path "./node_modules/*" -not -path "./.venv/*" 2>/dev/null || true)
-    
+
     if [[ -z "$py_files" ]]; then return 0; fi
-    
+
     echo -e "\n${CYAN}[Python Security]${NC} bandit"
-    
+
     if command_exists bandit; then
         if bandit -r . -q --exclude "./.venv,./node_modules" -ll 2>/dev/null; then
             print_success "bandit passou"
@@ -171,15 +171,15 @@ main() {
     scan_trufflehog
     scan_iac
     scan_python_security
-    
+
     echo ""
     print_header "📊 Resultado de Segurança"
-    
+
     echo "Verificados: $CHECKED"
     echo "Warnings: $WARNINGS"
     echo "Erros: $ERRORS"
     echo ""
-    
+
     if [[ $ERRORS -gt 0 ]]; then
         print_error "Security scan falhou com $ERRORS erro(s) crítico(s)"
         exit 1

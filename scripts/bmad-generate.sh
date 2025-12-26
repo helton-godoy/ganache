@@ -25,11 +25,11 @@ mkdir -p docs/validation
 
 # Função para adicionar frontmatter
 add_yaml_frontmatter() {
-	local file="$1"
-	local title="$2"
-	local category="$3"
+    local file="$1"
+    local title="$2"
+    local category="$3"
 
-	cat <<EOF >"$file.tmp"
+    cat <<EOF >"$file.tmp"
 ---
 title: "$title"
 category: "$category"
@@ -40,7 +40,7 @@ bmad_compliance: true
 
 $(cat "$file" 2>/dev/null || echo "# $title")
 EOF
-	mv "$file.tmp" "$file"
+    mv "$file.tmp" "$file"
 }
 
 # 1. Gerar Architecture SSoT
@@ -71,8 +71,8 @@ add_yaml_frontmatter "docs/architecture.md" "Architecture SSoT" "architecture"
 
 # 2. Gerar PRD inicial (se não existir)
 if [ ! -f docs/analysis/prd.md ]; then
-	echo -e "${YELLOW}Generating PRD...${NC}"
-	cat <<EOF >docs/analysis/prd.md
+    echo -e "${YELLOW}Generating PRD...${NC}"
+    cat <<EOF >docs/analysis/prd.md
 # Product Requirements Document (PRD) - GANACHE
 
 ## Executive Summary
@@ -81,13 +81,13 @@ O Ganache é um NAS focado em HA e ZFS rodando sobre hardware legado.
 ## Core Requirements
 [Lista de requisitos críticos e KPIs]
 EOF
-	add_yaml_frontmatter "docs/analysis/prd.md" "Product Requirements" "analysis"
+    add_yaml_frontmatter "docs/analysis/prd.md" "Product Requirements" "analysis"
 fi
 
 # 3. Atualizar README com seções de Setup e Git
 echo -e "${YELLOW}Injecting Setup & Git info into README...${NC}"
 if ! grep -q "Autenticação Git" README.md; then
-	cat <<EOF >>README.md
+    cat <<EOF >>README.md
 
 ## 🧑‍💻 Guia Rápido
 ### Autenticação Git

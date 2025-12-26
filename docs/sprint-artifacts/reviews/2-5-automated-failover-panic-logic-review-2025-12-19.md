@@ -9,7 +9,7 @@
 **Status:** 🔴 Changes Requested
 **Score:** 4/10
 
-The implementation contains the failover *logic* (commands, state updates) but lacks the *automation* mechanism (heartbeat loop). Critical tests are skipped, and files are untracked. This is not production-ready.
+The implementation contains the failover _logic_ (commands, state updates) but lacks the _automation_ mechanism (heartbeat loop). Critical tests are skipped, and files are untracked. This is not production-ready.
 
 ## Critical Findings (Must Fix)
 

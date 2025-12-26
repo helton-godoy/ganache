@@ -330,7 +330,7 @@ required_sections:
 # Variáveis: {{project_name}}, {{date}}, {{project_type}}, {{architecture_type}}
 ```
 
-#### **2. Deep Dive Template**  
+#### **2. Deep Dive Template**
 
 ```bash
 # Aplicar para: docs/architecture/source-tree-analysis.md
@@ -360,7 +360,7 @@ required_sections:
 #### **Fase 2: Generation (BMAD)**
 
 ```bash
-# Executar: document-project workflow (deep-dive mode)  
+# Executar: document-project workflow (deep-dive mode)
 # Gerar: source-tree-analysis.md automaticamente
 # Resultado: Análise completa + file inventory
 ```
@@ -402,7 +402,7 @@ mkdir -p docs/{architecture,development,validation/reports,handoff,assets/{diagr
 
 ```bash
 # Gerar project-overview.md usando BMAD template
-# Gerar source-tree-analysis.md usando deep-dive template  
+# Gerar source-tree-analysis.md usando deep-dive template
 # Aplicar meta-informações BMAD em todos os documentos
 ```
 
@@ -595,7 +595,7 @@ A análise revela que o projeto Ganache possui uma **excelente base metodológic
 
 ---
 
-*Avaliação realizada conforme padrões BMAD*  
-*Data: 2025-12-13*  
-*Projeto: Ganache Enterprise NAS*  
-*Status: Pronto para Implementação BMAD*
+_Avaliação realizada conforme padrões BMAD_  
+_Data: 2025-12-13_  
+_Projeto: Ganache Enterprise NAS_  
+_Status: Pronto para Implementação BMAD_

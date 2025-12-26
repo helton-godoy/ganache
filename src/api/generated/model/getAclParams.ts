@@ -6,8 +6,8 @@
  */
 
 export type GetAclParams = {
-/**
- * Output format: 'compact' or 'verbose' (default: compact)
- */
-format?: string;
+  /**
+   * Output format: 'compact' or 'verbose' (default: compact)
+   */
+  format?: string;
 };

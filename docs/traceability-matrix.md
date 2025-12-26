@@ -10,10 +10,10 @@
 
 ### Coverage Summary
 
-| Priority  | Total Criteria | FULL Coverage | Coverage % | Status       |
-| --------- | -------------- | ------------- | ---------- | ------------ |
-| P0        | 2              | 2             | 100%*      | ⚠️ CONCERNS  |
-| P1        | 0              | 0             | N/A        | N/A          |
+| Priority  | Total Criteria | FULL Coverage | Coverage % | Status          |
+| --------- | -------------- | ------------- | ---------- | --------------- |
+| P0        | 2              | 2             | 100%\*     | ⚠️ CONCERNS     |
+| P1        | 0              | 0             | N/A        | N/A             |
 | **Total** | **2**          | **2**         | **100%**   | **⚠️ CONCERNS** |
 
 **Legend:**
@@ -29,7 +29,7 @@
 
 #### AC-1: Given an active SSH session... capture command... (P0)
 
-- **Coverage:** FULL* ✅
+- **Coverage:** FULL\* ✅
 - **Tests:**
   - `test_parse_tty_log_line` - `core/ganache-lib/tests/tty_audit_tests.rs` (Unit)
   - `should record standard shell commands...` - `tests/e2e/ssh-audit.spec.ts` (Simulated E2E)
@@ -40,7 +40,7 @@
 
 #### AC-2: Capture commands even if... evasion attempts (sub-shells) (P0)
 
-- **Coverage:** FULL* ✅
+- **Coverage:** FULL\* ✅
 - **Tests:**
   - `test_parse_tty_log_subshell_script` - `core/ganache-lib/tests/tty_audit_tests.rs` (Unit)
   - `verify-audit-config.sh` - `scripts/verify-audit-config.sh` (System Validation)

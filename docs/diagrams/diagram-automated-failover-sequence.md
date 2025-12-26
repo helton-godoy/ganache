@@ -18,3 +18,4 @@ sequenceDiagram
     VIP-->>S: IP Atribuído
     U->>S: Continuam Trabalhando
     Note over S: Downtime Total <30s
+```

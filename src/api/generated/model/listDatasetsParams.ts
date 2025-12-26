@@ -6,5 +6,5 @@
  */
 
 export type ListDatasetsParams = {
-pool: string;
+  pool: string;
 };

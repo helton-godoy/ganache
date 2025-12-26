@@ -24,7 +24,7 @@ Para que eu possa atribuir usuários e grupos AD existentes a compartilhamentos 
   - [x] Adicionar especificação OpenAPI para ingresso no domínio em ganache-api
   - [x] Implementar tratamento seguro de credenciais
 - [x] Portar lógica de Ingresso no Domínio do TrueNAS SCALE para Rust
-  - [x] Pesquisar implementação de ingresso AD do TrueNAS SCALE  
+  - [x] Pesquisar implementação de ingresso AD do TrueNAS SCALE
   - [x] Implementar sequência de ingresso em ganache-lib
 - [x] Atualizar configuração do Samba
   - [x] Modificar smb.conf para modo de segurança ADS

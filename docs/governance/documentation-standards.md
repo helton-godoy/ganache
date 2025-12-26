@@ -24,7 +24,7 @@ CommonMark é o padrão para Markdown usado neste projeto. Todas as documentaç�
 
 - **Blocos de Código**:
   - Inline: `` `código` ``
-  - Bloco: ```linguagem\ncódigo\n```
+  - Bloco: `linguagem\ncódigo\n`
 
 - **Citações**: `> Texto`
 
@@ -47,7 +47,7 @@ CommonMark é o padrão para Markdown usado neste projeto. Todas as documentaç�
 Exemplo de tabela:
 
 | Coluna 1 | Coluna 2 |
-|----------|----------|
+| -------- | -------- |
 | Dado 1   | Dado 2   |
 
 ### 1.3 Validação
@@ -59,6 +59,7 @@ Exemplo de tabela:
   - Inconsistências em listas
 
 Sugestões de melhoria baseadas em análises:
+
 - Adicione descrições introdutórias em diagramas para maior clareza.
 - Inclua links para seções relacionadas no README.
 
@@ -98,6 +99,7 @@ Exemplos práticos aplicáveis:
 - **Fluxo de Integração**: Ilustre passos de API ou dados (ex: contrato prime).
 
 Sugestões de melhoria:
+
 - Adicione tooltips ou notas para elementos complexos.
 - Use subgráficos para agrupar componentes relacionados.
 
@@ -131,7 +133,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Pool'
+                  $ref: "#/components/schemas/Pool"
 components:
   schemas:
     Pool:
@@ -150,10 +152,12 @@ components:
 - **Documentação**: Inclua descrições detalhadas para endpoints.
 
 Exemplos práticos:
+
 - **Esquemas de Pool ZFS**: Defina propriedades como name, size, status.
 - **Integração com Frontend**: Geração automática de hooks TypeScript via Orval.
 
 Sugestões de melhoria baseadas em análises:
+
 - Adicione exemplos de requests/responses em documentação.
 - Valide schemas contra dados reais para evitar drift.
 

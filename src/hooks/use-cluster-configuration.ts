@@ -4,6 +4,6 @@ import type { ClusterStatus } from "@/api/generated/model";
 export type { ClusterStatus };
 
 export function useClusterConfiguration() {
-    const mutation = useConfigureCluster();
-    return mutation;
+  const mutation = useConfigureCluster();
+  return mutation;
 }

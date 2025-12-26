@@ -4,8 +4,8 @@
  * ganache-core
  * OpenAPI spec version: 0.1.0
  */
-import type { AcePrincipalOneOf } from './acePrincipalOneOf';
-import type { AcePrincipalOneOfTwo } from './acePrincipalOneOfTwo';
+import type { AcePrincipalOneOf } from "./acePrincipalOneOf";
+import type { AcePrincipalOneOfTwo } from "./acePrincipalOneOfTwo";
 
 /**
  * ACE Principal (who receives the permission)
@@ -15,4 +15,9 @@ Represents the principal (user/group) that an ACE applies to
 
 @ref Story-4.2 - ACE principal enum
  */
-export type AcePrincipal = 'owner' | 'group' | 'everyone' | AcePrincipalOneOf | AcePrincipalOneOfTwo;
+export type AcePrincipal =
+  | "owner"
+  | "group"
+  | "everyone"
+  | AcePrincipalOneOf
+  | AcePrincipalOneOfTwo;

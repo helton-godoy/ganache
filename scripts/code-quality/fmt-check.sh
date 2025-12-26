@@ -21,9 +21,9 @@ CHECKED=0
 # ============================================================
 check_rust() {
     if [[ "$ENABLE_RUST" != "true" ]]; then return 0; fi
-    
+
     echo -e "\n${CYAN}[Rust]${NC} cargo fmt --check"
-    
+
     if command_exists cargo && [[ -d "core" ]]; then
         cd core
         if cargo fmt --all -- --check 2>/dev/null; then
@@ -42,16 +42,16 @@ check_rust() {
 # ============================================================
 check_python() {
     if [[ "$ENABLE_PYTHON" != "true" ]]; then return 0; fi
-    
+
     local py_files
     py_files=$(find . -name "*.py" -not -path "./node_modules/*" -not -path "./.venv/*" 2>/dev/null || true)
-    
+
     if [[ -z "$py_files" ]]; then
         return 0
     fi
-    
+
     echo -e "\n${CYAN}[Python]${NC} black --check"
-    
+
     if command_exists black; then
         if black . --check --quiet 2>/dev/null; then
             print_success "Python está formatado corretamente"
@@ -68,11 +68,11 @@ check_python() {
 # ============================================================
 check_javascript() {
     if [[ "$ENABLE_JAVASCRIPT" != "true" ]]; then return 0; fi
-    
+
     if [[ ! -f "package.json" ]]; then return 0; fi
-    
+
     echo -e "\n${CYAN}[JavaScript/TypeScript]${NC} prettier --check"
-    
+
     if command_exists npx; then
         if npx prettier --check "**/*.{js,jsx,ts,tsx,json,css,scss}" \
             --ignore-path .gitignore \
@@ -91,12 +91,12 @@ check_javascript() {
 # ============================================================
 check_shell() {
     if [[ "$ENABLE_SHELL" != "true" ]]; then return 0; fi
-    
+
     echo -e "\n${CYAN}[Shell]${NC} shfmt -d (diff mode)"
-    
+
     if command_exists shfmt; then
         local has_diff=false
-        
+
         for dir in scripts .githooks; do
             if [[ -d "$dir" ]]; then
                 if ! shfmt -d -i 4 -ci "$dir" 2>/dev/null; then
@@ -104,7 +104,7 @@ check_shell() {
                 fi
             fi
         done
-        
+
         if [[ "$has_diff" == "true" ]]; then
             print_error "Shell scripts precisam de formatação (execute: make fmt)"
             ((ERRORS++)) || true
@@ -123,10 +123,10 @@ main() {
     check_python
     check_javascript
     check_shell
-    
+
     echo ""
     print_header "📊 Resultado"
-    
+
     if [[ $ERRORS -gt 0 ]]; then
         print_error "Verificação falhou! $ERRORS linguagem(s) precisam de formatação"
         echo ""

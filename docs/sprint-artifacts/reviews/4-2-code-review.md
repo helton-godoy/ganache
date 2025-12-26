@@ -40,11 +40,11 @@ To display Page 2 (items 50-100), the system must:
 1. Fetch ALL 10,000 users from AD.
 2. Parse ALL 10,000 users into memory.
 3. Discard 9,950 of them.
-This is `O(N)` per page request. For the cited "100k+ users" scenario, this will cause massive latency and memory pressure, potentially crashing the service.
+   This is `O(N)` per page request. For the cited "100k+ users" scenario, this will cause massive latency and memory pressure, potentially crashing the service.
 
 **Recommendation:**
 
-- If sticking to `ldapsearch` CLI: You must implement a way to request *only* a specific page (which the CLI might not support easily without state/cookies).
+- If sticking to `ldapsearch` CLI: You must implement a way to request _only_ a specific page (which the CLI might not support easily without state/cookies).
 - **Preferred:** Switch to a native Rust LDAP crate (`ldap3`) which supports stateful Paging Search Controls properly, or accept that this is NOT scalable 100k+ users as promised and update the limitations. **At minimum**, remove the deceptive claim that this supports large ADs efficiently.
 
 ## 3. MEDIUM: Security - LDAP Injection via Search Query

@@ -10,16 +10,17 @@
 ### Dependências
 
 <!-- Customize: Liste as dependências do seu projeto -->
+
 - Execute: `make install-dev-tools` para instalar ferramentas de desenvolvimento
 - Node.js 20+, <!-- Adicione outras versões -->
 
 ### Comandos Principais
 
-| Comando | Propósito |
-|---------|-----------|
-| `npm run dev` | Inicia servidor de desenvolvimento |
-| `make check-all` | Valida lint + format + security |
-| `make help` | Lista todos os targets |
+| Comando          | Propósito                          |
+| ---------------- | ---------------------------------- |
+| `npm run dev`    | Inicia servidor de desenvolvimento |
+| `make check-all` | Valida lint + format + security    |
+| `make help`      | Lista todos os targets             |
 
 ---
 
@@ -53,18 +54,19 @@ make lint       # Verifica erros
 
 Use estas tags em comentários:
 
-| Tag | Uso |
-|-----|-----|
+| Tag               | Uso                      |
+| ----------------- | ------------------------ |
 | `@REF: Issue-123` | Referência a Issue/Story |
-| `@FUNC` | Função-chave |
-| `@TODO` | Tarefa pendente |
-| `@FIXME` | Código quebrado |
+| `@FUNC`           | Função-chave             |
+| `@TODO`           | Tarefa pendente          |
+| `@FIXME`          | Código quebrado          |
 
 ---
 
 ## 🚫 Anti-Patterns
 
 <!-- Customize: Adicione anti-patterns específicos -->
+
 - ❌ Commits sem `make fmt`
 - ❌ Secrets hardcoded
 
@@ -73,6 +75,7 @@ Use estas tags em comentários:
 ## 📁 Estrutura
 
 <!-- Customize: Descreva a estrutura do seu projeto -->
+
 ```
 /src        - Código fonte
 /scripts    - Automação
@@ -91,4 +94,4 @@ Tipos: feat, fix, docs, style, refactor, perf, test, chore, ci
 
 ---
 
-*Template gerado pelo Code Standardization Toolkit*
+_Template gerado pelo Code Standardization Toolkit_

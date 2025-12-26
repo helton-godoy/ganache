@@ -79,7 +79,7 @@ antigravity-dev
 - [docs/sprint-artifacts/sprint-status.yaml](file:///root/GANACHE/docs/sprint-artifacts/sprint-status.yaml)
 - [core/ganache-core/src/main.rs](file:///root/GANACHE/core/ganache-core/src/main.rs)
 - [tests/e2e/ssh-audit.spec.ts](file:///root/GANACHE/tests/e2e/ssh-audit.spec.ts)
-- [src/hooks/useSecurityEvents.ts](file:///root/GANACHE/src/hooks/useSecurityEvents.ts) *(SSR fix - regression blocker)*
+- [src/hooks/useSecurityEvents.ts](file:///root/GANACHE/src/hooks/useSecurityEvents.ts) _(SSR fix - regression blocker)_
 
 **Note:** Frontend files (`src/components/features/security/`, etc) were identified as belonging to Story 5.4. They have been committed separately to unblock Story 5.1 validation.
 

@@ -4,6 +4,6 @@
  * ganache-core
  * OpenAPI spec version: 0.1.0
  */
-import type { AdPrincipalType } from './adPrincipalType';
+import type { AdPrincipalType } from "./adPrincipalType";
 
 export type AdSearchRequestPrincipalType = null | AdPrincipalType;

@@ -17,8 +17,8 @@ The implementation now fully satisfies the "Automated Failover" requirements wit
 2. **Configurable Dev Mode:** A safe `GANACHE_DEV_MODE` switch allows for soft-failures in CI/Dev environments, enabling E2E verification without compromising production safety.
 3. **Heartbeat Automation:** The `start_monitor_loop` is correctly spawned and verified to trigger promotion upon heartbeat loss.
 4. **Test Coverage:**
-    - **E2E:** `failover.spec.ts` passes and explicitly asserts the `active` state transition.
-    - **Integration:** `integration_failover.rs` validates the correct sequence of system calls (`drbdadm` -> `zpool` -> `ip` -> `arping`).
+   - **E2E:** `failover.spec.ts` passes and explicitly asserts the `active` state transition.
+   - **Integration:** `integration_failover.rs` validates the correct sequence of system calls (`drbdadm` -> `zpool` -> `ip` -> `arping`).
 5. **Clean Code:** formatting applied, and no untracked files remain.
 
 ## Checklist

@@ -40,9 +40,9 @@ export_toolkit() {
     mkdir -p "$TARGET_DIR/.vscode"
     mkdir -p "$TARGET_DIR/.githooks"
     print_success "Estrutura criada"
-    
+
     echo -e "\n${CYAN}[2/4]${NC} Copiando scripts de code-quality..."
-    
+
     # Copy all scripts except templates
     cp "$SCRIPT_DIR/config.sh" "$TARGET_DIR/scripts/code-quality/"
     cp "$SCRIPT_DIR/install-dev-tools.sh" "$TARGET_DIR/scripts/code-quality/"
@@ -52,24 +52,24 @@ export_toolkit() {
     cp "$SCRIPT_DIR/security.sh" "$TARGET_DIR/scripts/code-quality/"
     cp "$SCRIPT_DIR/check-all.sh" "$TARGET_DIR/scripts/code-quality/"
     cp "$SCRIPT_DIR/validate-tags.sh" "$TARGET_DIR/scripts/code-quality/"
-    
+
     # Make scripts executable
     chmod +x "$TARGET_DIR/scripts/code-quality/"*.sh
-    
+
     print_success "Scripts copiados"
-    
+
     echo -e "\n${CYAN}[3/4]${NC} Copiando AGENTS.md template..."
-    
+
     # Copy AGENTS template to root and rename
     if [[ -f "$SCRIPT_DIR/templates/AGENTS-example.md" ]]; then
         cp "$SCRIPT_DIR/templates/AGENTS-example.md" "$TARGET_DIR/AGENTS.md"
         print_success "AGENTS.md criado (customize conforme necessário)"
     fi
-    
+
     echo -e "\n${CYAN}[4/4]${NC} Gerando Makefile targets..."
-    
+
     # Generate Makefile snippet
-    cat > "$TARGET_DIR/Makefile.code-quality" << 'EOF'
+    cat >"$TARGET_DIR/Makefile.code-quality" <<'EOF'
 # ============================================================
 # Code Quality Toolkit
 # Adicione estes targets ao seu Makefile existente

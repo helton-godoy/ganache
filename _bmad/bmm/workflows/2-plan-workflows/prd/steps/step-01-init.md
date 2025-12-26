@@ -1,19 +1,19 @@
 ---
-name: 'step-01-init'
-description: 'Initialize the PRD workflow by detecting continuation state and setting up the document'
+name: "step-01-init"
+description: "Initialize the PRD workflow by detecting continuation state and setting up the document"
 
 # Path Definitions
-workflow_path: '{project-root}/_bmad/bmm/workflows/2-plan-workflows/prd'
+workflow_path: "{project-root}/_bmad/bmm/workflows/2-plan-workflows/prd"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-01-init.md'
-nextStepFile: '{workflow_path}/steps/step-02-discovery.md'
-continueStepFile: '{workflow_path}/steps/step-01b-continue.md'
-workflowFile: '{workflow_path}/workflow.md'
-outputFile: '{output_folder}/prd.md'
+thisStepFile: "{workflow_path}/steps/step-01-init.md"
+nextStepFile: "{workflow_path}/steps/step-02-discovery.md"
+continueStepFile: "{workflow_path}/steps/step-01b-continue.md"
+workflowFile: "{workflow_path}/workflow.md"
+outputFile: "{output_folder}/prd.md"
 
 # Template References
-prdTemplate: '{workflow_path}/prd-template.md'
+prdTemplate: "{workflow_path}/prd-template.md"
 ---
 
 # Step 1: Workflow Initialization
@@ -160,11 +160,11 @@ documentCounts:
   research: { { researchCount } }
   brainstorming: { { brainstormingCount } }
   projectDocs: { { projectDocsCount } }
-workflowType: 'prd'
+workflowType: "prd"
 lastStep: 0
-project_name: '{{project_name}}'
-user_name: '{{user_name}}'
-date: '{{date}}'
+project_name: "{{project_name}}"
+user_name: "{{user_name}}"
+date: "{{date}}"
 ---
 ```
 

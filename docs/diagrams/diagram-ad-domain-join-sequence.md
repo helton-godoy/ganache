@@ -17,3 +17,4 @@ sequenceDiagram
     MW->>MW: Persistir Estado do Serviço AD<br/>(Através de Reboots)
     MW-->>UI: Junção Concluída
     UI-->>U: Confirmação de Sucesso
+```

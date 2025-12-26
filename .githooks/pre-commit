@@ -34,7 +34,7 @@ if [ ! -z "$STAGED_FILES" ]; then
             fi
             echo "   - $file (contém <<<<<<<, =======, >>>>>>>)"
         fi
-    done <<< "$STAGED_FILES"
+    done <<<"$STAGED_FILES"
 fi
 
 if [ "$HAS_CONFLICTS" = true ]; then
@@ -57,7 +57,7 @@ echo "✅ Sem conflitos de merge detectados"
 STAGED_FILES_CHECK=$(git diff --cached --name-only)
 if echo "$STAGED_FILES_CHECK" | grep -qE "(sprint-status.yaml|docs/sprint-artifacts/.*\.md)"; then
     echo "🧹 [0.2/6] Verificando Política Zero Pending (Status Update)..."
-    
+
     # Check for unstaged changes (modified but not added)
     if ! git diff --quiet; then
         echo "❌ [BLOQUEIO] Você possui alterações não stagadas (unstaged changes)."
@@ -67,7 +67,7 @@ if echo "$STAGED_FILES_CHECK" | grep -qE "(sprint-status.yaml|docs/sprint-artifa
         echo "   ..."
         exit 1
     fi
-    
+
     # Check for untracked files
     UNTRACKED=$(git ls-files --others --exclude-standard)
     if [ -n "$UNTRACKED" ]; then
@@ -128,7 +128,7 @@ echo "✅ Nenhum segredo detectado"
 # ----------------------------------------------------------------
 if echo "$STAGED_FILES_LIST" | grep -q "\.rs$"; then
     echo "🦀 [3/6] Verificando Backend (Rust)..."
-    
+
     # Verifica formatação sem alterar arquivos
     if [ -d "core" ]; then
         cd core && cargo fmt --all -- --check
@@ -139,7 +139,7 @@ if echo "$STAGED_FILES_LIST" | grep -q "\.rs$"; then
             exit 1
         fi
     fi
-    
+
     # Verifica erros de compilação rápidos (cargo check é mais rápido que build)
     # Entra na pasta do backend se necessário
     if [ -d "core" ]; then
@@ -151,7 +151,7 @@ if echo "$STAGED_FILES_LIST" | grep -q "\.rs$"; then
             exit 1
         fi
     fi
-    
+
     echo "✅ Backend Rust verificado"
 fi
 
@@ -165,7 +165,7 @@ if echo "$STAGED_FILES_LIST" | grep -qE "\.(ts|tsx|js|jsx)$"; then
         echo "❌ [REACT] Erros de tipagem TypeScript detectados."
         exit 1
     fi
-    
+
     echo "✅ Frontend React/TypeScript verificado"
 fi
 
@@ -173,7 +173,7 @@ fi
 # ----------------------------------------------------------------
 echo "📊 [5/6] Validando integridade de código com git-classify.sh..."
 if [ -f "scripts/git-classify.sh" ]; then
-    if ! ./scripts/git-classify.sh --validate > /tmp/git-classify.log 2>&1; then
+    if ! ./scripts/git-classify.sh --validate >/tmp/git-classify.log 2>&1; then
         echo "❌ [VALIDAÇÃO] git-classify.sh detectou problemas:"
         cat /tmp/git-classify.log
         exit 1

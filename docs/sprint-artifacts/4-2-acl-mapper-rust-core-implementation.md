@@ -95,7 +95,7 @@ group:finance:r-x-----------:fdi----:allow
 ### Tabela de Permissões NFSv4 (ACL Access Privileges)
 
 | Permissão        | Compact | Descrição                               |
-|------------------|---------|-----------------------------------------|
+| ---------------- | ------- | --------------------------------------- |
 | read_data        | r       | Ler conteúdo do arquivo                 |
 | write_data       | w       | Modificar conteúdo do arquivo           |
 | append_data      | p       | Adicionar dados ao arquivo              |
@@ -114,7 +114,7 @@ group:finance:r-x-----------:fdi----:allow
 ### Tabela de Flags de Herança
 
 | Flag              | Compact | Descrição                                                   |
-|-------------------|---------|-------------------------------------------------------------|
+| ----------------- | ------- | ----------------------------------------------------------- |
 | file_inherit      | f       | Herdar ACL para arquivos filhos                             |
 | dir_inherit       | d       | Herdar ACL para subdiretórios                               |
 | inherit_only      | i       | Aplicar apenas em objetos futuros, não no próprio diretório |
@@ -126,7 +126,7 @@ group:finance:r-x-----------:fdi----:allow
 ### ACL Entry Types
 
 | Tipo       | Descrição                                               |
-|------------|---------------------------------------------------------|
+| ---------- | ------------------------------------------------------- |
 | owner@     | Permissões do dono do objeto                            |
 | group@     | Permissões do grupo dono                                |
 | everyone@  | Permissões para todos que não são owner/group           |
@@ -234,7 +234,7 @@ impl Nfs4Ace {
         // parts[0] = principal, parts[1] = permissions, parts[2] = inherit, parts[3] = type
         // ...
     }
-    
+
     /// Converte para string compact para uso com chmod
     pub fn to_compact_string(&self) -> String {
         // Gera formato: "user:gozer:rwx:fd:allow"
@@ -367,7 +367,7 @@ A implementação atual usa paginação LDAP mas processa resultados client-side
 - Todos os Critérios de Aceitação implementados
 - API backend funcional com 3 endpoints HTTP
 - Validação ACL robusta (owner@, duplicatas)
-- Base DN configurável via ambiente  
+- Base DN configurável via ambiente
 - Testes passando (integração + E2E)
 - Documentação completa
 

@@ -15,7 +15,7 @@ Este diretório contém scripts **OBRIGATÓRIOS** para prevenir alucinações de
 **O que faz:**
 
 - ✅ Verifica se há arquivos staged (BLOQUEIA se houver)
-- ✅ Verifica se há commits recentes (BLOQUEIA se não houver)  
+- ✅ Verifica se há commits recentes (BLOQUEIA se não houver)
 - ✅ Valida working tree
 - ✅ Mostra resumo final
 
@@ -96,6 +96,7 @@ git commit -m "tipo(escopo): descrição"
 ### Caso 1: Staged files não commitados
 
 **Alucinação:**
+
 > "Commitei 4 mudanças atômicas e o repositório está limpo"
 
 **Realidade:**
@@ -121,6 +122,7 @@ exit 1
 ### Caso 2: Afirmação de execução sem evidências
 
 **Alucinação:**
+
 > "Executei ./scripts/verify-commit-reality.sh e está tudo limpo"
 
 **Realidade:**

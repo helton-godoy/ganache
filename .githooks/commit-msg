@@ -10,17 +10,17 @@ COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
 PATTERN="^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\(.+\))?: .{1,50}"
 
 if [[ ! "$COMMIT_MSG" =~ $PATTERN ]]; then
-	echo "❌ [ERRO] Mensagem de commit inválida!"
-	echo "----------------------------------------------------------------"
-	echo "O projeto segue o padrão Conventional Commits."
-	echo "Formatos aceitos:"
-	echo "  feat(escopo): descrição curta"
-	echo "  fix: descrição do erro corrigido"
-	echo "  docs: alteração em documentação"
-	echo ""
-	echo "Sua mensagem: $COMMIT_MSG"
-	echo "----------------------------------------------------------------"
-	exit 1
+    echo "❌ [ERRO] Mensagem de commit inválida!"
+    echo "----------------------------------------------------------------"
+    echo "O projeto segue o padrão Conventional Commits."
+    echo "Formatos aceitos:"
+    echo "  feat(escopo): descrição curta"
+    echo "  fix: descrição do erro corrigido"
+    echo "  docs: alteração em documentação"
+    echo ""
+    echo "Sua mensagem: $COMMIT_MSG"
+    echo "----------------------------------------------------------------"
+    exit 1
 fi
 
 # Extração do tipo da mensagem
@@ -60,7 +60,7 @@ while IFS= read -r line; do
     else
         HAS_CHORE=true
     fi
-done <<< "$COMMIT_CHANGES"
+done <<<"$COMMIT_CHANGES"
 
 # Validação de consistência
 case "$COMMIT_TYPE" in

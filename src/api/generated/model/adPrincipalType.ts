@@ -13,11 +13,11 @@ Distinguishes between user and group principals in ACL management
 
 @ref Story-4.2 - ACL principal type enum
  */
-export type AdPrincipalType = typeof AdPrincipalType[keyof typeof AdPrincipalType];
-
+export type AdPrincipalType =
+  (typeof AdPrincipalType)[keyof typeof AdPrincipalType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const AdPrincipalType = {
-  user: 'user',
-  group: 'group',
+  user: "user",
+  group: "group",
 } as const;

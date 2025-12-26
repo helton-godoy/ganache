@@ -6,26 +6,26 @@
  */
 
 export type GetConfigHistoryParams = {
-/**
- * Maximum number of commits to return (default: 50, max: 200)
- * @minimum 0
- */
-limit?: number;
-/**
- * Number of commits to skip for pagination
- * @minimum 0
- */
-offset?: number;
-/**
- * Filter commits by author name
- */
-author_filter?: string | null;
-/**
- * Filter commits from this date (ISO 8601)
- */
-date_from?: string | null;
-/**
- * Filter commits until this date (ISO 8601)
- */
-date_to?: string | null;
+  /**
+   * Maximum number of commits to return (default: 50, max: 200)
+   * @minimum 0
+   */
+  limit?: number;
+  /**
+   * Number of commits to skip for pagination
+   * @minimum 0
+   */
+  offset?: number;
+  /**
+   * Filter commits by author name
+   */
+  author_filter?: string | null;
+  /**
+   * Filter commits from this date (ISO 8601)
+   */
+  date_from?: string | null;
+  /**
+   * Filter commits until this date (ISO 8601)
+   */
+  date_to?: string | null;
 };

@@ -4,7 +4,7 @@
  * ganache-core
  * OpenAPI spec version: 0.1.0
  */
-import type { Nfs4Ace } from './nfs4Ace';
+import type { Nfs4Ace } from "./nfs4Ace";
 
 /**
  * Complete ACL for a file or directory

@@ -34,7 +34,7 @@ Command::new("ip").args(&["addr", "add", "192.168.1.100/24", "dev", "eth0"])
 
 - The failover will **fail** on any machine where the interface is not `eth0`.
 - The VIP `192.168.1.100` is arbitrary and will cause IP conflicts or routing issues on user networks.
-**Recommendation:** These values must be configurable via `ClusterConfig` or at least derived from the system state.
+  **Recommendation:** These values must be configurable via `ClusterConfig` or at least derived from the system state.
 
 ### 3. Hardcoded DRBD Resource
 
@@ -57,6 +57,6 @@ Command::new("ip").args(&["addr", "add", "192.168.1.100/24", "dev", "eth0"])
 
 1. **Refactor** `cluster.rs` to accept VIP and Interface as config parameters.
 2. **Rewrite** the E2E strategy. If CI cannot support real root-level network commands:
-   - Create an Integration Test in Rust that mocks the *Syscalls* (Command execution) but verifies the *Sequence* and *Timing* logic.
+   - Create an Integration Test in Rust that mocks the _Syscalls_ (Command execution) but verifies the _Sequence_ and _Timing_ logic.
    - OR, mark E2E as "Manual Verification Required" and provide a script.
    - **Do not** claim automated verification of downtime with a React mock.

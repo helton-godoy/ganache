@@ -4,12 +4,14 @@ auto_execution_mode: 1
 ---
 
 # Quick-Flow: Create Tech-Spec
+
 name: create-tech-spec
 description: "Conversational spec engineering - ask questions, investigate code, produce implementation-ready tech-spec."
 author: "BMad"
 
 # Config
-config_source: "{project-root}/_bmad/bmm/config.yaml"
+
+config_source: "{project-root}/\_bmad/bmm/config.yaml"
 output_folder: "{config_source}:output_folder"
 sprint_artifacts: "{config_source}:sprint_artifacts"
 user_name: "{config_source}:user_name"
@@ -19,12 +21,14 @@ user_skill_level: "{config_source}:user_skill_level"
 date: system-generated
 
 # Workflow components
-installed_path: "{project-root}/_bmad/bmm/workflows/bmad-quick-flow/create-tech-spec"
+
+installed_path: "{project-root}/\_bmad/bmm/workflows/bmad-quick-flow/create-tech-spec"
 instructions: "{installed_path}/instructions.md"
 
 # Related workflows
-quick_dev_workflow: "{project-root}/_bmad/bmm/workflows/bmad-quick-flow/quick-dev/workflow.yaml"
-party_mode_exec: "{project-root}/_bmad/core/workflows/party-mode/workflow.md"
-advanced_elicitation: "{project-root}/_bmad/core/tasks/advanced-elicitation.xml"
+
+quick_dev_workflow: "{project-root}/\_bmad/bmm/workflows/bmad-quick-flow/quick-dev/workflow.yaml"
+party_mode_exec: "{project-root}/\_bmad/core/workflows/party-mode/workflow.md"
+advanced_elicitation: "{project-root}/\_bmad/core/tasks/advanced-elicitation.xml"
 
 standalone: true

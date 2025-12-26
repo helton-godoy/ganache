@@ -1,22 +1,22 @@
 ---
-name: 'step-05-domain'
-description: 'Explore domain-specific requirements for complex domains (optional step)'
+name: "step-05-domain"
+description: "Explore domain-specific requirements for complex domains (optional step)"
 
 # Path Definitions
-workflow_path: '{project-root}/_bmad/bmm/workflows/2-plan-workflows/prd'
+workflow_path: "{project-root}/_bmad/bmm/workflows/2-plan-workflows/prd"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-05-domain.md'
-nextStepFile: '{workflow_path}/steps/step-06-innovation.md'
-workflowFile: '{workflow_path}/workflow.md'
-outputFile: '{output_folder}/prd.md'
+thisStepFile: "{workflow_path}/steps/step-05-domain.md"
+nextStepFile: "{workflow_path}/steps/step-06-innovation.md"
+workflowFile: "{workflow_path}/workflow.md"
+outputFile: "{output_folder}/prd.md"
 
 # Data Files
-domainComplexityCSV: '{workflow_path}/domain-complexity.csv'
+domainComplexityCSV: "{workflow_path}/domain-complexity.csv"
 
 # Task References
-advancedElicitationTask: '{project-root}/_bmad/core/tasks/advanced-elicitation.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+advancedElicitationTask: "{project-root}/_bmad/core/tasks/advanced-elicitation.xml"
+partyModeWorkflow: "{project-root}/_bmad/core/workflows/party-mode/workflow.md"
 ---
 
 # Step 5: Domain-Specific Exploration

@@ -22,22 +22,22 @@ Diferente de um NAS genérico, ele é projetado para operar em **Hardware Legado
 
 ### ADR-001: Backend em Rust (Proxmox Fork)
 
-* **Decisão:** Utilizar Rust e o ecossistema `proxmox-backup` como base.
-* **Motivo:** Segurança de memória, performance e tipagem estrita para lógica crítica de cluster.
-* **Consequência:** A curva de aprendizado é maior, mas eliminamos classes inteiras de bugs de runtime.
+- **Decisão:** Utilizar Rust e o ecossistema `proxmox-backup` como base.
+- **Motivo:** Segurança de memória, performance e tipagem estrita para lógica crítica de cluster.
+- **Consequência:** A curva de aprendizado é maior, mas eliminamos classes inteiras de bugs de runtime.
 
 ### ADR-002: Abstração de Armazenamento (Strategy Pattern)
 
-* **Contexto:** O hardware alvo inicial (Dell 2950/PERC 6i) não suporta HBA/JBOD, impedindo ZFS nativo.
-* **Decisão:** Criar uma `StorageTrait` em Rust com duas implementações:
-    1. **LegacyHA (Default):** Orquestra DRBD 9 + Pacemaker + ZFS (sobre `/dev/drbd0`).
-    2. **NativeZFS (Future):** Stub para `zpool` direto em hardware moderno.
-* **Benefício:** Permite instalar o Ganache em hardware legado hoje e migrar para hardware moderno no futuro sem reescrever o Frontend ou a API.
+- **Contexto:** O hardware alvo inicial (Dell 2950/PERC 6i) não suporta HBA/JBOD, impedindo ZFS nativo.
+- **Decisão:** Criar uma `StorageTrait` em Rust com duas implementações:
+  1. **LegacyHA (Default):** Orquestra DRBD 9 + Pacemaker + ZFS (sobre `/dev/drbd0`).
+  2. **NativeZFS (Future):** Stub para `zpool` direto em hardware moderno.
+- **Benefício:** Permite instalar o Ganache em hardware legado hoje e migrar para hardware moderno no futuro sem reescrever o Frontend ou a API.
 
 ### ADR-003: Integração "TrueNAS-Like"
 
-* **Decisão:** Mimetizar a lógica de configuração SMB/NFS do TrueNAS Scale.
-* **Implementação:** O backend Rust deve aplicar as flags `vfs objects = acl_xattr`, `map acl inherit = yes` para garantir compatibilidade total com ACLs Windows, conforme engenharia reversa do `smb.py` do TrueNAS.
+- **Decisão:** Mimetizar a lógica de configuração SMB/NFS do TrueNAS Scale.
+- **Implementação:** O backend Rust deve aplicar as flags `vfs objects = acl_xattr`, `map acl inherit = yes` para garantir compatibilidade total com ACLs Windows, conforme engenharia reversa do `smb.py` do TrueNAS.
 
 ---
 
@@ -62,13 +62,13 @@ graph TD
         APIGateway[Ganache API Daemon]:::rust
         Controller[Storage Controller]:::rust
         Abstraction{Storage Trait}:::rust
-        
+
         subgraph Implementation_Legacy
             LegacyDriver[Legacy HA Driver]:::legacy
             Pacemaker[Pacemaker/Corosync]:::legacy
             DRBD_Tool[drbdadm CLI]:::legacy
         end
-        
+
         subgraph Implementation_Native
             NativeDriver[Native ZFS Driver]:::rust
             ZFS_Tool[zpool CLI]:::rust
@@ -86,16 +86,16 @@ graph TD
     API_Spec --> APIGateway
     APIGateway --> Controller
     Controller --> Abstraction
-    
+
     Abstraction -->|Selects| LegacyDriver
     Abstraction -.->|Future| NativeDriver
-    
+
     LegacyDriver --> Pacemaker
     Pacemaker --> DRBD_Tool
     DRBD_Tool --> Kernel
-    
+
     NativeDriver -.-> ZFS_Tool
-    
+
     Kernel --> BlockDev
 ```
 

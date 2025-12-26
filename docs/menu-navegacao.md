@@ -56,7 +56,7 @@
 - [🔍 História 5.1: Deep SSH Audit](docs/sprint-artifacts/5-1-deep-ssh-audit.md)
 - [👁️ História 5.2: Visual Audit Manager](docs/sprint-artifacts/5-2-visual-audit-manager.md)
 - [🚨 História 5.3: Break-Glass Admin](docs/sprint-artifacts/5-3-break-glass-admin.md)
-- [📊 **História 5.4: Dashboard de Monitoramento de Segurança em Tempo Real**](docs/sprint-artifacts/5-4-real-time-security-monitoring-dashboard.md) *(Ativo)*
+- [📊 **História 5.4: Dashboard de Monitoramento de Segurança em Tempo Real**](docs/sprint-artifacts/5-4-real-time-security-monitoring-dashboard.md) _(Ativo)_
 
 ### 🔍 Visualização e Prototipagem
 
@@ -175,4 +175,4 @@ Dashboard em tempo real para consolidação de eventos de segurança do sistema,
 
 ---
 
-*Última atualização: 2025-12-21T15:08:33.239Z*
+_Última atualização: 2025-12-21T15:08:33.239Z_

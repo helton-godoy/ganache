@@ -192,7 +192,7 @@ x-ai/grok-code-fast-1
 
 - Configuration changes committed with format: "feat(config): [action] [resource] by [user]"
 - Includes username and timestamp in commit messages
-- Files changed: /etc/ganache/*, database entries tracked via git
+- Files changed: /etc/ganache/\*, database entries tracked via git
 
 **Code Patterns Established:**
 

@@ -122,7 +122,7 @@ development_status:
       blocks: 6-6-automated-documentation-generation
       blocked_by: Nenhuma
       shared_components: tests/ssr/, jest.ssr.config.js
-  6-5-troubleshooting-guide-for-audit-features:
+  6-5-audit-troubleshooting-guide:
     name: Troubleshooting Guide for Audit Features
     status: done
     scrum_master_notes: "✅ COMPLETADO (2025-12-24). Guia de Troubleshooting para Auditoria implementado. Code Review Adversarial executado: 8 issues encontrados (1 CRITICAL, 4 MEDIUM, 3 LOW) e corrigidos automaticamente. Correções incluem: links relativos, seção de validação, teste robusto com regex. Teste passando 100%."

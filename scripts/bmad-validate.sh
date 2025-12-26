@@ -108,15 +108,25 @@ fi
 echo -e "\n\n=== 6. Contextos de História ==================================================="
 if [ -f "$SPRINT_STATUS" ]; then
     # Extrair IDs e Status do YAML (Suporta os dois formatos presentes no Ganache)
-    # 1. Chave direta: "2-3-90-hard-quota-enforcement: ready-for-dev"
-    # 2. Lista estruturada: "- id: \"2-1...\" \n status: \"done\""
+    # 1. Chave direta: "3-1-git-backed-configuration-engine: done"
+    # 2. Objeto aninhado: "5-1-deep-ssh-audit-logging:\n    status: done"
+    # 3. Lista estruturada: "- id: \"2-1...\" \n status: \"done\""
 
-    # Processar formato chave direta (usando process substitution para evitar subshell)
+    # Processar formato chave direta e aninhado (usando process substitution para evitar subshell)
     while read -r line; do
         ID=$(echo "$line" | awk -F':' '{print $1}' | tr -d ' ')
-        [[ $ID == "generated" || $ID == "id" || $ID == "status" ]] && continue
+        [[ $ID == "generated" || $ID == "id" || $ID == "status" || $ID == "stories" ]] && continue
+        [[ $ID == *"epic-"* || $ID == *"retrospective"* ]] && continue
 
+        # Tentar extrair status direto da linha (formato: "ID: status")
         YAML_STATUS=$(echo "$line" | awk -F': ' '{print $2}' | tr -d '" ')
+        
+        # Se vazio, é formato aninhado - buscar "status:" nas próximas linhas
+        if [ -z "$YAML_STATUS" ]; then
+            YAML_STATUS=$(grep -A 5 "^  ${ID}:" "$SPRINT_STATUS" | grep "status:" | head -1 | awk -F': ' '{print $2}' | tr -d '" ')
+        fi
+        
+        [ -z "$YAML_STATUS" ] && continue
         [ "$YAML_STATUS" == "backlog" ] && continue
 
         # shellcheck disable=SC2086

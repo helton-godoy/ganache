@@ -2,7 +2,7 @@
 title: "História 5.3: Break-Glass Emergency Admin"
 epic: "Epic 5: Compliance Shield"
 story_id: "5-3"
-status: "done"
+status: done
 priority: "P1"
 story_points: 13
 created_date: "2025-12-23"
